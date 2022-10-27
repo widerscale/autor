@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "autor"
+version = "0.1.0"
+description = "CI/CD-friendly atuomation framework for developing and running configurable and reusable activities."
+authors = ["doWhile <code@dowhile.se>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+Sphinx = "^4.1.1"
+black = "^21.7b0"
+pytest-cov = "^2.12.1"
+flake8 = "^3.9.2"
+mypy = "^0.910"
+isort = "^5.9.2"
+pre-commit = "^2.13.0"
+pydantic = "^1.8.2"
+myst-parser = "^0.15.1"
+sphinx-rtd-theme = "^0.5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 79
+
+[tool.black]
+line-length = 79
+target-version = ['py39']
