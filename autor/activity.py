@@ -15,15 +15,21 @@ import abc
 import logging
 from typing import Dict, List
 
-from autor.flow_configuration.activity_configuration import ActivityConfiguration
+from autor.flow_configuration.activity_configuration import (
+    ActivityConfiguration,
+)
 from autor.framework.activity_block_callback import ActivityBlockCallback
 from autor.framework.activity_context import ActivityContext
 from autor.framework.activity_data import ActivityData
-from autor.framework.autor_framework_exception import AutorFrameworkValueException
+from autor.framework.autor_framework_exception import (
+    AutorFrameworkValueException,
+)
 from autor.framework.check import Check
 from autor.framework.constants import Status
 from autor.framework.context_properties_handler import ContextPropertiesHandler
-from autor.framework.context_properties_registry import ContextPropertiesRegistry
+from autor.framework.context_properties_registry import (
+    ContextPropertiesRegistry,
+)
 
 output = ContextPropertiesRegistry.output
 # pylint: disable-next=redefined-builtin

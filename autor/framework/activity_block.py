@@ -20,8 +20,10 @@ import logging
 import uuid
 from urllib.request import url2pathname
 
-from autor.flow_configuration.flow_configuration_factory import load_flow_configuration
 from autor.flow_configuration.flow_configuration import FlowConfiguration
+from autor.flow_configuration.flow_configuration_factory import (
+    load_flow_configuration,
+)
 from autor.framework.activity_block_rules import ActivityBlockRules
 from autor.framework.activity_context import ActivityContext
 from autor.framework.activity_data import ActivityData

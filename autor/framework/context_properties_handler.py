@@ -14,12 +14,14 @@
 
 from typing import List
 
-from autor.framework.key_handler import KeyHandler
 from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.check import Check
 from autor.framework.context import Context
-from autor.framework.context_properties_registry import ContextPropertiesRegistry
+from autor.framework.context_properties_registry import (
+    ContextPropertiesRegistry,
+)
 from autor.framework.context_property import ContextProperty
+from autor.framework.key_handler import KeyHandler
 from autor.framework.keys import ClassPropertiesKeys as prp
 from autor.framework.keys import FlowContextKeys as ctx
 
