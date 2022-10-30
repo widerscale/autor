@@ -11,13 +11,14 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-"""
-TODO: Great documentation
-"""
-# from .module import Thing
+class AutorFrameworkException(Exception):
+    """Exception for all framework errors"""
 
-__all__ = [
-    # "some_module"
-]
 
-__version__ = "0.0.1"
+class AutorFrameworkValueException(AutorFrameworkException):
+    """Exception for errors detected in the framework caused by incorrect usage \
+        of the framework by a user"""
+
+
+class AutorFrameworkNotImplementedException(AutorFrameworkException):
+    """Exception for errors due to missing implementation in Autor"""

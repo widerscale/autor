@@ -11,13 +11,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-"""
-TODO: Great documentation
-"""
-# from .module import Thing
+class AutorExtensionException(Exception):
+    """Exception for all autor extension errors"""
 
-__all__ = [
-    # "some_module"
-]
 
-__version__ = "0.0.1"
+class AutorTestExtensionException(AutorExtensionException):
+    """Exception for all extensions that are used for testing Autor"""
