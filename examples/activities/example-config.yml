@@ -1,0 +1,215 @@
+---
+flowId: example-flow
+
+#   E X T E N S I O N S
+#######################
+extensions:
+  #- activities.extensions.PrintStateName
+  - activities.extensions.PrintFrameworkEndState
+  #- activities.extensions.AddFileContext
+  #- activities.extensions.AddCacheDBContext
+
+#   M O D U L E S
+#################
+activityModules:
+  - activities
+
+#   H E L P E R S
+##################
+helpers:
+  oneHelper:
+    volume: 13
+  twoHelper:
+    frequency: 155
+  resourcerHelper:
+    allocationStatusPollSeconds: 30
+
+#   A C T I V I T Y   B L O C K S
+#################################
+activityBlocks:
+  example-block:
+    activities:
+      - type: EXAMPLE
+      - type: EXAMPLE
+      - type: EXAMPLE
+
+  block-with-worker:
+    worker:
+      resourceSetCapabilities:
+        - capA
+        - capB
+    activities:
+      - type: EXAMPLE
+
+  print-state-name-extension-example:
+    activities:
+      - type: EXAMPLE
+      - type: EXAMPLE
+
+  print-properties-example:
+    activities:
+      - type: PRINT
+        configuration:
+          param1: Hello
+          param2: World
+      - type: PRINT
+        name: Second activity
+        configuration:
+          holidays:
+            - Saturday
+            - Sunday
+      - type: PRINT
+
+  full-flow-example:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: EMPTY
+          name: BB1
+        - type: EMPTY
+          name: BB2
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+        - type: EMPTY
+          name: BA1
+        - type: EMPTY
+          name: BA2
+
+    activities: # main activities
+      - type: EMPTY
+        name: A1
+      - type: EMPTY
+        name: A2
+      - type: EMPTY
+        name: A3
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: EMPTY
+          name: AA1
+        - type: EMPTY
+          name: AA2
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: EMPTY
+          name: AB1
+        - type: EMPTY
+          name: AB2
+
+  callback-example:
+    activities:
+      - type: CALLBACK
+        configuration:
+          status: SUCCESS
+      - type: CALLBACK
+        configuration:
+          status: SKIPPED
+      - type: CALLBACK
+        configuration:
+          status: FAIL
+
+  status-example:
+    activities:
+      - type: SKIPPED
+      - type: SUCCESS
+      - type: ERROR
+
+  output-and-input-example:
+    activities:
+      - type: OUTPUT
+      - type: INPUT
+
+  input-output-example:
+    activities:
+      - type: INPUT_OUTPUT
+        configuration:
+          myScore: 1
+      - type: INPUT_OUTPUT
+        configuration:
+          myScore: 3
+      - type: INPUT_OUTPUT
+        configuration:
+          myScore: 2
+
+  config-example:
+    activities:
+      - type: CONFIGURABLE
+        configuration:
+          name: Alice
+          message: Hello!
+      - type: CONFIGURABLE
+        configuration:
+          name: Bob
+
+  type-example:
+    activities:
+      - type: TYPE 1
+      - type: TYPE 2
+
+  #flow_id: example-flow
+
+  #activityBlocks:
+
+  example-blockdd:
+    activities:
+      - type: EXAMPLE
+        configuration:
+          greeting: Hello World!
+
+      - type: EXAMPLE
+        name: HEJ
+        configuration:
+          greeting: Good morning World!
+
+      - type: EXAMPLE
+        configuration:
+          greeting: Good night World!
+
+  example-blockJJJ:
+    beforeBlock:
+      activities:
+        - activityType: EXAMPLE
+        - activityType: EXAMPLE
+          name: Hõej
+        - activityType: EXAMPLE
+    beforeActivity:
+      activities:
+        - activityType: EXAMPLE
+        - activityType: EXAMPLE
+          name: Piret
+        - activityType: EXAMPLE
+
+    activities:
+      - activityType: EXAMPLE
+      - activityType: EXAMPLE
+        name: Jeerik
+      - activityType: EXAMPLE
+
+    afterActivity:
+      activities:
+        - activityType: EXAMPLE
+        - activityType: EXAMPLE
+          name: måstje
+        - activityType: EXAMPLE
+
+    afterBlock:
+      activities:
+        - activityType: EXAMPLE
+        - activityType: EXAMPLE
+          name: måstje intje
+        - activityType: EXAMPLE
+
+  example-block3:
+    activities:
+      - activityType: EXAMPLE
+        configuration:
+          greeting: Hello World!
+
+      - activityType: EXAMPLE
+        configuration:
+          greeting: Good morning World!
+
+      - activityType: EXAMPLE
+        configuration:
+          greeting: Good night World!
