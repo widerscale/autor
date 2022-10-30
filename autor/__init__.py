@@ -13,4 +13,6 @@
 #    under the License.
 """Autor activity automation framework."""
 
+from autor.activity import Activity
+
 __version__ = "0.1.0"

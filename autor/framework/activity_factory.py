@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.from autor.framework.activity import Activity
 from autor.framework.activity_registry import ActivityRegistry
-
+from autor import Activity
 
 class ActivityFactory:
     """

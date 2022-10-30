@@ -62,7 +62,7 @@ class ActivityRunner:
 
     def _preprocess(self):
         try:
-            self._data.activity = Activity()  # Default value in case the activity creation fails
+            # self._data.activity = Activity()  # Default value in case the activity creation fails
 
             # ----------------------------------------------------------------#
             StateHandler.change_state(State.BEFORE_ACTIVITY_PREPROCESS)
@@ -166,6 +166,7 @@ class ActivityRunner:
         try:
             self._data.activity = ActivityFactory.create(self._data.activity_type)
         except Exception as e:
+            # TODO: This probably doesn't work, can't instantiate an abstract class.
             self._data.activity = (
                 Activity()
             )  # If activity creation failed, create an activity scale.

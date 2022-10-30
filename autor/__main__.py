@@ -12,7 +12,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 from autor.framework.autor_runner import run
+import logging
 
 if __name__ == "__main__":
     # Run the activity block
+    logging.basicConfig(level=logging.DEBUG)
     run()

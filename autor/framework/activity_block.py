@@ -212,7 +212,8 @@ class ActivityBlock(StateProducer):
             self._flow_id = self._flow_config.flow_id
 
             # Read helpers configurations.
-            self._initiate_helpers_framework(self._flow_config)
+            # TODO: Re-work
+            # self._initiate_helpers_framework(self._flow_config)
             # Create extension classes.
             self._register_extensions(self._flow_config)
             # Load activity classes and make them discorverable.
