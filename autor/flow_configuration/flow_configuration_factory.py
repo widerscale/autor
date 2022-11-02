@@ -11,13 +11,12 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-"""
-TODO: Great documentation
-"""
-# from .module import Thing
+import yaml
 
-__all__ = [
-    # "some_module"
-]
+from autor.flow_configuration.flow_configuration import FlowConfiguration
 
-__version__ = "0.0.1"
+
+def load_flow_configuration(path: str) -> FlowConfiguration:
+    with open(path, "r", encoding="utf-8") as _file:
+        configuration_dict = yaml.load(_file.read(), Loader=yaml.FullLoader)
+        return FlowConfiguration(configuration_dict)

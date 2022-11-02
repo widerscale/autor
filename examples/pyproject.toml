@@ -1,0 +1,12 @@
+[tool.poetry]
+name = "activities"
+version = "0.1.0"
+description = "Example activities for Autor."
+authors = ["doWhile <code@dowhile.se>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[build-system]
+requires = ["poetry-core>=1.2.0"]
+build-backend = "poetry.core.masonry.api"

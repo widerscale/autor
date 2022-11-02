@@ -11,13 +11,19 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-"""
-TODO: Great documentation
-"""
-# from .module import Thing
+from .configurable import Configurable
 
-__all__ = [
-    # "some_module"
-]
 
-__version__ = "0.0.1"
+class FunctionConfiguration(Configurable):
+    def __init__(
+        self,
+        name,
+        configuration_dict: dict,
+        activity_configuration: dict,
+        activity_dummy_configuration,
+    ):
+        super().__init__(
+            name, configuration_dict, activity_configuration, activity_dummy_configuration
+        )
+        # pylint: disable-next=unused-private-member
+        self.__configuration_dict = configuration_dict

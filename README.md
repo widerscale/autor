@@ -1,2 +1,2 @@
-# autor
-Continous-Delivery-flow-friendly automation framework
+# Autor
+Continuous-Delivery-flow-friendly automation framework

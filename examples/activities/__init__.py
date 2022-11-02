@@ -15,6 +15,7 @@
 TODO: Great documentation
 """
 # from .module import Thing
+import activities.example_activities
 
 __all__ = [
     # "some_module"

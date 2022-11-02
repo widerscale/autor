@@ -11,13 +11,16 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-"""
-TODO: Great documentation
-"""
-# from .module import Thing
+import abc
 
-__all__ = [
-    # "some_module"
-]
 
-__version__ = "0.0.1"
+class StateProducer:
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def on_before_state(self, state_name, state_data: dict) -> None:
+        pass
+
+    @abc.abstractmethod
+    def on_after_state(self, state_name, state_data: dict) -> None:
+        pass

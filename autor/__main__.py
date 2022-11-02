@@ -11,13 +11,10 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-"""
-TODO: Great documentation
-"""
-# from .module import Thing
+from autor.framework.autor_runner import run
+import logging
 
-__all__ = [
-    # "some_module"
-]
-
-__version__ = "0.0.1"
+if __name__ == "__main__":
+    # Run the activity block
+    logging.basicConfig(level=logging.DEBUG)
+    run()
