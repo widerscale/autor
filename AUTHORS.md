@@ -2,7 +2,7 @@ Contributors to Autor
 =====================
 
 <p align="center">
-  <img src="https://contributors-img.web.app/image?repo=widerscale/autor" width = 500/>
+  <img src="https://contributors-img.web.app/image?repo=widerscale/autor" width = 200/>
 </p>
 
 Maintainers (sorted alphabetically)
