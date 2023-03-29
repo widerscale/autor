@@ -5,7 +5,7 @@ description = "CI/CD-friendly atuomation framework for developing and running co
 authors = ["doWhile <code@dowhile.se>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.11"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -33,4 +33,4 @@ line_length = 79
 
 [tool.black]
 line-length = 79
-target-version = ['py39']
+target-version = ['py311']

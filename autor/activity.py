@@ -205,11 +205,6 @@ class Activity(abc.ABC):
     @property
     def activity_block_callbacks(self) -> List[ActivityBlockCallback]:
         return self.__activity_block_callbacks
-        # newlist = list(self.__activity_block_callbacks)
-        # return newlist
-
-    # def add_activity_block_callback(self, callback:ActivityBlockCallback)->None:
-    #    self._register_activity_block_callback(callback)
 
     @abc.abstractmethod
     def run(self):
