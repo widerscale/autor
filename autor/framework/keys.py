@@ -87,19 +87,23 @@ keys = [
     "ACTIVITY_SKIP_REQUESTED",
     "ACTIVITY_STATUS",
     "ACTIVITY_TYPE",
+    "ADDITIONAL_EXTENSIONS",
     "AFTER_ACTIVITY",
     "AFTER_BLOCK",
     "ARTIFACT_URL",
     "BASELINE_HANDLE",
     "BEFORE_ACTIVITY",
     "BEFORE_BLOCK",
+    "BOOTSTRAP",
     "CALLBACK_CLASS",
     "CALLBACK_EXCEPTIONS",
     "CLASS",
     "CONTEXT",
     "CONTINUE_ON",
     "CUSTOM",
+    "CUSTOM_DATA",
     "CREDENTIALS_STORE_USER_ID",
+    "DBG_EXTENSION_TEST_STR",
     "DEALLOCATION_NEEDED",
     "DESCRIPTION",
     "DETAILED_ACTIVITY_STATUS",
@@ -188,7 +192,7 @@ class ClassPropertiesKeys(Keys):
 
 
 class StateKeys(Keys):
-    format = KeyFormat.CAMEL
+    format = KeyFormat.UCU
     keys = keys
 
 

@@ -57,7 +57,7 @@ class ContextPropertiesHandler:
             object,
             (
                 "Mandatory parameter None - "
-                + "An object whos properties need to be read/written may not be None."
+                + "An object whose properties need to be read/written may not be None."
             ),
         )
         self._object = object

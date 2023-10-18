@@ -14,7 +14,19 @@
 from autor.framework.autor_runner import run
 import logging
 
+from autor.framework.logging_config import LoggingConfig
+
 if __name__ == "__main__":
+    LoggingConfig.activate_framework_logging()
     # Run the activity block
-    logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG, format="%(levelname)8s: %(message)s")
+    #
+    #
+    # for handler in logging.root.handlers[:]:
+    #     logging.root.removeHandler(handler)
+    # logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+
+    #logging.basicConfig(level=logging.DEBUG, format="%(levelname)-8s %(message)s")
+    #logging.basicConfig(level=logging.DEBUG, format="%(module)-15s %(lineno)-5s %(levelname)-8s %(message)s")
+
     run()

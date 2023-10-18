@@ -21,6 +21,7 @@ from autor.framework.constants import Action, ExceptionType, SkipType, Status
 from autor.framework.context_properties_handler import ContextPropertiesHandler
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import FlowContextKeys as ctx
+from autor.framework.logging_config import LoggingConfig
 from autor.framework.state_handler import StateHandler
 from autor.framework.state_listener import State
 from autor.framework.util import Util
@@ -94,15 +95,16 @@ class ActivityRunner:
                 # ----------------------------------------------------------------#
                 StateHandler.change_state(State.BEFORE_ACTIVITY_RUN)
                 # ----------------------------------------------------------------#
-                self._print("running activity...")
-                logging.info(
-                    "===== Running activity '%s' of type '%s' =====",
-                    self._data.activity_name,
-                    self._data.activity_type,
-                )
+                logging.info(f'{DebugConfig.autor_info_prefix}')
+                logging.info(f'{DebugConfig.autor_info_prefix}========> Activity started.  Name:{self._data.activity_name}, Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__} ========>')
+                LoggingConfig.activate_activity_logging()
+                self._data.activity.print()
                 self._data.activity.run()
+                LoggingConfig.activate_framework_logging()
+                logging.info(f'{DebugConfig.autor_info_prefix}<======== Activity finished. Name:{self._data.activity_name}, Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__} <========')
 
             except Exception as e:
+                LoggingConfig.activate_framework_logging()
                 logging.warning(
                     f"Exception caught during activity run: {e.__class__.__name__}: {str(e)}"
                 )
@@ -123,10 +125,12 @@ class ActivityRunner:
 
     def _postprocess(self):
         try:
-            self._print("PRELIMINARY ACTIVITY STATUS: " + self._data.activity.status)
+            self._print("PRELIMINARY activity status: " + self._data.activity.status)
             # See rules: https://jira-dowhile.atlassian.net/l/c/zy6Q0oJ8
             self._adjust_activity_status()
-            self._print("FINAL ACTIVITY STATUS: " + self._data.activity.status)
+            logging.info(f'{DebugConfig.autor_info_prefix}Activity status: {self._data.activity.status}')
+            logging.info(DebugConfig.autor_info_prefix)
+
 
             # Add more data to the activity context.
             self._update_activity_context()
@@ -227,6 +231,10 @@ class ActivityRunner:
         context.set(ctx.ACTION, action)
 
     def _adjust_activity_status(self):
+        # If an activity statys is UNKNOWN then it can mean either that
+        # - an exception occurred and the activity did not manage to set the status OR
+        # - an activity was successful, but did not explicitly set the status (in that case the default status is SUCCESS)
+        #
         if self._data.activity.status == Status.UNKNOWN:
             if self._activity_run_exception_occurred:
                 self._data.activity.status = Status.ERROR

@@ -24,6 +24,7 @@ class KeyFormat:
     LCD = "lower-case-dash"
     SNAKE = "snake_case"
     CAMEL = "camelCase"
+    PASCAL = "PascalCase"
 
 
 # __________________ U T I L I T I E S ____________________#
@@ -62,6 +63,13 @@ class KeyConverter:
         # example_key -> exampleKey
         key = KeyConverter.SNAKE_to_UCU(key)
         key = KeyConverter.UCU_to_CAMEL(key)
+        return key
+
+    @staticmethod
+    def UCU_to_PASCAL(key):
+        # EXAMPLE_KEY -> ExampleKey
+        key = KeyConverter.UCU_to_SNAKE(key)
+        key = ''.join(x.title() for x in key.split('_'))
         return key
 
 

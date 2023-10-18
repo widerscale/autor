@@ -83,8 +83,8 @@ class ActivityRegistry:
                     existing_activity = ActivityRegistry.activities[type]
                     raise AutorFrameworkValueException(
                         (
-                            f"An attempt to register an activity:{cls.__name__} with a type:{type}"
-                            + " while the type already exists in registry"
+                            f"An attempt to register an activity:{cls.__name__} with type:{type}"
+                            + " while the type already exists in the registry"
                             + f" for activity: {existing_activity.__name__}."
                         )
                     )

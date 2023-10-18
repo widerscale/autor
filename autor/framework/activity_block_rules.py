@@ -717,8 +717,9 @@ class ActivityBlockRules:
                 new_block_status = activity_status
 
         self._print("(block-status) ---------> new_block_status = " + str(new_block_status))
-        self._print_state_transition(activity, current_block_status, new_block_status)
+        #self._print_state_transition(activity, current_block_status, new_block_status)
         return new_block_status
+
 
     def _print_state_transition(self, activity, current_block_status, new_block_status):
 
@@ -767,11 +768,11 @@ class ActivityBlockRules:
             + new_block_status
         )
 
+
+
+
     # pylint: disable-next=no-self-use
     def _print(self, text):
         if DebugConfig.trace_activity_sequence_decisions:
-            logging.debug(
-                "'%s' '%s'",
-                DebugConfig.activity_sequence_decisions_trace_prefix,
-                str(text),
-            )
+            logging.debug(f'{DebugConfig.activity_sequence_decisions_trace_prefix}{str(text)}')
+

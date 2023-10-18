@@ -4,15 +4,17 @@ flowId: example-flow
 #   E X T E N S I O N S
 #######################
 extensions:
-  #- activities.extensions.PrintStateName
-  # - activities.extensions.PrintFrameworkEndState
-  - activities.extensions.AddFileContext
-  #- activities.extensions.AddCacheDBContext
+   #- getting_started.extensions.print.PrintHelloInEachState
+   #- getting_started.extensions.print.PrintGoodbyeInEachState
+   - getting_started.extensions.context.AddFileContext
+   #- getting_started.extensions.print.PrintFrameworkEndState
+   #- getting_started.extensions.use_cases.GenerateException
+
 
 #   A C T I V I T Y   M O D U L E S
 ###################################
 activityModules:
-  - activities
+  - getting_started.activities
 
 #   H E L P E R S
 ##################

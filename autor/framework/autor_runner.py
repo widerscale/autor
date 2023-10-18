@@ -24,12 +24,17 @@ def run():
 
     # pylint: disable=no-member
     flow_run_id = params.get(argp.FLOW_RUN_ID, None)
+    additional_extensions = params.get(argp.ADDITIONAL_EXTENSIONS, None)
+    custom_data = params.get(argp.CUSTOM_DATA, None)
+
 
     # Create and run activity block
     activity_block = ActivityBlock(
         flow_config_url=params[argp.FLOW_CONFIG_URL],
         activity_block_id=params[argp.ACTIVITY_BLOCK_ID],
         flow_run_id=flow_run_id,
+        additional_extensions=additional_extensions,
+        custom_data=custom_data
     )
     # pylint: enable=no-member
     activity_block.run()

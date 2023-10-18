@@ -15,6 +15,9 @@ import abc
 import logging
 
 from autor.framework.util import Util
+from autor.framework.keys import StateKeys as sta
+
+from copy import deepcopy
 
 
 # ------------------------------------------------------------------------------#
@@ -28,6 +31,7 @@ class State:
     # ----------------------   S T A T I C  S T A R T  -------------------------#
     # State names
     UNKNOWN = "UNKNOWN"
+    BOOTSTRAP = "BOOTSTRAP"
     FRAMEWORK_START = "FRAMEWORK_START"
     BEFORE_ACTIVITY_BLOCK = "BEFORE_ACTIVITY_BLOCK"
     SELECT_ACTIVITY = "SELECT_ACTIVITY"
@@ -41,7 +45,7 @@ class State:
     ERROR = "ERROR"
 
     # ----------------------   S T A T I C  E N D   --------------------------#
-    # State consturctor. All states have a name.
+    # State constructor. All states have a name.
     def __init__(self, name: str, dict: dict):
         self._dict = dict  # Dictionary containing the raw state.
         self._name = name  # The state name
@@ -60,6 +64,71 @@ class State:
 
 
 # ______________________  S T A T E   C L A S S E S  ___________________________#
+
+
+class Bootstrap(State):
+    """
+    Bootstrap state has very limited access to data. It only contains parameters that can
+    be provided when Autor is first called.
+    """
+    def __init__(self, dict: dict):
+        super().__init__(name=State.BOOTSTRAP, dict=dict)
+
+    #---------------- flow_config_url --------------------#
+    @property
+    def flow_config_url(self) -> str: # getter
+        return self._dict[sta.FLOW_CONFIG_URL]
+
+    @flow_config_url.setter
+    def flow_config_url(self, n:str) -> None:  # setter
+        self._dict[sta.FLOW_CONFIG_URL] = n
+
+
+    # --------------- activity_block_id --------------------#
+    @property
+    def activity_block_id(self) -> str:  # getter
+        return self._dict[sta.ACTIVITY_BLOCK_ID]
+
+    @activity_block_id.setter
+    def activity_block_id(self, n:str) -> None:  # setter
+        self._dict[sta.ACTIVITY_BLOCK_ID] = n
+
+
+    # ------------------ flow_run_id ----------------------#
+    @property
+    def flow_run_id(self) -> str:  # getter
+        return self._dict[sta.FLOW_RUN_ID]
+
+    @flow_run_id.setter
+    def flow_run_id(self, n:str) -> None:  # setter
+        self._dict[sta.FLOW_RUN_ID] = n
+
+
+    # ---------------- activity_name ---------------------#
+    @property
+    def activity_name(self) -> str:  # getter
+        return self._dict[sta.ACTIVITY_NAME]
+
+    @activity_name.setter
+    def activity_name(self, n:str) -> None:  # setter
+        self._dict[sta.ACTIVITY_NAME] = n
+
+
+    # ---------------- custom_data ---------------------#
+    @property
+    def custom_data(self) -> dict:  # getter
+        return deepcopy(self._dict[sta.CUSTOM_DATA])
+
+    @custom_data.setter
+    def custom_data(self, n:dict) -> None:  # setter
+        self._dict[sta.CUSTOM_DATA] = n
+
+
+    # ---------------- bootstrap_extension ---------------------#
+    @property
+    def additional_extensions(self) -> list:  # getter
+        return deepcopy(self._dict[sta.ADDITIONAL_EXTENSIONS])
+
 
 
 class FrameworkStart(State):

@@ -50,10 +50,10 @@ class Context:
 
     # C O N S T A N T S
     # ------------------
-    # A string constant to use for detecting undefined values.
+    # A string constant used as a value for undefined values.
     _UNDEFINED = "_UNDEFINED"
 
-    # Reserved key names for the innter context structure.
+    # String constants that represent internal structure of the Context.
     _ACTIVITY_BLOCKS = "_activityBlocks"
     _ACTIVITIES = "_activities"
 
@@ -71,7 +71,7 @@ class Context:
     # If no remote context is provided, then the information in the context will exist only
     # during the execution.
     #
-    # If remote conext is provided, then it can be used to synchronize the changes in the
+    # If remote context is provided, then it can be used to synchronize the changes in the
     # local context.
     _local_context: dict = {}  # The internal representation of the local context.
     _remote_context: RemoteContext = None  # Remote context that can be added by an extension.
@@ -312,7 +312,7 @@ class Context:
         except AutorFrameworkContextKeyNotFoundException:
             pass
 
-        # No value found on the the activity block level -> try flow level
+        # No value found on the activity block level -> try flow level
         #   (and now with the default value)
         return self._get_from_flow(key=key, default=default)  # with default
 

@@ -12,39 +12,61 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 # fmt:off
+import logging
+
+
 class DebugConfig():
     # A class that helps to switch on/off functionality-specific debug prints in the framework.
     # Useful when debugging the framework.
 
-    # Main flags
-    trace_sequence_details = False
 
-    # Detail falgs
+
+
+
+    # Main flags
+    trace_sequence_details = False # Activates all flags connected to sequence tracing.
+
+    print_final_input = True # Prints the input that Autor has after bootstrapping
+
+
+    print_autor_info = False
+    autor_info_prefix = "[aut]: "
+
+    # Detail flags
     print_selected_activity = False
-    print_context_on_finished = False
+    selected_activity_prefix = "[sel]: "
 
     trace_activity_sequence_decisions = False
-    activity_sequence_decisions_trace_prefix = "[sequence]:            "
+    activity_sequence_decisions_trace_prefix = "[seq]: "
 
     trace_activity_processing = False
-    activity_processing_trace_prefix =         "[activity-processing]: "
+    activity_processing_trace_prefix = "[prc]: "
 
     trace_callbacks = False
-    callbacks_trace_prefix =                   "[callbacks]:           "
+    callbacks_trace_prefix = "[clb]: "
 
     trace_context = False
-    context_trace_prefix =                     "[context]:             "
+    context_trace_prefix = "[ctx]: "
 
-    exit_on_extension_exceptions = False
+    print_calls_to_extensions = False
+    extension_trace_prefix = "[ext]: "
 
     print_state_names = False
-    print_loaded_helper_configurations = False
+    state_prefix = "[sta]: "
+
+    print_context_on_finished = False
+
     print_loaded_extensions = False
     print_loaded_modules = False
     print_registered_exceptions = True
+
+    exit_on_extension_exceptions = False
 
     if trace_sequence_details:
         print_selected_activity = True
         trace_activity_sequence_decisions = True
         trace_activity_processing = True
+
+    if trace_context:
+        print_context_on_finished = True
 # fmt: on

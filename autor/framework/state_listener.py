@@ -12,20 +12,23 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import abc
+import logging
 
+from autor.framework.debug_config import DebugConfig
 from autor.framework.state import (
-    AfterActivityBlock,
-    AfterActivityPostprocess,
-    AfterActivityRun,
+    Bootstrap,
+    FrameworkStart,
     BeforeActivityBlock,
-    BeforeActivityBlockCallbacks,
+    SelectActivity,
     BeforeActivityPreprocess,
     BeforeActivityRun,
-    Error,
+    AfterActivityRun,
+    AfterActivityPostprocess,
+    AfterActivityBlock,
+    BeforeActivityBlockCallbacks,
     FrameworkEnd,
-    FrameworkStart,
-    SelectActivity,
-    State,
+    Error,
+    State
 )
 
 # --------------------------------------------------------------------------#
@@ -34,7 +37,7 @@ from autor.framework.state import (
 
 
 # _______________ S T A T E   L I S T E N E R  _______________#
-# The ineterface that should be implemented by the listeners of the events.
+# The interface that should be implemented by the listeners of the events.
 #
 # Related classes:
 # - StateProducer
@@ -44,7 +47,7 @@ class StateListener:
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def on_state(self, state: State):
+    def on_bootstrap(self, state: Bootstrap):
         pass
 
     @abc.abstractmethod
@@ -90,3 +93,39 @@ class StateListener:
     @abc.abstractmethod
     def on_error(self, state: Error):
         pass
+
+    def log_debug(self, text:str=None):
+        """
+        Recommended logging method for inheriting state listeners. Prints a unique prefix
+        containing the listener name before each print.
+        """
+        logging.debug(f'{DebugConfig.extension_trace_prefix}{self.__class__.__name__}: {text}')
+
+
+    def log_error(self, text:str=None):
+        """
+        Recommended logging method for inheriting state listeners. Prints a unique prefix
+        containing the listener name before each print.
+        """
+        logging.error(f'{DebugConfig.extension_trace_prefix}{self.__class__.__name__}: {text}')
+
+    def log_warning(self, text:str=None):
+        """
+        Recommended logging method for inheriting state listeners. Prints a unique prefix
+        containing the listener name before each print.
+        """
+        logging.warning(f'{DebugConfig.extension_trace_prefix}{self.__class__.__name__}: {text}')
+
+    def log_info(self, text:str=None):
+        """
+        Recommended logging method for inheriting state listeners. Prints a unique prefix
+        containing the listener name before each print.
+        """
+        logging.info(f'{DebugConfig.extension_trace_prefix}{self.__class__.__name__}: {text}')
+
+
+    def log_enter_extension(self):
+        logging.debug(f'--> Extension: {self.__class__.__name__}')
+
+    def log_leave_extension(self):
+        logging.debug(f'<-- Extension: {self.__class__.__name__}')

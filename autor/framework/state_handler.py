@@ -12,15 +12,23 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import logging
+import sys
+
+
+from copy import deepcopy
+from deepdiff import DeepDiff
+from pprint import pprint
 
 from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.constants import ExceptionType
 from autor.framework.debug_config import DebugConfig
-from autor.framework.keys import StateKeys as ste
+from autor.framework.keys import StateKeys as sta
+from autor.framework.key_handler import KeyConverter
 from autor.framework.state import (
     AfterActivityBlock,
     AfterActivityPostprocess,
     AfterActivityRun,
+    Bootstrap,
     BeforeActivityBlock,
     BeforeActivityBlockCallbacks,
     BeforeActivityPreprocess,
@@ -50,12 +58,12 @@ class StateHandler(StateProducer):
 
     _current_state_name: State = State.UNKNOWN
 
-    _listeners = []  # A list of objects who are interested in state change events.
-    _producers = []  # A list of objects who are contirbuting to state data.
+    _listeners = []  # A list of objects that are interested in state change events.
+    _producers = []  # A list of objects that are contributing to state data.
 
     _framework_ended = False
 
-    # _______________ ADMINISTRATION of STATE PRODUCER AND LISTNER LISTS _______________#
+    # _______________ ADMINISTRATION of STATE PRODUCER AND LISTENER LISTS _______________#
     @staticmethod
     def framework_ended():
         return StateHandler._framework_ended
@@ -110,7 +118,7 @@ class StateHandler(StateProducer):
             StateHandler._framework_ended = True
 
         if DebugConfig.print_state_names:
-            Util.print_framed(text=state_name, frame_symbol=":")
+            Util.print_framed(prefix=DebugConfig.state_prefix, text=state_name, frame_symbol=":")
 
         # Dictionary that represents the state date.
         state_data = {}
@@ -121,7 +129,7 @@ class StateHandler(StateProducer):
 
         # ------------ ON-STATE ---------------#
         # Create the state-specific state-object.
-        StateHandler._run_callbacks(state_name, state_data, StateHandler._listeners)
+        StateHandler._run_state_callbacks(state_name, state_data, StateHandler._listeners)
 
         # ---------- ON-AFTER-STATE -----------#
         for producer in StateHandler._producers:
@@ -129,211 +137,72 @@ class StateHandler(StateProducer):
 
         return state_data
 
+
+
+    @staticmethod
+    def _overrides_callback(listener:object, method_name:str):
+
+        listener_callback = getattr(type(listener), method_name, None)
+        base_callback = getattr(StateListener, method_name, None)
+
+        if listener_callback is None:
+            raise AutorFrameworkException(f'Expected to find method: {method_name} in listener: {listener.__name__}, but did not find.')
+        if base_callback is None:
+            raise AutorFrameworkException(f'Expected to find method: {method_name} in base listener: {StateListener.__name__}, but did not find.')
+
+        return listener_callback != base_callback
+
+    @staticmethod
+    def _create_state_object(state_data:dict, class_name:str):
+        state_class = getattr(sys.modules[__name__], class_name)
+        state_object = state_class(state_data)
+        return state_object
+
     @staticmethod
     # pylint: disable=too-many-branches, too-many-statements
-    def _run_callbacks(state_name, state_data, listeners):
+    def _run_state_callbacks(state_name, state_data, listeners):
 
-        state = None
+        # Run state callbacks for all listeners that listen to the given state.
+        # Callback method name and the state class name that is needed for calling the callbacks
+        # are derived from the 'state_name' according to following:
+        #
+        # State name:           EXAMPLE_STATE                       (UPPER_CASE_UNDERSCORE)
+        # Class name:           EXAMPLE_STATE -> ExampleState       (PascalCase)
+        # Callback method name: EXAMPLE_STATE -> on_example_state   (snake_case)
 
-        if state_name == State.FRAMEWORK_START:
-            state = FrameworkStart(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_framework_start(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.BEFORE_ACTIVITY_BLOCK:
-            state = BeforeActivityBlock(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_before_activity_block(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.SELECT_ACTIVITY:
-            state = SelectActivity(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_select_activity(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.BEFORE_ACTIVITY_PREPROCESS:
-            state = BeforeActivityPreprocess(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_before_activity_preprocess(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.BEFORE_ACTIVITY_RUN:
-            state = BeforeActivityRun(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_before_activity_run(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.AFTER_ACTIVITY_RUN:
-            state = AfterActivityRun(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_after_activity_run(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.AFTER_ACTIVITY_POSTPROCESS:
-            state = AfterActivityPostprocess(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_after_activity_postprocess(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.BEFORE_ACTIVITY_BLOCK_CALLBACKS:
-            state = BeforeActivityBlockCallbacks(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_before_activity_block_callbacks(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.AFTER_ACTIVITY_BLOCK:
-            state = AfterActivityBlock(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_after_activity_block(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.FRAMEWORK_END:
-            state = FrameworkEnd(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_framework_end(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        elif state_name == State.ERROR:
-            state = Error(state_data)
-            for listener in listeners:
-                try:
-                    listener.on_error(state)
-                except Exception as e:
-                    Util.register_exception(
-                        ex=e,
-                        description="Extension exception in: {listener.__class__.__name__}",
-                        type=ExceptionType.EXTENSION,
-                        framework_error=False,
-                    )
-
-        else:
-            raise AutorFrameworkException("Unknown state_name: " + str(state_name))
+        state_class_name = KeyConverter.UCU_to_PASCAL(state_name)
+        callback_method_name = f'on_{KeyConverter.UCU_to_SNAKE(state_name)}'
 
         for listener in listeners:
-            try:
-                listener.on_state(state)
-            except Exception as e:
-                Util.register_exception(
-                    ex=e,
-                    description="Extension exception in: {listener.__class__.__name__}",
-                    type=ExceptionType.EXTENSION,
-                    framework_error=False,
-                )
+            is_listening:bool = StateHandler._overrides_callback(listener, callback_method_name)
+            if is_listening:
+                state_object = StateHandler._create_state_object(state_data, state_class_name)
+                callback_method = getattr(listener, callback_method_name)
+
+                if DebugConfig.print_calls_to_extensions:
+                    logging.debug(f'{DebugConfig.extension_trace_prefix}{listener.__class__.__name__}: ENTER {callback_method_name}()')
+
+                #----------------------- Extension run BEGIN -------------------------#
+                try:
+                    callback_method(state_object)
+                except Exception as e:
+                    StateHandler._register_listener_exception(e, state_name, listener)
+                # ----------------------- Extension run END -------------------------#
+
+                if DebugConfig.print_calls_to_extensions:
+                    logging.debug(f'{DebugConfig.extension_trace_prefix}{listener.__class__.__name__}: LEAVE {callback_method_name}()')
+
+
 
     @staticmethod
-    def _create_state(state_name: str, state_data: dict) -> State:
+    def _register_listener_exception(e:Exception, state_name:str, listener:StateListener):
+        Util.register_exception(
+            ex=e,
+            description=f'Extension exception in state: {state_name} in extension: {listener.__class__.__name__}',
+            type=ExceptionType.EXTENSION,
+            framework_error=False,
+        )
 
-        state = None
-
-        if state_name == State.FRAMEWORK_START:
-            state = FrameworkStart(state_data)
-
-        if state_name == State.BEFORE_ACTIVITY_BLOCK:
-            state = BeforeActivityBlock(state_data)
-
-        if state_name == State.SELECT_ACTIVITY:
-            state = SelectActivity(state_data)
-
-        if state_name == State.BEFORE_ACTIVITY_PREPROCESS:
-            state = BeforeActivityPreprocess(state_data)
-
-        if state_name == State.BEFORE_ACTIVITY_RUN:
-            state = BeforeActivityRun(state_data)
-
-        if state_name == State.AFTER_ACTIVITY_RUN:
-            state = AfterActivityRun(state_data)
-
-        if state_name == State.AFTER_ACTIVITY_POSTPROCESS:
-            state = AfterActivityPostprocess(state_data)
-
-        if state_name == State.BEFORE_ACTIVITY_BLOCK_CALLBACKS:
-            state = BeforeActivityBlockCallbacks(state_data)
-
-        if state_name == State.AFTER_ACTIVITY_BLOCK:
-            state = AfterActivityBlock(state_data)
-
-        if state_name == State.FRAMEWORK_END:
-            state = FrameworkEnd(state_data)
-
-        if state_name == State.ERROR:
-            state = Error(state_data)
-
-        if state is None:
-            raise AutorFrameworkException(f"Cannot create state: Unknown state_name: {state_name}")
-
-        return state
 
     # ____________________ PRINT METHODS ________________________#
 
@@ -365,17 +234,17 @@ class StateHandler(StateProducer):
     # ____________________ STATE HANDLER as a STATE PRODUCER ________________________#
 
     # Let the StateHandler add the lists with state producers and listeners
-    # to the state infomration.
+    # to the state information.
 
     def on_before_state(self, state_name, state_data: dict) -> None:
         # pylint: disable=no-member
-        state_data[ste.STATE_LISTENERS] = StateHandler._listeners
-        state_data[ste.STATE_PRODUCERS] = StateHandler._producers
+        state_data[sta.STATE_LISTENERS] = StateHandler._listeners
+        state_data[sta.STATE_PRODUCERS] = StateHandler._producers
 
     def on_after_state(self, state_name, state_data: dict) -> None:
         # pylint: disable=no-member
-        StateHandler._listeners = state_data[ste.STATE_LISTENERS]
-        StateHandler._producers = state_data[ste.STATE_PRODUCERS]
+        StateHandler._listeners = state_data[sta.STATE_LISTENERS]
+        StateHandler._producers = state_data[sta.STATE_PRODUCERS]
 
 
 StateHandler.add_state_producer(StateHandler())

@@ -18,6 +18,7 @@
 import importlib
 import logging
 import uuid
+from typing import List
 from urllib.request import url2pathname
 
 from autor.flow_configuration.flow_configuration import FlowConfiguration
@@ -45,7 +46,8 @@ from autor.framework.context import Context
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
-from autor.framework.keys import StateKeys as ste
+from autor.framework.keys import StateKeys as sta
+from autor.framework.keys import ArgParserKeys as arg
 from autor.framework.state import State
 from autor.framework.state_handler import StateHandler
 from autor.framework.state_listener import StateListener
@@ -55,6 +57,7 @@ from autor.framework.util import Util
 
 # pylint: disable=no-self-use
 class ActivityBlock(StateProducer):
+
     # pylint: disable=no-member
 
     def __init__(
@@ -63,7 +66,32 @@ class ActivityBlock(StateProducer):
         activity_block_id: str = None,
         flow_run_id: str = None,
         activity_name: str = None,
+        additional_extensions: list = None,
+        custom_data: dict = {}
     ):
+        """
+        Autor constructor lists all autor attributes and initiates
+        the ones that con be initiated.
+
+        The following attributes can be overriden in state BOOTSTRAP:
+        - self._flow_config_url
+        - self._activity_block_id
+        - self._flow_run_id
+        - self._activity_name
+
+        The following attributes are initiated after state BOOTSTRAP as they can be affected by values set in BOOTSTRAP:
+        - self._mode
+        - self._flow_id
+        - self._flow_config
+        - self._flow_context_id
+        - self._flow_context
+        - self._activity_block_id
+        - self._activity_block_context
+        """
+
+
+
+
         # fmt: off
         string = r"""
 
@@ -77,10 +105,18 @@ class ActivityBlock(StateProducer):
 
         """
 
-        logging.info(string)
+        logging.info(f'{DebugConfig.autor_info_prefix}{string}')
 
-        Check.is_non_empty_string(flow_config_url, "flow_config_url")
-        Check.is_non_empty_string(activity_block_id, "activity_block_id")
+        # Extension classes that should be added to the extensions
+        # provided in the flow configuration.
+        # These additional extensions will be able to get on_bootstrap()
+        # callbacks, that is not available for the extensions provided
+        # through flow configuration.
+        self._additional_extensions:list = additional_extensions
+
+        # Any data that the user of Autor would like to provide for
+        # extensions.
+        self._custom_data:dict = custom_data
 
 
         # True, if the activity block has been aborted by the framework
@@ -89,10 +125,12 @@ class ActivityBlock(StateProducer):
 
         # The name of the activity to run.
         # Used only in Autor runs when only one activity is run.
-        self._activity_name = activity_name
+        self._activity_name = activity_name # Can be overriden by extensions in state BOOTSTRAP
 
 
-        # Set Autor mode.
+
+
+        # Autor mode - Initiated after state BOOTSTRAP
         #
         # 1. ACTIVITY_BLOCK
         #    Runs all activities in the specified activity block.
@@ -104,53 +142,34 @@ class ActivityBlock(StateProducer):
         #    Runs the specified activity with the provided activity
         #       configuration (and context).
         #
-        if activity_name is not None:
-            if activity_block_id is not None:
-                self._mode = Mode.ACTIVITY_IN_BLOCK
-            else:
-                self._mode = Mode.ACTIVITY
-                raise AutorFrameworkException("ACTIVITY mode not implemented")
-        elif activity_block_id is not None:
-            self._mode = Mode.ACTIVITY_BLOCK
-        else:
-            raise AutorFrameworkValueException(("activity_block_id or/and"
-                +" activity_name must be provided."))
+        self._mode = None
 
 
 
-        # --------------------------------------  F L O W   D A T A  ------------------------------#
-        self._flow_config_url = flow_config_url
-        self._flow_id = None
 
+        # ----------------------------------  F L O W   D A T A  -----------------------------------#
+
+        # Attributes that may be OVERRIDEN in state BOOTSTRAP
         self._flow_run_id = flow_run_id
-        self._flow_config = None # The configuration object representing the whole flow
-        self._flow_context = Context() # Empty context, focused on the root (flow) level
-        self._flow_create_new_context = False
+        self._flow_config_url = flow_config_url
+        self._flow_run_id_generated = False # Will be set to true if Autor will generate the flow_run_id
 
-        # If flow_run_id is provided, then we already have an existing flow
-        # and context. Otherwise, it is the first job in a flow and a new flow_run_id
-        # and flow context need to be created.
-        if flow_run_id is None:
-            #print("flow_run_id is NONE")
-            self._flow_run_id = str(uuid.uuid4())
-            self._flow_create_new_context = True
 
-        self._flow_context.id = self._flow_run_id
+
+        # Attributes that are INITIATED after state BOOTSTRAP
+        self._flow_id = None          # Unique identifier of the flow provided by flow configuration.
+        self._flow_context_id = None  # Unique identifier of a context for a flow run.
+        self._flow_config = None      # The configuration object representing the whole flow.
+        self._flow_context = None     # Context, focused on the root (flow) level.
 
 
         # ------------------------------  A C T I V I T Y   B L O C K   D A T A   -----------------#
-        self._activity_block_id = activity_block_id
+
         self._activity_block_run_id = str(uuid.uuid4())
-        # Empty context focused on the activity block level
-        self._activity_block_context = Context(activity_block=activity_block_id)
-        # A list of activities that is created as the activities are run.
-        self._activity_block_activities = []
-        # [dict{str:str}] Exceptions in activity block callbacks.
-        self._activity_block_callback_exceptions = []
-        # Current status of the activity block. Updated as the activities are run.
-        self._activity_block_status = Status.UNKNOWN
-        # The latest activity that has been run (or skipped) in the activity block.
-        self._activity_block_latest_activity = None
+        self._activity_block_activities = [] # A list of activities that is created as the activities are run.
+        self._activity_block_callback_exceptions = [] # [dict{str:str}] Exceptions in activity block callbacks.
+        self._activity_block_status = Status.UNKNOWN # Current status of the activity block. Updated as the activities are run.
+        self._activity_block_latest_activity = None # The latest activity that has been run (or skipped) in the activity block.
         # Set to true when the activity-block is considered to be interrupted
         #  (== before or main activities interrupted)
         self._activity_block_interrupted = False
@@ -175,8 +194,24 @@ class ActivityBlock(StateProducer):
         self._next_main_index = 0
 
 
+        # Attributes that may be OVERRIDEN in state BOOTSTRAP
+        self._activity_block_id = activity_block_id
+
+        # Attributes that are INITIATED after state BOOTSTRAP
+        self._activity_block_context = None # Empty context focused on the activity block level
+
+
         # ---------------------------------  A C T I V I T Y   D A T A   --------------------------#
         self._activity_data:ActivityData = None # Contains activity data and the activity instance
+
+
+
+        #---------------------------------- DEBUGGING SUPPORT -------------------------------------#
+        # This value will be added to the state data for the extensions to play around with.
+        # Key: DBG_EXTENSION_TEST_STR
+        self._dbg_extension_test_str = ""
+
+
         # fmt: on
 
     def run(self) -> dict:
@@ -198,30 +233,152 @@ class ActivityBlock(StateProducer):
                 logging.error("Stacktrace:", exc_info=e)
                 logging.error("\n%s", "*" * 100)
 
-            # Print all exeptions that occurred during the run
+            logging.info(f'{DebugConfig.autor_info_prefix}Activity block status: {self._activity_block_status}')
+
+            # Print all exceptions that occurred during the run
             Util.print_all_exceptions()
+
+
+    def _initiate_autor_mode(self):
+        # Set Autor mode.
+        #
+        # 1. ACTIVITY_BLOCK
+        #    Runs all activities in the specified activity block.
+        #
+        # 2. ACTIVITY_IN_BLOCK
+        #    Runs the specified activity inside the specified activity block.
+        #
+        # 3. ACTIVITY
+        #    Runs the specified activity with the provided activity
+        #       configuration (and context).
+        #
+        if self._activity_name is not None:
+            if self._activity_block_id is not None:
+                self._mode = Mode.ACTIVITY_IN_BLOCK
+            else:
+                self._mode = Mode.ACTIVITY
+                raise AutorFrameworkException("ACTIVITY mode not implemented")
+        elif self._activity_block_id is not None:
+            self._mode = Mode.ACTIVITY_BLOCK
+        else:
+            raise AutorFrameworkValueException(("activity_block_id or/and"
+                +" activity_name must be provided."))
+
+
+
+    def _initiate_flow(self):
+        # If flow_run_id is provided, then we already have an existing flow and
+        # this Autor run is not the first activity block run in the flow.
+        # If flow_run_id is not provided, then it is the first job in a flow and
+        # a new flow_run_id needs to be created.
+        if self._flow_run_id is None:
+            self._flow_run_id = str(uuid.uuid4())
+            self._flow_run_id_generated = True
+
+        # Fetch the flow configuration
+        self._flow_config = self._get_flow_configuration()
+        self._flow_id = self._flow_config.flow_id
+
+
+
+    def _initiate_context(self):
+        """
+        Create an empty context.
+        self._flow_context and self._activity_block_context
+        are access points on the flow and activity block level.
+        After this method the context will remain empty.
+        """
+        self._flow_context = Context() # Empty context, focused on the root (flow) level
+        self._flow_context.id = self._flow_run_id
+        self._activity_block_context = Context(activity_block=self._activity_block_id)
+
+
+    def _print_input_args_before_bootstrap(self):
+        prefix = DebugConfig.autor_info_prefix
+        Util.print_header(prefix, "C O M M A N D - L I N E   A R G U M E N T S", level='info')
+        logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
+        logging.info(f'{prefix}flow_config_url:       {self._flow_config_url}')
+        logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}')
+        logging.info(f'{prefix}activity_name:         {self._activity_name}')
+        logging.info(f'{prefix}additional_extensions: {self._additional_extensions}')
+        logging.info(f'{prefix}custom_data:           {self._custom_data}')
+        logging.info(f'{prefix}')
+
+    def _print_input_args_after_bootstrap(self):
+        prefix = DebugConfig.autor_info_prefix
+        Util.print_header(prefix, "I N P U T S", level='info')
+        logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
+        logging.info(f'{prefix}flow_config_url:       {self._flow_config_url}')
+        logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}')
+        logging.info(f'{prefix}activity_name:         {self._activity_name}')
+        logging.info(f'{prefix}additional_extensions: {self._additional_extensions}')
+        logging.info(f'{prefix}custom_data:           {self._custom_data}')
+        logging.info(f'{prefix}')
+
+
+    def _print_activity_block_started(self):
+        prefix = DebugConfig.autor_info_prefix
+        Util.print_header(prefix, 'A C T I V I T Y   B L O C K   S T A R T E D', level='info')
+        if self._flow_run_id_generated:
+            logging.debug(f'{prefix}flow_run_id:           {self._flow_run_id} (generated)')
+        else:
+            logging.debug(f'{prefix}flow_run_id:           {self._flow_run_id}')
+
+        logging.debug(f'{prefix}activity_block_run_id: {self._activity_block_run_id} (generated)')
+        logging.info(f'{prefix}flow_id:               {self._flow_id}')
+        logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}')
+        logging.info(f'{prefix}')
+
+    def _print_activity_block_finished(self):
+        prefix = DebugConfig.autor_info_prefix
+        Util.print_header(prefix, 'A C T I V I T Y   B L O C K   F I N I S H E D', level='info')
+        logging.debug(f'{prefix}flow_run_id:           {self._flow_run_id}')
+        logging.debug(f'{prefix}activity_block_run_id: {self._activity_block_run_id}')
+        logging.info(f'{prefix}flow_id:               {self._flow_id}')
+        logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}')
+        logging.info(f'{prefix}activity_block_status: {self._activity_block_status}')
+        logging.info(f'{prefix}')
+
 
     def _set_up(self):
         try:
-            logging.info("")
-            logging.info(f"RUNNNG activity block: '{str(self._activity_block_id)}'")
-            # TODO: make all params optional. Instead of reading directly from config,
-            # have dicts that can be provided by extensions.
+            if DebugConfig.print_autor_info:
+                self._print_input_args_before_bootstrap()
 
-            self._flow_config = self._get_flow_configuration()
-            self._flow_id = self._flow_config.flow_id
+            # Register extensions that were provided through arguments
+            self._register_additional_extensions(self._additional_extensions)
 
-            # Read helpers configurations.
-            # TODO: Re-work
-            # self._initiate_helpers_framework(self._flow_config)
-            # Create extension classes.
-            self._register_extensions(self._flow_config)
-            # Load activity classes and make them discorverable.
-            self._load_activity_modules(self._flow_config)
             StateHandler.add_state_producer(self)
+            # ---------------------------------------------------------------#
+            StateHandler.change_state(State.BOOTSTRAP)
+            # ---------------------------------------------------------------#
+
+            if DebugConfig.print_final_input or DebugConfig.print_autor_info:
+                self._print_input_args_after_bootstrap()
+
+
+            # Initiate attributes that may be affected by changes done in
+            # state BOOTSTRAP.
+            self._initiate_autor_mode()
+            logging.debug(f'{DebugConfig.autor_info_prefix}Mode: {self._mode}')
+            self._initiate_flow()
+            self._initiate_context()
+
+
+
+
+
+            # Create extension classes from configuration
+            self._register_extensions_from_flow_configuration(self._flow_config)
+
+            # Load activity classes and make them discoverable.
+            self._load_activity_modules(self._flow_config)
+
             # ---------------------------------------------------------------#
             StateHandler.change_state(State.FRAMEWORK_START)
             # ---------------------------------------------------------------#
+
+
 
             self._flow_context.sync_remote()
             self._create_activities_configurations()
@@ -238,13 +395,16 @@ class ActivityBlock(StateProducer):
 
         # Run activities
         try:
+            self._print_activity_block_started()
             # ---------------------------------------------------------------#
             StateHandler.change_state(State.BEFORE_ACTIVITY_BLOCK)
             # ---------------------------------------------------------------#
-            if self._mode == Mode.ACTIVITY_IN_BLOCK:
+            if self._mode == Mode.ACTIVITY_BLOCK or self._mode == Mode.ACTIVITY_IN_BLOCK:
                 self._run_activity_block()
             else:
-                self._run_activity_block()
+                raise AutorFrameworkException(
+                    f"Autor mode: {self._mode} not supported in _run()"
+                )
 
         except Exception as e:
             self._register_exception(
@@ -279,7 +439,7 @@ class ActivityBlock(StateProducer):
             self._flow_context.sync_remote()
 
             if DebugConfig.print_context_on_finished:
-                Util.print_dict(self._flow_context.local_context, "END CONTEXT")
+                Util.print_dict(self._flow_context.local_context, "CONTEXT AT THE END OF THE ACTIVITY BLOCK RUN")
 
         except Exception as e:
             self._register_exception(
@@ -287,6 +447,9 @@ class ActivityBlock(StateProducer):
                 "Unhandled exception during activity block finalization",
                 ExceptionType.ACTIVITY_BLOCK,
             )
+
+        finally:
+            self._print_activity_block_finished()
 
     def _tear_down(self):
 
@@ -329,14 +492,6 @@ class ActivityBlock(StateProducer):
         flow_config = load_flow_configuration(self._flow_config_url)
         return flow_config
 
-    def _get_flow_configuration__(self):
-        # TODO: Refactor, don't assume file URL
-        url_path_component = self._flow_config_url[7:]
-        flow_config_path = url2pathname(url_path_component)
-
-        flow_config = load_flow_configuration(flow_config_path)
-        return flow_config
-
     def _force_run_activity(self, activity_block_id: str, activity_name: str):
         self._create_activities_configurations()
 
@@ -345,15 +500,17 @@ class ActivityBlock(StateProducer):
         Check.not_none(activity_config)
         self._run_activity(activity_name, None, None, activity_config=activity_config)
 
-    def _print_activity_preparation_msg(self, activity_id, activity_group_type, activity_type):
+    def _print_activity_preparation_msg(self, activity_name, activity_id, activity_group_type, activity_type):
         # fmt: off
         if DebugConfig.print_selected_activity:
-            Util.print_header("S E L E C T E D   A C T I V I T Y")
-            logging.debug("ACTIVITY_ID:                %s", str(activity_id))
-            logging.debug("ACTIVITY_TYPE:              %s", str(activity_type))
-            logging.debug("ACTIVITY_GROUP_TYPE:        %s", str(activity_group_type))
-            logging.debug("ACTIVITY_BLOCK_INTERRUPTED: %s", str(self._activity_block_interrupted))
-            logging.debug("")
+            prefix = DebugConfig.selected_activity_prefix
+            Util.print_header(prefix, "S E L E C T E D   A C T I V I T Y")
+            logging.debug(f"{prefix}ACTIVITY_ID:                {activity_id}")
+            logging.debug(f"{prefix}ACTIVITY_NAME:              {activity_name}")
+            logging.debug(f"{prefix}ACTIVITY_TYPE:              {activity_type}")
+            logging.debug(f"{prefix}ACTIVITY_GROUP_TYPE:        {activity_group_type}")
+            logging.debug(f"{prefix}ACTIVITY_BLOCK_INTERRUPTED: {self._activity_block_interrupted}")
+            logging.debug(f"{prefix}")
         # fmt: on
 
     def _create_activities_configurations(self):
@@ -392,14 +549,14 @@ class ActivityBlock(StateProducer):
     def _create_data(self, activity_id, activity_group_type, activity_config):  # -> ActivityData
 
         self._print_activity_preparation_msg(
-            activity_id, activity_group_type, activity_config.activity_type
+            activity_config.name, activity_id, activity_group_type, activity_config.activity_type
         )
 
         # fmt: off
         data = ActivityData()
         # list of all activities that have run
         data.activities              = self._activity_block_activities
-        # A dicitionary of all activities that have run with their name (not id!) as key.
+        # A dictionary of all activities that have run with their name (not id!) as key.
         # Before/after activities will be overwritten.
         data.activities_by_name      = self._activities_by_name
         data.before_block_activities = self._before_block_activities
@@ -467,7 +624,7 @@ class ActivityBlock(StateProducer):
                 "Unknown activity group type: " + str(activity_group_type)
             )
 
-    def _updata_activity_block_status(self, rules, error_occurred):
+    def _update_activity_block_status(self, rules, error_occurred):
 
         data = self._activity_data
 
@@ -489,12 +646,14 @@ class ActivityBlock(StateProducer):
     # Autor should NOT be aborted due to activity.run() errors, as these are considered
     #   as expected framework usage errors and are handled by the framework rules.
     # Once the activity block status is set to ABORTED due to Autor being aborted,
-    #  the status should not be changed afterwards.
+    #  the status should not be changed afterward.
     def _abort_autor(self, abort_reason):
         self._autor_aborted = True
         self._autor_aborted_reason = abort_reason
         self._activity_block_status = Status.ABORTED
-        self._activity_block_context.set(ctx.ABORT_TYPE, AbortType.ABORTED_BY_FRAMEWORK)
+
+        if self._activity_block_context is not None: # Could theoretically be None before FRAMEWORK_STARTED state.
+            self._activity_block_context.set(ctx.ABORT_TYPE, AbortType.ABORTED_BY_FRAMEWORK)
 
         if self._activity_data is not None:
             self._activity_data.activity_block_status = Status.ABORTED
@@ -532,7 +691,7 @@ class ActivityBlock(StateProducer):
         self._update_activity_lists(
             self._activity_data.activity, activity_config, activity_group_type
         )
-        self._updata_activity_block_status(rules, error_occurred)
+        self._update_activity_block_status(rules, error_occurred)
 
     def _run_activity_block(self):
         # Create an ordered list of data tuples that are needed for creating activities.
@@ -658,7 +817,7 @@ class ActivityBlock(StateProducer):
         prefix = DebugConfig.callbacks_trace_prefix  # For debug logging
 
         if DebugConfig.trace_callbacks:
-            Util.print_header("R U N N I N G   C A L L B A C K S   B L O C K")
+            Util.print_header(prefix=DebugConfig.callbacks_trace_prefix, text="R U N N I N G   C A L L B A C K S   B L O C K")
 
         for activity in self._activity_block_activities:
             callbacks = activity.activity_block_callbacks
@@ -717,25 +876,6 @@ class ActivityBlock(StateProducer):
         exception[ctx.ACTIVITY] = activity.id
         return exception
 
-    def _initiate_helpers_framework(self, config: FlowConfiguration):
-
-        loaded_configs = []  # for debug prints
-        helpers_configuration = config.helpers
-
-        if helpers_configuration:
-            # pylint: disable-next=protected-access
-            helpers.Helpers._configuration = helpers_configuration
-            loaded_configs.append(helpers_configuration)
-
-        # ----------------- Debug prints -------------------------#
-        if DebugConfig.print_loaded_helper_configurations:
-            Util.print_header("L O A D E D   H E L P E R   C O N F I G U R A T I O N S")
-            if len(loaded_configs) > 0:
-                for loaded_config in loaded_configs:
-                    Util.print_dict(loaded_config)
-            else:
-                logging.debug("No helper configurations found in the flow configuration.")
-            logging.debug("")
 
     def _register_extension(self, extension: StateListener):
         """
@@ -755,22 +895,75 @@ class ActivityBlock(StateProducer):
             Util.print_header("A D D E D   E X T E N S I O N")
             logging.debug(f"{extension.__class__}")
 
-    def _register_extensions(self, config: FlowConfiguration):
+
+    def _add_listeners(self, listeners:list):
+        """
+        Load and add the listeners in the list.
+        """
+        listener_names = []
+        for listener in listeners:
+            [module_name, class_name] = listener.rsplit(".", 1) # retrieve module name and class name
+            module = importlib.import_module(module_name)       # import the module
+            class_ = getattr(module, class_name)                # create the class
+            instance = class_()                                 # create a listener instance of the class
+            StateHandler.add_state_listener(instance)
+        pass
+
+    def _register_additional_extensions(self, extensions:List[str]):
+        if extensions:
+            self._add_listeners(extensions)
+
+        # ----------------- Debug prints -------------------------#
+        if DebugConfig.print_loaded_extensions or DebugConfig.print_autor_info:
+            self._loaded_items_print_info(
+                prefix = DebugConfig.autor_info_prefix,
+                item_names = extensions,
+                title = "L O A D E D   A D D I T I O N A L   E X T E N S I O N S",
+                no_extensions_found_msg = "No --additional-extensions found -> nothing to load -> OK")
+        # ----------------- Debug prints -------------------------#
+
+    def _register_extensions_from_flow_configuration(self, config: FlowConfiguration):
+        extensions:List[str] = config.extensions
+
+        if extensions:
+            self._add_listeners(extensions)
+
+        # ----------------- Debug prints -------------------------#
+        if DebugConfig.print_loaded_extensions or DebugConfig.print_autor_info:
+            self._loaded_items_print_info(
+                prefix=DebugConfig.autor_info_prefix,
+                item_names = extensions,
+                title = "L O A D E D   E X T E N S I O N S   F R O M   C O N F I G U R A T I O N",
+                no_extensions_found_msg = "Flow configuration contains no extensions -> nothing to load -> OK")
+        # ----------------- Debug prints -------------------------#
+
+    def _loaded_items_print_info(self, prefix:str, item_names:List[str], title:str, no_extensions_found_msg:str):
+        Util.print_header(prefix=prefix, text=title, level='info')
+
+        if item_names and len(item_names) > 0:
+            for item_name in item_names:
+                logging.info(f'{prefix}{item_name}')
+        else:
+            logging.info(f'{prefix}{no_extensions_found_msg}')
+        logging.info(f'{prefix}')
+
+
+
+    def ___old_register_extensions_from_flow_configuration(self, config: FlowConfiguration):
         loaded_extension_names = []  # for debug prints
 
         extensions = config.extensions
         if extensions:
-            state_handler = StateHandler()
             for extension in extensions:
                 [module_name, class_name] = extension.rsplit(".", 1)
                 module = importlib.import_module(module_name)
                 class_ = getattr(module, class_name)
                 instance = class_()
-                state_handler.add_state_listener(instance)
+                StateHandler.add_state_listener(instance)
                 loaded_extension_names.append(extension)
 
         # ----------------- Debug prints -------------------------#
-        if DebugConfig.print_loaded_extensions:
+        if DebugConfig.print_loaded_extensions or DebugConfig.print_autor_info:
             Util.print_header(
                 "L O A D E D   E X T E N S I O N S   F R O M   C O N F I G U R A T I O N"
             )
@@ -778,11 +971,11 @@ class ActivityBlock(StateProducer):
                 for extension in loaded_extension_names:
                     logging.debug(extension)
             else:
-                logging.debug("No extensions found in the flow configuration.")
+                logging.debug("No extensions found in the flow configuration - OK,")
             logging.debug("")
 
     def _unregister_extensions(self):
-        StateHandler().remove_all_listeners()
+        StateHandler.remove_all_listeners()
 
     def _load_activity_modules(self, config: FlowConfiguration):
         modules = config.activity_modules
@@ -791,105 +984,118 @@ class ActivityBlock(StateProducer):
                 module = importlib.import_module(module)
 
         # ----------------- Debug prints -------------------------#
-        if DebugConfig.print_loaded_modules:
-            Util.print_header(
+        if DebugConfig.print_loaded_modules or DebugConfig.print_autor_info:
+            prefix = DebugConfig.autor_info_prefix
+            Util.print_header(prefix,
                 (
                     "L O A D E D   A C T I V I T Y   M O D U L E S"
-                    + "   F R O M   C O N F I G U R A T I O N"
-                )
+                    + "   F R O M   C O N F I G U R A T I O N"),
+                    level='info'
             )
-            if len(modules) > 0:
+            if modules and len(modules) > 0:
                 for module in modules:
-                    logging.debug(module)
+                    logging.info(f'{prefix}{module}')
             else:
-                logging.debug("No activity modules found in the flow configuration.")
-            logging.debug("")
+                logging.info(f'{prefix}No activity modules found in the flow configuration.')
+            logging.info(prefix)
 
     # ---------------------- StateProducer implementation -----------------------#
     # fmt: off
     # pylint: disable=line-too-long
     def on_before_state(self, state_name, state_data:dict) -> None:
+
+        # General
+        state_data[sta.ADDITIONAL_EXTENSIONS]   = self._additional_extensions
+        state_data[sta.CUSTOM_DATA]             = self._custom_data
+
         # Flow
-        state_data[ste.FLOW_ID]                     = self._flow_id
-        state_data[ste.FLOW_CONFIG_URL]             = self._flow_config_url
-        state_data[ste.FLOW_RUN_ID]                 = self._flow_run_id
-        state_data[ste.FLOW_CONFIG]                 = self._flow_config
-        state_data[ste.FLOW_CONTEXT]                = self._flow_context
-        state_data[ste.FLOW_CREATE_NEW_CONTEXT]     = self._flow_create_new_context
+        state_data[sta.FLOW_ID]                     = self._flow_id
+        state_data[sta.FLOW_CONFIG_URL]             = self._flow_config_url
+        state_data[sta.FLOW_RUN_ID]                 = self._flow_run_id
+        state_data[sta.FLOW_CONFIG]                 = self._flow_config
+        state_data[sta.FLOW_CONTEXT]                = self._flow_context
 
         # Activity Block
-        state_data[ste.ACTIVITY_BLOCK_ID]                   = self._activity_block_id
-        state_data[ste.ACTIVITY_BLOCK_RUN_ID]               = self._activity_block_run_id
-        state_data[ste.ACTIVITY_BLOCK_CONFIG]               = self._activity_block_config
-        state_data[ste.ACTIVITY_BLOCK_CONTEXT]              = self._activity_block_context
-        state_data[ste.ACTIVITY_BLOCK_ACTIVITIES]           = self._activity_block_activities
-        state_data[ste.ACTIVITY_BLOCK_CALLBACK_EXCEPTIONS]  = self._activity_block_callback_exceptions
-        state_data[ste.ACTIVITY_BLOCK_STATUS]               = self._activity_block_status
-        state_data[ste.ACTIVITY_BLOCK_INTERRUPTED]          = self._activity_block_interrupted
-        state_data[ste.ACTIVITY_BLOCK_LATEST_ACTIVITY]      = self._activity_block_latest_activity
+        state_data[sta.ACTIVITY_BLOCK_ID]                   = self._activity_block_id
+        state_data[sta.ACTIVITY_BLOCK_RUN_ID]               = self._activity_block_run_id
+        state_data[sta.ACTIVITY_BLOCK_CONFIG]               = self._activity_block_config
+        state_data[sta.ACTIVITY_BLOCK_CONTEXT]              = self._activity_block_context
+        state_data[sta.ACTIVITY_BLOCK_ACTIVITIES]           = self._activity_block_activities
+        state_data[sta.ACTIVITY_BLOCK_CALLBACK_EXCEPTIONS]  = self._activity_block_callback_exceptions
+        state_data[sta.ACTIVITY_BLOCK_STATUS]               = self._activity_block_status
+        state_data[sta.ACTIVITY_BLOCK_INTERRUPTED]          = self._activity_block_interrupted
+        state_data[sta.ACTIVITY_BLOCK_LATEST_ACTIVITY]      = self._activity_block_latest_activity
 
-        state_data[ste.ACTIVITY_BLOCK_CONFIGS_MAIN_ACTIVITIES]  = self._activity_block_configs_main_activities
-        state_data[ste.ACTIVITY_BLOCK_CONFIGS_BEFORE_BLOCK]     = self._activity_block_configs_before_block
-        state_data[ste.ACTIVITY_BLOCK_CONFIGS_AFTER_BLOCK]      = self._activity_block_configs_after_block
-        state_data[ste.ACTIVITY_BLOCK_CONFIGS_BEFORE_ACTIVITY]  = self._activity_block_configs_before_activity
-        state_data[ste.ACTIVITY_BLOCK_CONFIGS_AFTER_ACTIVITY]   = self._activity_block_configs_after_activity
+        state_data[sta.ACTIVITY_BLOCK_CONFIGS_MAIN_ACTIVITIES]  = self._activity_block_configs_main_activities
+        state_data[sta.ACTIVITY_BLOCK_CONFIGS_BEFORE_BLOCK]     = self._activity_block_configs_before_block
+        state_data[sta.ACTIVITY_BLOCK_CONFIGS_AFTER_BLOCK]      = self._activity_block_configs_after_block
+        state_data[sta.ACTIVITY_BLOCK_CONFIGS_BEFORE_ACTIVITY]  = self._activity_block_configs_before_activity
+        state_data[sta.ACTIVITY_BLOCK_CONFIGS_AFTER_ACTIVITY]   = self._activity_block_configs_after_activity
 
         # Activity
         if self._activity_data is not None:
-            state_data[ste.INTERNAL_ACTIVITY_DATA]  = self._activity_data
-            state_data[ste.ACTIVITY_ID]         = self._activity_data.activity_id
-            state_data[ste.ACTIVITY_RUN_ID]     = self._activity_data.activity_run_id
-            state_data[ste.ACTIVITY_NAME]       = self._activity_data.activity_name
-            state_data[ste.ACTIVITY_GROUP_TYPE] = self._activity_data.activity_group_type
-            state_data[ste.ACTIVITY_CONFIG]     = self._activity_data.activity_config
-            state_data[ste.ACTIVITY_TYPE]       = self._activity_data.activity_type
-            state_data[ste.ACTION]              = self._activity_data.action
+            state_data[sta.INTERNAL_ACTIVITY_DATA]  = self._activity_data
+            state_data[sta.ACTIVITY_ID]         = self._activity_data.activity_id
+            state_data[sta.ACTIVITY_RUN_ID]     = self._activity_data.activity_run_id
+            state_data[sta.ACTIVITY_NAME]       = self._activity_data.activity_name
+            state_data[sta.ACTIVITY_GROUP_TYPE] = self._activity_data.activity_group_type
+            state_data[sta.ACTIVITY_CONFIG]     = self._activity_data.activity_config
+            state_data[sta.ACTIVITY_TYPE]       = self._activity_data.activity_type
+            state_data[sta.ACTION]              = self._activity_data.action
 
             if self._activity_data.activity is not None:
-                state_data[ste.ACTIVITY_INSTANCE] = self._activity_data.activity
+                state_data[sta.ACTIVITY_INSTANCE] = self._activity_data.activity
 
-
+        # Debug
+        state_data[sta.DBG_EXTENSION_TEST_STR] = self._dbg_extension_test_str
 
 
     def on_after_state(self, state_name, state_data:dict) -> None:
 
+        # General
+        self._additional_extensions   = state_data[sta.ADDITIONAL_EXTENSIONS]
+        self._custom_data             = state_data[sta.CUSTOM_DATA]
+
         # Flow
-        self._flow_id                   = state_data[ste.FLOW_ID]
-        self._flow_config_url           = state_data[ste.FLOW_CONFIG_URL]
-        self._flow_run_id               = state_data[ste.FLOW_RUN_ID]
-        self._flow_config               = state_data[ste.FLOW_CONFIG]
-        self._flow_context              = state_data[ste.FLOW_CONTEXT]
-        self._flow_create_new_context   = state_data[ste.FLOW_CREATE_NEW_CONTEXT]
+        self._flow_id                   = state_data[sta.FLOW_ID]
+        self._flow_config_url           = state_data[sta.FLOW_CONFIG_URL]
+        self._flow_run_id               = state_data[sta.FLOW_RUN_ID]
+        self._flow_config               = state_data[sta.FLOW_CONFIG]
+        self._flow_context              = state_data[sta.FLOW_CONTEXT]
 
         # Activity Block
-        self._activity_block_id                     = state_data[ste.ACTIVITY_BLOCK_ID]
-        self._activity_block_run_id                 = state_data[ste.ACTIVITY_BLOCK_RUN_ID]
-        self._activity_block_context                = state_data[ste.ACTIVITY_BLOCK_CONTEXT]
-        self._activity_block_config                 = state_data[ste.ACTIVITY_BLOCK_CONFIG]
-        self._activity_block_activities             = state_data[ste.ACTIVITY_BLOCK_ACTIVITIES]
-        self._activity_block_callback_exceptions    = state_data[ste.ACTIVITY_BLOCK_CALLBACK_EXCEPTIONS]
-        self._activity_block_status                 = state_data[ste.ACTIVITY_BLOCK_STATUS]
-        self._activity_block_interrupted            = state_data[ste.ACTIVITY_BLOCK_INTERRUPTED]
-        self._activity_block_latest_activity        = state_data[ste.ACTIVITY_BLOCK_LATEST_ACTIVITY]
+        self._activity_block_id                     = state_data[sta.ACTIVITY_BLOCK_ID]
+        self._activity_block_run_id                 = state_data[sta.ACTIVITY_BLOCK_RUN_ID]
+        self._activity_block_context                = state_data[sta.ACTIVITY_BLOCK_CONTEXT]
+        self._activity_block_config                 = state_data[sta.ACTIVITY_BLOCK_CONFIG]
+        self._activity_block_activities             = state_data[sta.ACTIVITY_BLOCK_ACTIVITIES]
+        self._activity_block_callback_exceptions    = state_data[sta.ACTIVITY_BLOCK_CALLBACK_EXCEPTIONS]
+        self._activity_block_status                 = state_data[sta.ACTIVITY_BLOCK_STATUS]
+        self._activity_block_interrupted            = state_data[sta.ACTIVITY_BLOCK_INTERRUPTED]
+        self._activity_block_latest_activity        = state_data[sta.ACTIVITY_BLOCK_LATEST_ACTIVITY]
 
-        self._activity_block_configs_main_activities    = state_data[ste.ACTIVITY_BLOCK_CONFIGS_MAIN_ACTIVITIES]
-        self._activity_block_configs_before_block       = state_data[ste.ACTIVITY_BLOCK_CONFIGS_BEFORE_BLOCK]
-        self._activity_block_configs_after_block        = state_data[ste.ACTIVITY_BLOCK_CONFIGS_AFTER_BLOCK]
-        self._activity_block_configs_before_activity    = state_data[ste.ACTIVITY_BLOCK_CONFIGS_BEFORE_ACTIVITY]
-        self._activity_block_configs_after_activity     = state_data[ste.ACTIVITY_BLOCK_CONFIGS_AFTER_ACTIVITY]
+        self._activity_block_configs_main_activities    = state_data[sta.ACTIVITY_BLOCK_CONFIGS_MAIN_ACTIVITIES]
+        self._activity_block_configs_before_block       = state_data[sta.ACTIVITY_BLOCK_CONFIGS_BEFORE_BLOCK]
+        self._activity_block_configs_after_block        = state_data[sta.ACTIVITY_BLOCK_CONFIGS_AFTER_BLOCK]
+        self._activity_block_configs_before_activity    = state_data[sta.ACTIVITY_BLOCK_CONFIGS_BEFORE_ACTIVITY]
+        self._activity_block_configs_after_activity     = state_data[sta.ACTIVITY_BLOCK_CONFIGS_AFTER_ACTIVITY]
 
         # Activity
         if self._activity_data is not None:
-            self._activity_data                     = state_data[ste.INTERNAL_ACTIVITY_DATA]
-            self._activity_data.activity_id         = state_data[ste.ACTIVITY_ID]
-            self._activity_data.activity_run_id     = state_data[ste.ACTIVITY_RUN_ID]
-            self._activity_data.activity_name       = state_data[ste.ACTIVITY_NAME]
-            self._activity_data.activity_group_type = state_data[ste.ACTIVITY_GROUP_TYPE]
-            self._activity_data.activity_config     = state_data[ste.ACTIVITY_CONFIG]
-            self._activity_data.activity_type       = state_data[ste.ACTIVITY_TYPE]
-            self._activity_data.action              = state_data[ste.ACTION]
+            self._activity_data                     = state_data[sta.INTERNAL_ACTIVITY_DATA]
+            self._activity_data.activity_id         = state_data[sta.ACTIVITY_ID]
+            self._activity_data.activity_run_id     = state_data[sta.ACTIVITY_RUN_ID]
+            self._activity_data.activity_name       = state_data[sta.ACTIVITY_NAME]
+            self._activity_data.activity_group_type = state_data[sta.ACTIVITY_GROUP_TYPE]
+            self._activity_data.activity_config     = state_data[sta.ACTIVITY_CONFIG]
+            self._activity_data.activity_type       = state_data[sta.ACTIVITY_TYPE]
+            self._activity_data.action              = state_data[sta.ACTION]
 
-            if ste.ACTIVITY_INSTANCE in state_data:
-                self._activity_data.activity        = state_data[ste.ACTIVITY_INSTANCE]
+            if sta.ACTIVITY_INSTANCE in state_data:
+                self._activity_data.activity        = state_data[sta.ACTIVITY_INSTANCE]
+
+        # Debug
+        self._dbg_extension_test_str = state_data[sta.DBG_EXTENSION_TEST_STR]
+
     # fmt: on
     # pylint: enable=line-too-long

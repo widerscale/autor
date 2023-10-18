@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import logging
 
 from autor import Activity
@@ -27,7 +28,7 @@ input = ContextPropertiesRegistry.input
 @ActivityRegistry.activity(type="EXAMPLE")
 class ExampleActivity(Activity):
     def run(self):
-        logging.log("Hello World!")
+        logging.info("Hello World!")
 
 
 @ActivityRegistry.activity(type="TYPE 1")
@@ -135,51 +136,3 @@ class StatusError(Activity):
         10 / 0  # Division by zero will lead to an exception
 
 
-# -----------------------  C a l l b a c k s   e x a m p l e  -----------------------#
-
-# ------------- Activity ----------
-@ActivityRegistry.activity(type="CALLBACK")
-class CallbackActivity(Activity):
-    def run(self):
-        # read the activity status from the configuration
-        self.status = self.configuration["status"]
-        self.activity_block_callbacks.append(
-            SuccesOrSkippedCallback(self, [Status.SUCCESS, Status.SKIPPED])
-        )
-        self.activity_block_callbacks.append(FailureCallback(self, [Status.FAIL]))
-        self.activity_block_callbacks.append(AllCallback(self, [Status.ALL]))
-        # self.print()
-
-
-# --------- Callback classes -------
-class SuccesOrSkippedCallback(ActivityBlockCallback):
-    def run(self):
-        print("Running SuccesOrSkippedCallback")
-
-
-class FailureCallback(ActivityBlockCallback):
-    def run(self):
-        print("Running FailureCallback")
-
-
-class AllCallback(ActivityBlockCallback):
-    def run(self):
-        print("Running FailureCallback")
-
-
-@ActivityRegistry.activity(type="PRINT")
-class PrintActivity(Activity):
-    def run(self):
-        self.print()
-
-
-@ActivityRegistry.activity(type="EMPTY")
-class EmptyActivity(Activity):
-    def run(self):
-        pass
-
-
-@ActivityRegistry.activity(type="MESSAGE")
-class MessageActivity(Activity):
-    def run(self):
-        print(self.configuration["message"])

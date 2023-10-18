@@ -33,28 +33,104 @@ from autor.framework.keys import FlowContextKeys as ctx
 
 class Util:
     @staticmethod
-    def print_framed(text: str, frame_symbol: str, frame_width=56):
+    def print_framed(prefix:str, text: str, frame_symbol: str, frame_width=56, level ='debug'):
         text = f"   {text}   "
-        text_lenght = len(text)
+        text_length = len(text)
         full = frame_symbol * frame_width
-        left = frame_symbol * round((frame_width - text_lenght) / 2)
-        right = frame_symbol * (frame_width - text_lenght - len(left))
-        logging.debug("")
-        logging.debug(full)
-        logging.debug(left + text + right)
-        logging.debug(full)
+        left = frame_symbol * round((frame_width - text_length) / 2)
+        right = frame_symbol * (frame_width - text_length - len(left))
+
+        if level == 'info':
+            logging.info(prefix)
+            logging.info(prefix + full)
+            logging.info(prefix + left + text + right)
+            logging.info(prefix + full)
+        elif level == 'warning':
+            logging.warning(prefix)
+            logging.warning(prefix + full)
+            logging.warning(prefix + left + text + right)
+            logging.warning(prefix + full)
+        elif level == 'error':
+            logging.error(prefix)
+            logging.error(prefix + full)
+            logging.error(prefix + left + text + right)
+            logging.error(prefix + full)
+        else:
+            logging.debug(prefix)
+            logging.debug(prefix + full)
+            logging.debug(prefix + left + text + right)
+            logging.debug(prefix + full)
 
     @staticmethod
-    def print_header(text: str, width=56):
+    def print_header(prefix:str, text:str, level='debug'):
         # FIXME: remove unused variables?
         # text_lenght = len(text)
-        line = "_" * width
+        indent_len = 1
+        side_left  = "*** "
+        side_right = " ***"
+        width = 56
+        indent = " " * indent_len
+        line_len = max(len(text) + len(side_left) + len(side_right), width)
+        line = "-" * line_len
+        header = f'{side_left}{text}{side_right}'
         # left = "." * round((width - text_lenght) / 2)
         # right = "." * (width - text_lenght - len(left))
 
-        logging.debug("")
-        logging.debug("      %s", text)
-        logging.debug(line)
+
+
+
+
+        if level == 'info':
+            logging.info(f'{prefix}')
+            logging.info(f'{prefix}{line}')
+            logging.info(f'{prefix}{header}')
+            logging.info(f'{prefix}{line}')
+        elif level == 'error':
+            logging.error(f'{prefix}')
+            logging.error(f'{prefix}{line}')
+            logging.error(f'{prefix}{header}')
+            logging.error(f'{prefix}{line}')
+        elif level == 'warning':
+            logging.warning(f'{prefix}')
+            logging.warning(f'{prefix}{line}')
+            logging.warning(f'{prefix}{header}')
+            logging.warning(f'{prefix}{line}')
+        else:
+            logging.debug(f'{prefix}')
+            logging.debug(f'{prefix}{line}')
+            logging.debug(f'{prefix}{header}')
+            logging.debug(f'{prefix}{line}')
+
+
+    @staticmethod
+    def old____print_header(text: str, prefix:str = "", level='debug'):
+        # FIXME: remove unused variables?
+        # text_lenght = len(text)
+        indent_len = 1
+        width = 56
+        indent = " " * indent_len
+        line_len = max(len(text) + 2*indent_len, width)
+        line = "_" * line_len
+        # left = "." * round((width - text_lenght) / 2)
+        # right = "." * (width - text_lenght - len(left))
+
+
+        if level == 'info':
+            logging.info(prefix)
+            logging.info(f'{prefix}{indent}{text}')
+            logging.info(f'{prefix}{line}')
+        elif level == 'error':
+            logging.error(prefix)
+            logging.error(f'{prefix}{indent}{text}')
+            logging.error(f'{prefix}{line}')
+        elif level == 'warning':
+            logging.warning(prefix)
+            logging.warning(f'{prefix}{indent}{text}')
+            logging.warning(f'{prefix}{line}')
+        else:
+            logging.debug(prefix)
+            logging.debug(f'{prefix}{indent}{text}')
+            logging.debug(f'{prefix}{line}')
 
     @staticmethod
     def format_banner(text: str, length: int = 100, pad_with: str = "*") -> str:
@@ -84,13 +160,15 @@ class Util:
 
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def print_dict(dict, comment=None):
+    def print_dict(dict, comment=None, level='debug'):
         if comment is None:
             comment = ""
-        logging.debug(comment)
+        Util.log(comment,level)
+
 
         string = Util.dict_to_str(dict)
-        logging.debug(string)
+        Util.log(string, level)
+
 
     @staticmethod
     # pylint: disable-next=redefined-builtin
@@ -105,7 +183,7 @@ class Util:
                 pp = pprint.PrettyPrinter(indent=2)
                 string = os.linesep + pp.pformat(dict)
         else:
-            string = "None"
+            string = str(dict)
         return string
 
     _first_exception = None
@@ -146,18 +224,18 @@ class Util:
     @staticmethod
     def print_all_exceptions():
         if len(Util._framework_exceptions) == 0 and len(Util._other_exceptions) == 0:
-            logging.debug(" No registered exceptions")
+            logging.info(f"{DebugConfig.autor_info_prefix}No registered exceptions")
             return
 
         if len(Util._framework_exceptions) > 0:
-            logging.debug(" Framework exceptions:")
+            logging.info(f"{DebugConfig.autor_info_prefix}Framework exceptions:")
             for ex in Util._framework_exceptions:
-                logging.debug(f" * {str(ex)}")
+                logging.info(f"{DebugConfig.autor_info_prefix} * {str(ex)}")
 
         if len(Util._other_exceptions) > 0:
-            logging.debug(" Non-framework exceptions:")
+            logging.info(f"{DebugConfig.autor_info_prefix}Non-framework exceptions:")
             for ex in Util._other_exceptions:
-                logging.debug(f" * {str(ex)}")
+                logging.info(f"{DebugConfig.autor_info_prefix} * {str(ex)}")
 
     @staticmethod
     def register_exception(
@@ -212,39 +290,41 @@ class Util:
         ).split("\n")
         exception[ctx.STACK_TRACE] = formatted_st
 
-        Util._print_registered_exception("")
-        Util._print_registered_exception("")
-        Util._print_registered_exception("\n" + "- " * 55)
+       # Util._print_registered_exception("\n\n\n")
+        #Util._print_registered_exception("")
+        #Util._print_registered_exception("")
+       # Util._print_registered_exception("")
+        Util._print_registered_exception("\n\n\n" + "- " * 55, 'error')
         Util._print_registered_exception(
-            "                 R E G I S T E R I N G   E X C E P T I O N "
+            "                 R E G I S T E R I N G   E X C E P T I O N ", 'error'
         )
 
         if custom is not None:
             exception[ctx.CUSTOM] = custom
 
         if exception.get(ctx.MESSAGE, None) is not None:
-            Util._print_registered_exception(" MESSAGE:                 " + exception[ctx.MESSAGE])
+            Util._print_registered_exception(" MESSAGE:                 " + exception[ctx.MESSAGE], 'error')
 
         if exception.get(ctx.CLASS, None) is not None:
-            Util._print_registered_exception(" EXCEPTION CLASS:         " + exception[ctx.CLASS])
+            Util._print_registered_exception(" EXCEPTION CLASS:         " + exception[ctx.CLASS], 'error')
 
         if exception.get(ctx.DESCRIPTION, None) is not None:
             Util._print_registered_exception(
                 " DESCRIPTION:             " + exception[ctx.DESCRIPTION]
-            )
+            , 'error')
 
         if exception.get(ctx.TYPE, None) is not None:
-            Util._print_registered_exception(" TYPE:                    " + exception[ctx.TYPE])
+            Util._print_registered_exception(" TYPE:                    " + exception[ctx.TYPE], 'error')
 
         if exception.get(ctx.STATE, None) is not None:
-            Util._print_registered_exception(" LATEST EVENT:            " + exception[ctx.STATE])
+            Util._print_registered_exception(" LATEST EVENT:            " + exception[ctx.STATE], 'error')
 
         if DebugConfig.print_registered_exceptions:
-            logging.debug("", exc_info=ex)
+            logging.error("", exc_info=ex)
 
-        Util._print_registered_exception("\n" + "- " * 55)
-        Util._print_registered_exception("")
-        Util._print_registered_exception("")
+        Util._print_registered_exception("\n" + "- " * 55 + "\n\n\n", 'error')
+        #Util._print_registered_exception("")
+        #Util._print_registered_exception("")
 
         exceptions.append(exception)
         context.set(ctx.EXCEPTIONS, exceptions)
@@ -256,8 +336,19 @@ class Util:
         return exception
 
     @staticmethod
-    def _print_registered_exception(txt):
+    def _print_registered_exception(txt, level='debug'):
         if DebugConfig.print_registered_exceptions:
+            Util.log(txt,level)
+
+    staticmethod
+    def log(txt:str, level='debug'):
+        if level == 'info':
+            logging.info(txt)
+        elif level == 'warning':
+            logging.warning(txt)
+        elif level == 'error':
+            logging.error(txt)
+        else:
             logging.debug(txt)
 
 
