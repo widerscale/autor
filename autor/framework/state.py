@@ -51,8 +51,8 @@ class State:
         self._name = name  # The state name
 
     def print_state(self, message=None):
-        logging.debug("STATE: " + self.name)
-        Util.print_dict(self._dict, message)
+        logging.info("STATE: " + self.name)
+        Util.print_dict(self._dict, message, level='info')
 
     @property
     def name(self) -> str:
@@ -128,6 +128,32 @@ class Bootstrap(State):
     @property
     def additional_extensions(self) -> list:  # getter
         return deepcopy(self._dict[sta.ADDITIONAL_EXTENSIONS])
+
+
+
+
+    #------------------------------------------------------------#
+    #-------------------- mode: ACTIVITY ------------------------#
+    # -----------------------------------------------------------#
+
+    # ---------------- activity_name ---------------------#
+    @property
+    def activity_module(self) -> str:  # getter
+        return self._dict[sta.ACTIVITY_MODULE]
+
+    @property
+    def activity_type(self) -> str:  # getter
+        return self._dict[sta.ACTIVITY_TYPE]
+
+    @property
+    def activity_config(self) -> dict:  # getter
+        return deepcopy(self._dict[sta.ACTIVITY_CONFIG])
+
+    @property
+    def activity_input(self) -> dict:  # getter
+        return deepcopy(self._dict[sta.ACTIVITY_INPUT])
+
+
 
 
 

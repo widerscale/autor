@@ -34,15 +34,15 @@ class ExampleActivity(Activity):
 @ActivityRegistry.activity(type="TYPE 1")
 class Type1(Activity):
     def run(self):
-        print("type:  TYPE 1")
-        print("class: " + str(self.__class__.__name__))
+        logging.info("type:  TYPE 1")
+        logging.info("class: " + str(self.__class__.__name__))
 
 
 @ActivityRegistry.activity(type="TYPE 2")
 class Type2(Activity):
     def run(self):
-        print("type:  TYPE 2")
-        print("class: " + str(self.__class__.__name__))
+        logging.info("type:  TYPE 2")
+        logging.info("class: " + str(self.__class__.__name__))
 
 
 @ActivityRegistry.activity(type="CONFIGURABLE")
@@ -50,13 +50,17 @@ class Configurable(Activity):
     def run(self):
         name = self.configuration.get("name", "No name provided!")
         message = self.configuration.get("message", "No message provided!")
-        print("name:          " + name)
-        print("message:       " + message)
-        print("configuration: " + str(self.configuration))
+        logging.info("name:          " + name)
+        logging.info("message:       " + message)
+        logging.info("configuration: " + str(self.configuration))
 
 
 @ActivityRegistry.activity(type="OUTPUT")
 class OutputActivity(Activity):
+    def __init__(self):
+        super().__init__()
+        self.__score: int = None
+
     @property
     @output(mandatory=True, type=int)  # save the value after run() is finished
     def score(self) -> int:  # getter
@@ -67,7 +71,9 @@ class OutputActivity(Activity):
         self.__score = n
 
     def run(self):
+        logging.info(f'Score is initially set to: {self.score}')
         self.score = 10
+        logging.info(f'Setting score to: {self.score}')
 
 
 @ActivityRegistry.activity(type="INPUT")
@@ -86,7 +92,8 @@ class InputActivity(Activity):
         self.__score = n
 
     def run(self):
-        print("score (input) = " + str(self.score))
+        logging.info(f'Score is initially set to: {self.score}')
+
 
 
 # Calculate the highest score in the flow.
@@ -94,9 +101,9 @@ class InputActivity(Activity):
 class InputOutputActivity(Activity):
     def __init__(self):
         super().__init__()
-        self.__highest_score: int = (
-            -1
-        )  # initial value that is used if no value has been provided by the flow
+        # initial value that is used if no value has been provided by the flow
+        self.__highest_score: int = -1
+
 
     @property
     @input(mandatory=False, type=int)  # load the value before run() is called
@@ -109,29 +116,32 @@ class InputOutputActivity(Activity):
         self.__highest_score = n
 
     def run(self):
-        print("highest_score in:  " + str(self.highest_score))
         my_score = self.configuration["myScore"]  # Read my score from the Flow Configuration file
+        logging.info(f"Property:        'highest_score': {self.highest_score} (initial value)")
+        logging.info(f"Configuration:   'myScore:'       {my_score}")
+
         self.highest_score = max(self.highest_score, my_score)  # Calculate the new highest score
-        print("highest_score out: " + str(self.highest_score))
+        logging.info(f"Property:        'highest_score': {self.highest_score} (final value)")
+
 
 
 @ActivityRegistry.activity(type="SKIPPED")
 class StatusSkipped(Activity):
     def run(self):
-        print("Setting status to SKIPPED")
+        logging.info("Setting status to SKIPPED")
         self.status = Status.SKIPPED
 
 
 @ActivityRegistry.activity(type="SUCCESS")
 class StatusSuccess(Activity):
     def run(self):
-        print("A successful run, expecting status SUCCESS")
+        logging.info("A successful run, expecting status SUCCESS")
 
 
 @ActivityRegistry.activity(type="ERROR")
 class StatusError(Activity):
     def run(self):
-        print("Creating an exception, expecting status ERROR")
+        logging.info("Creating an exception, expecting status ERROR")
         # pylint: disable-next=pointless-statement
         10 / 0  # Division by zero will lead to an exception
 

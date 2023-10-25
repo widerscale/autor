@@ -18,6 +18,7 @@ import logging
 class LoggingConfig():
     framework_log_level = logging.INFO
     activity_log_level = logging.INFO
+    extension_log_level = logging.INFO
 
     @staticmethod
     def activate_framework_logging():
@@ -28,6 +29,11 @@ class LoggingConfig():
     def activate_activity_logging():
         LoggingConfig.__remove_current_logging()
         logging.basicConfig(level=LoggingConfig.activity_log_level, format="%(levelname)8s: <act>: %(message)s")
+
+    @staticmethod
+    def activate_extension_logging():
+        LoggingConfig.__remove_current_logging()
+        logging.basicConfig(level=LoggingConfig.activity_log_level, format="%(levelname)8s: <ext>: %(message)s")
 
     @staticmethod
     def __remove_current_logging():

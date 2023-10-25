@@ -37,15 +37,15 @@ class Check:
 
     @staticmethod
     def not_none(value, msg: str = ""):
-        descritpion = str(msg) + " ([Check]: Expected not None, received: " + str(value) + ")"
+        description = str(msg) + " ([Check]: Expected not None, received: " + str(value) + ")"
         if value is None:
-            raise AutorFrameworkException(descritpion)
+            raise AutorFrameworkException(description)
 
     @staticmethod
     def is_none(value, msg: str = ""):
-        descritpion = str(msg) + " ([Check]: Expected None, received: " + str(value) + ")"
+        description = str(msg) + " ([Check]: Expected None, received: " + str(value) + ")"
         if value is not None:
-            raise AutorFrameworkException(descritpion)
+            raise AutorFrameworkException(description)
 
     @staticmethod
     def is_true(value, msg: str = ""):

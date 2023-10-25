@@ -133,7 +133,7 @@ class Util:
             logging.debug(f'{prefix}{line}')
 
     @staticmethod
-    def format_banner(text: str, length: int = 100, pad_with: str = "*") -> str:
+    def format_banner(text: str, length: int = 100, pad_with: str = "-") -> str:
         format_string = "{" + f":{pad_with}^{length}" + "}"
         return format_string.format(f" {text} ")
 
@@ -161,6 +161,7 @@ class Util:
     @staticmethod
     # pylint: disable-next=redefined-builtin
     def print_dict(dict, comment=None, level='debug'):
+
         if comment is None:
             comment = ""
         Util.log(comment,level)
@@ -223,19 +224,23 @@ class Util:
 
     @staticmethod
     def print_all_exceptions():
-        if len(Util._framework_exceptions) == 0 and len(Util._other_exceptions) == 0:
+
+        nbr_fwk_exceptions = len(Util._framework_exceptions)
+        nbr_other_exceptions = len(Util._other_exceptions)
+        if nbr_fwk_exceptions == 0 and nbr_other_exceptions == 0:
             logging.info(f"{DebugConfig.autor_info_prefix}No registered exceptions")
             return
 
-        if len(Util._framework_exceptions) > 0:
-            logging.info(f"{DebugConfig.autor_info_prefix}Framework exceptions:")
-            for ex in Util._framework_exceptions:
-                logging.info(f"{DebugConfig.autor_info_prefix} * {str(ex)}")
 
-        if len(Util._other_exceptions) > 0:
-            logging.info(f"{DebugConfig.autor_info_prefix}Non-framework exceptions:")
-            for ex in Util._other_exceptions:
-                logging.info(f"{DebugConfig.autor_info_prefix} * {str(ex)}")
+        if nbr_other_exceptions + nbr_fwk_exceptions > 1:
+            logging.info(f'{DebugConfig.autor_info_prefix}')
+            logging.info(f'{DebugConfig.autor_info_prefix}______ List of registered exceptions _____')
+            for ex in Util._framework_exceptions:
+                logging.info(f"{DebugConfig.autor_info_prefix} Framework exception: {str(ex)}")
+
+            if len(Util._other_exceptions) > 0:
+                for ex in Util._other_exceptions:
+                    logging.info(f"{DebugConfig.autor_info_prefix} Non-framework exeption: {str(ex)}")
 
     @staticmethod
     def register_exception(
@@ -290,48 +295,45 @@ class Util:
         ).split("\n")
         exception[ctx.STACK_TRACE] = formatted_st
 
-       # Util._print_registered_exception("\n\n\n")
-        #Util._print_registered_exception("")
-        #Util._print_registered_exception("")
-       # Util._print_registered_exception("")
-        Util._print_registered_exception("\n\n\n" + "- " * 55, 'error')
-        Util._print_registered_exception(
-            "                 R E G I S T E R I N G   E X C E P T I O N ", 'error'
-        )
 
+
+        tot_len = 110
+        message = exception.get(ctx.MESSAGE, "")
+        padding_len = (int)((tot_len - len(message))/2)
+        padding = "-" * padding_len
+
+        if DebugConfig.print_registered_exceptions:
+            logging.warning("", exc_info=ex)
+        Util._print_registered_exception("", 'warning')
+        Util._print_registered_exception("R E G I S T E R I N G   E X E P T I O N" , 'warning')
         if custom is not None:
             exception[ctx.CUSTOM] = custom
 
         if exception.get(ctx.MESSAGE, None) is not None:
-            Util._print_registered_exception(" MESSAGE:                 " + exception[ctx.MESSAGE], 'error')
+            Util._print_registered_exception("MESSAGE:                 " + exception[ctx.MESSAGE], 'warning')
 
         if exception.get(ctx.CLASS, None) is not None:
-            Util._print_registered_exception(" EXCEPTION CLASS:         " + exception[ctx.CLASS], 'error')
+            Util._print_registered_exception("EXCEPTION CLASS:         " + exception[ctx.CLASS], 'warning')
 
         if exception.get(ctx.DESCRIPTION, None) is not None:
             Util._print_registered_exception(
-                " DESCRIPTION:             " + exception[ctx.DESCRIPTION]
-            , 'error')
+                "DESCRIPTION:             " + exception[ctx.DESCRIPTION]
+            , 'warning')
 
         if exception.get(ctx.TYPE, None) is not None:
-            Util._print_registered_exception(" TYPE:                    " + exception[ctx.TYPE], 'error')
+            Util._print_registered_exception("TYPE:                    " + exception[ctx.TYPE], 'warning')
 
         if exception.get(ctx.STATE, None) is not None:
-            Util._print_registered_exception(" LATEST EVENT:            " + exception[ctx.STATE], 'error')
+            Util._print_registered_exception("LATEST EVENT:            " + exception[ctx.STATE], 'warning')
 
-        if DebugConfig.print_registered_exceptions:
-            logging.error("", exc_info=ex)
 
-        Util._print_registered_exception("\n" + "- " * 55 + "\n\n\n", 'error')
+
+        #Util._print_registered_exception("\n" + "- " * 55 + "\n\n\n", 'info')
         #Util._print_registered_exception("")
-        #Util._print_registered_exception("")
+        Util._print_registered_exception("", "warning")
 
         exceptions.append(exception)
         context.set(ctx.EXCEPTIONS, exceptions)
-
-        if type == ExceptionType.EXTENSION and DebugConfig.exit_on_extension_exceptions:
-            logging.error("Exiting due to extension exception.")
-            sys.exit(1)
 
         return exception
 

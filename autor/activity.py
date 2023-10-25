@@ -229,7 +229,7 @@ class Activity(abc.ABC):
 
         """
         raise AutorFrameworkValueException(
-            "run() in class Activity is abstract and shold not be called. \
+            "run() in class Activity is abstract and should not be called. \
                 Override the run() in the inheriting activity."
         )
 

@@ -88,6 +88,16 @@ class ActivityRunner:
                 self._data.activity.status = Status.SKIPPED
                 self._print("skipping activity...")
 
+
+
+    def _print_activity_started(self):
+        arrow = "> "
+        logging.info(f'{DebugConfig.autor_info_prefix}Activity Started')
+        logging.info(f'{DebugConfig.autor_info_prefix}{arrow}Name:  {self._data.activity_name}')
+        logging.info(f'{DebugConfig.autor_info_prefix}{arrow}Type:  {self._data.activity_type}')
+        logging.info(f'{DebugConfig.autor_info_prefix}{arrow}Class: {self._data.activity.__class__.__name__}')
+       # logging.info(f'{DebugConfig.autor_info_prefix}{arrow}>')
+
     def _run(self):
 
         if self._ok_to_run():
@@ -96,7 +106,10 @@ class ActivityRunner:
                 StateHandler.change_state(State.BEFORE_ACTIVITY_RUN)
                 # ----------------------------------------------------------------#
                 logging.info(f'{DebugConfig.autor_info_prefix}')
+                #self._print_activity_started()
                 logging.info(f'{DebugConfig.autor_info_prefix}========> Activity started.  Name:{self._data.activity_name}, Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__} ========>')
+
+
                 LoggingConfig.activate_activity_logging()
                 self._data.activity.print()
                 self._data.activity.run()

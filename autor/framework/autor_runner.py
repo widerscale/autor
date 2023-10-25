@@ -27,6 +27,12 @@ def run():
     additional_extensions = params.get(argp.ADDITIONAL_EXTENSIONS, None)
     custom_data = params.get(argp.CUSTOM_DATA, None)
 
+    #------------------ ACTIVITY mode ---------------------#
+    activity_module = params.get(argp.ACTIVITY_MODULE, None)
+    activity_type = params.get(argp.ACTIVITY_TYPE, None)
+    activity_input = params.get(argp.ACTIVITY_INPUT, None)
+    activity_config = params.get(argp.ACTIVITY_CONFIG, None)
+
 
     # Create and run activity block
     activity_block = ActivityBlock(
@@ -34,7 +40,11 @@ def run():
         activity_block_id=params[argp.ACTIVITY_BLOCK_ID],
         flow_run_id=flow_run_id,
         additional_extensions=additional_extensions,
-        custom_data=custom_data
+        custom_data=custom_data,
+        activity_module = activity_module,  # mode: ACTIVITY
+        activity_type = activity_type,  # mode: ACTIVITY
+        activity_input = activity_input,  # mode: ACTIVITY
+        activity_config = activity_config  # mode: ACTIVITY
     )
     # pylint: enable=no-member
     activity_block.run()

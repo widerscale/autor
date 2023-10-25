@@ -12,9 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import json
+import logging
+import traceback
 
 from autor.framework.extension_exception import AutorExtensionException
 from autor.framework.remote_context import RemoteContext
+from autor.framework.util import Util
 
 
 class FileContext(RemoteContext):

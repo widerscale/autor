@@ -46,6 +46,32 @@ from autor.framework.state import (
 class StateListener:
     __metaclass__ = abc.ABCMeta
 
+    def __init__(self):
+        self._interrupt_on_exception = False
+
+    # ---------------- PROPERTIES --------------- #
+    @property
+    def interrupt_on_exception(self) -> bool:  # getter
+        """
+        Indicates if Autor should be interrupted when an exception
+        occurs in this listener code. Default is False.
+        """
+        return self._interrupt_on_exception
+
+    @interrupt_on_exception.setter
+    def interrupt_on_exception(self, b:bool) -> None:  # setter
+        """
+        Set to True if a raised exception from this listener
+        should interrupt Autor. Default value is False which means
+        that all exceptions that occur in this extension will
+        be ignored by Autor. The exceptions will still be registered
+        and logged.
+        """
+        self._interrupt_on_exception = b
+
+
+
+    # ----------------- Callback Functions -----------#
     @abc.abstractmethod
     def on_bootstrap(self, state: Bootstrap):
         pass

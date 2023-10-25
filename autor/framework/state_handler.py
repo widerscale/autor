@@ -16,6 +16,8 @@ import sys
 
 
 from copy import deepcopy
+from typing import List
+
 from deepdiff import DeepDiff
 from pprint import pprint
 
@@ -24,6 +26,7 @@ from autor.framework.constants import ExceptionType
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import StateKeys as sta
 from autor.framework.key_handler import KeyConverter
+from autor.framework.logging_config import LoggingConfig
 from autor.framework.state import (
     AfterActivityBlock,
     AfterActivityPostprocess,
@@ -160,7 +163,7 @@ class StateHandler(StateProducer):
 
     @staticmethod
     # pylint: disable=too-many-branches, too-many-statements
-    def _run_state_callbacks(state_name, state_data, listeners):
+    def _run_state_callbacks(state_name, state_data, listeners:List[StateListener]):
 
         # Run state callbacks for all listeners that listen to the given state.
         # Callback method name and the state class name that is needed for calling the callbacks
@@ -182,11 +185,23 @@ class StateHandler(StateProducer):
                 if DebugConfig.print_calls_to_extensions:
                     logging.debug(f'{DebugConfig.extension_trace_prefix}{listener.__class__.__name__}: ENTER {callback_method_name}()')
 
+
                 #----------------------- Extension run BEGIN -------------------------#
                 try:
+                    LoggingConfig.activate_extension_logging()
                     callback_method(state_object)
+                    LoggingConfig.activate_framework_logging()
                 except Exception as e:
+                    LoggingConfig.activate_framework_logging()
                     StateHandler._register_listener_exception(e, state_name, listener)
+
+                    if listener.interrupt_on_exception:
+                        logging.error(f"Exiting due to exception in extension: {listener.__class__.__name__}")
+                        sys.exit(1)
+                    else:
+                        logging.warning(f"Exception in extension: {listener.__class__.__name__}. Extension does not request interruption -> continue running.")
+
+
                 # ----------------------- Extension run END -------------------------#
 
                 if DebugConfig.print_calls_to_extensions:

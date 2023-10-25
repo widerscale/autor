@@ -122,14 +122,21 @@ activityBlocks:
       - type: OUTPUT
       - type: INPUT
 
+  output-and-input-example-with-names:
+    activities:
+      - type: OUTPUT
+        name: ScoreGenerator
+      - type: INPUT
+        name: ScoreReceiver
+
   input-output-example:
     activities:
       - type: INPUT_OUTPUT
         configuration:
-          myScore: 1
+          myScore: 5
       - type: INPUT_OUTPUT
         configuration:
-          myScore: 3
+          myScore: 9
       - type: INPUT_OUTPUT
         configuration:
           myScore: 2

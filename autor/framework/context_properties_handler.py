@@ -49,7 +49,7 @@ class ContextPropertiesHandler:
         that uses 'context' for storing its properties.
 
         Arguments:
-            object {Object} -- An object whos properties need to be read/written
+            object {Object} -- An object whose properties need to be read/written
             Context {Context} -- The context used for storing properties.
         """
 
@@ -66,7 +66,7 @@ class ContextPropertiesHandler:
         self._context = context
 
     def load_input_properties(self, mandatory_inputs_check: bool = True):
-        """Load load the input properties values from the context.
+        """Load the input properties values from the context.
         Args:
             mandatory_inputs_check (bool, optional): If true, check that the mandatory input \
                 properties can be loaded from the context. Defaults to True.
@@ -89,7 +89,7 @@ class ContextPropertiesHandler:
             prop_value = self._context.get(key=ctx_key, default=None, search=True)
             # prop_value = self._context.get_from_activity(key=ctx_key, default=None)
 
-            # Check that the mandatory porperties have a value
+            # Check that the mandatory properties have a value
             if mandatory_inputs_check:
                 if prop.mandatory and not prop_value:
                     raise ContextPropertiesHandlerValueException(

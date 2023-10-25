@@ -128,13 +128,10 @@ class ActivityBlockRules:
 
     def get_action(self, data, mode: Mode, ignore_unrun=False):
         # pylint: disable=no-else-raise
-        if mode == Mode.ACTIVITY:
-            raise AutorFrameworkNotImplementedException(
-                f"Support for action rules for: {str(mode)} not implemented"
-            )
-        elif mode == Mode.ACTIVITY_IN_BLOCK:
+
+        if mode == Mode.ACTIVITY_IN_BLOCK:
             return Action.RUN
-        elif mode == Mode.ACTIVITY_BLOCK:
+        elif mode == Mode.ACTIVITY_BLOCK or mode == Mode.ACTIVITY:
             return self._get_action(data, ignore_unrun=ignore_unrun)
 
         raise AutorFrameworkException(f"Unknown Autor run mode: {str(mode)}")

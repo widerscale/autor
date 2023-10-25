@@ -54,11 +54,11 @@ class DebugConfig():
     print_state_names = False
     state_prefix = "[sta]: "
 
-    print_context_on_finished = False
+    print_context_on_finished = True
 
     print_loaded_extensions = False
     print_loaded_modules = False
-    print_registered_exceptions = True
+    print_registered_exceptions = False
 
     exit_on_extension_exceptions = False
 
