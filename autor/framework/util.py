@@ -160,15 +160,18 @@ class Util:
 
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def print_dict(dict, comment=None, level='debug'):
+    def print_dict(dict, comment=None, level='debug', prefix=""):
 
-        if comment is None:
-            comment = ""
-        Util.log(comment,level)
-
+        if comment is not None:
+            Util.log(prefix+comment,level)
 
         string = Util.dict_to_str(dict)
-        Util.log(string, level)
+
+        lines = string.split('\n')
+        for line in lines:
+            Util.log(f'{prefix}{line}', level)
+
+        #Util.log(f'{prefix}\n{string}', level)
 
 
     @staticmethod
@@ -179,7 +182,7 @@ class Util:
             try:
                 string = json.dumps(dict, sort_keys=False, indent=2)
             except Exception:
-                # If the dict contains an object, we cannot used json, so we
+                # If the dict contains an object, we cannot use json, so we
                 # use pprint, which doesn't look as good as json.
                 pp = pprint.PrettyPrinter(indent=2)
                 string = os.linesep + pp.pformat(dict)

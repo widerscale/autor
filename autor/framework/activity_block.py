@@ -178,7 +178,7 @@ class ActivityBlock(StateProducer):
         self._flow_id = None          # Unique identifier of the flow provided by flow configuration.
         self._flow_context_id = None  # Unique identifier of a context for a flow run.
         self._flow_config = None      # The configuration object representing the whole flow.
-        self._flow_context = None     # Context, focused on the root (flow) level.
+        self._flow_context:Context = None     # Context, focused on the root (flow) level.
 
 
         # ------------------------------  A C T I V I T Y   B L O C K   D A T A   -----------------#
@@ -310,8 +310,7 @@ class ActivityBlock(StateProducer):
         self._flow_context = Context() # Empty context, focused on the root (flow) level
         self._flow_context.id = self._flow_run_id
         self._activity_block_context = Context(activity_block=self._activity_block_id)
-        prefix = DebugConfig.autor_info_prefix
-        logging.info(f'{prefix}context initiated (not synced yet)')
+
 
 
     def _print_input_args_before_bootstrap(self):
@@ -382,7 +381,7 @@ class ActivityBlock(StateProducer):
             # Initiate attributes that may be affected by changes done in
             # state BOOTSTRAP.
             self._initiate_autor_mode()
-            logging.debug(f'{DebugConfig.autor_info_prefix}Mode: {self._mode}')
+            logging.info(f'{DebugConfig.autor_info_prefix}Mode: {self._mode}')
             self._initiate_flow()
             self._initiate_context()
 
@@ -400,6 +399,7 @@ class ActivityBlock(StateProducer):
 
 
             self._flow_context.sync_remote()
+            logging.info(f'{DebugConfig.autor_info_prefix}Context synchronized')
             self._create_activities_configurations()
 
         except Exception as e:
@@ -414,10 +414,12 @@ class ActivityBlock(StateProducer):
 
         # Run activities
         try:
-            self._print_activity_block_started()
             # ---------------------------------------------------------------#
             StateHandler.change_state(State.BEFORE_ACTIVITY_BLOCK)
             # ---------------------------------------------------------------#
+            self._print_activity_block_started()
+            if DebugConfig.print_context_before_activities_are_run:
+                self._flow_context.print_context("Context before activities are run")
             self._run_activity_block()
 
         except Exception as e:
@@ -453,7 +455,7 @@ class ActivityBlock(StateProducer):
             self._flow_context.sync_remote()
 
             if DebugConfig.print_context_on_finished:
-                Util.print_dict(self._flow_context.local_context, "CONTEXT AT THE END OF THE ACTIVITY BLOCK RUN", level='info')
+                self._flow_context.print_context("Context at the end of the activity block run")
 
         except Exception as e:
             self._register_exception(

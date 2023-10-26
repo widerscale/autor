@@ -48,13 +48,17 @@ class DebugConfig():
     trace_context = False
     context_trace_prefix = "[ctx]: "
 
+    trace_string_arg_parsing = False
+    string_arg_parisng_prefix = "[srg]: "
+
     print_calls_to_extensions = False
     extension_trace_prefix = "[ext]: "
 
     print_state_names = False
     state_prefix = "[sta]: "
 
-    print_context_on_finished = True
+    print_context_before_activities_are_run = False
+    print_context_on_finished = False
 
     print_loaded_extensions = False
     print_loaded_modules = False
@@ -68,5 +72,7 @@ class DebugConfig():
         trace_activity_processing = True
 
     if trace_context:
+        print_context_before_activities_are_run = True
         print_context_on_finished = True
+
 # fmt: on

@@ -78,8 +78,9 @@ class Context:
 
     @staticmethod
     def print_context(message="") -> None:
-
-        Util.print_dict(Context._local_context, message)
+        #Util.print_framed(prefix=DebugConfig.context_trace_prefix,text="Context",frame_symbol='-',level='info')
+        Util.print_header(prefix=DebugConfig.context_trace_prefix,text=message,level='info')
+        Util.print_dict(Context._local_context,level='info',prefix=DebugConfig.context_trace_prefix)
 
     @staticmethod
     def set_context(context: dict) -> None:

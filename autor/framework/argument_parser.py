@@ -15,7 +15,9 @@ import argparse
 import json
 import logging
 
+from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import CommandLineKeys as cln
+from autor.framework.util import Util
 
 
 class CommandlineArgumentParser:
@@ -124,7 +126,7 @@ Autor can be run in three modes:
                    If a flow-run-id is provided the data in the context
                    can be used by Autor.
         """
-        logging.info(description)
+        #logging.info(description)
         parser = argparse.ArgumentParser(description="")
         parser.add_argument(
             # pylint: disable-next=no-member
@@ -174,16 +176,41 @@ Autor can be run in three modes:
                   )
         )
 
-        def json_string(arg):
-            dict_data: dict = json.loads(arg)
+        def json_string_or_simple_format(arg)->dict:
+            try:
+                dict_data: dict = json.loads(arg)
+            except:
+                try:
+                    eq_split = arg.split('=')
+
+                    key = eq_split[0]
+
+                    dict_data:dict = {}
+
+                    for item in eq_split[1:-1]:
+                        next_key = item.split(',')[-1]
+                        val = item.split(f',{next_key}')[0]
+                        val = self._string_to_type(val)
+                        dict_data[key] = val
+                        key = next_key
+
+                    dict_data[key] = eq_split[-1]
+
+                except Exception as e:
+                    logging.error(f"Could not parse argument. Expected JSON string or simple format (key1=val1,...,keyN=valN). Received: {arg}")
+                    raise e
+
             return dict_data
+
+
+
 
         parser.add_argument(
             # pylint: disable-next=no-member
             "--" + cln.CUSTOM_DATA,
             required=False,
             action="store",
-            type=json_string,
+            type=json_string_or_simple_format,
             help=(
                 "Custom data/configurations that can be provided to extensions. Format: JSON string."
             )
@@ -197,7 +224,6 @@ Autor can be run in three modes:
             --activity-type          INPUT_OUTPUT
             --activity-config        "{\"myScore\":9}"
             --activity-input         "{\"highest_score\":4}"
-
         """
 
         parser.add_argument(
@@ -222,7 +248,7 @@ Autor can be run in three modes:
             "--" + cln.ACTIVITY_CONFIG,
             required=False,
             action="store",
-            type=json_string,
+            type=json_string_or_simple_format,
             help="Configuration that becomes available for the activity during the run."
         )
 
@@ -231,8 +257,47 @@ Autor can be run in three modes:
             "--" + cln.ACTIVITY_INPUT,
             required=False,
             action="store",
-            type=json_string,
+            type=json_string_or_simple_format,
             help="Values for activity's input properties."
         )
 
         return parser
+
+    def _string_to_type(self, val:str):
+        prefix = DebugConfig.string_arg_parisng_prefix
+        try:
+            final_val = int(val)
+            if DebugConfig.trace_string_arg_parsing:
+                logging.debug(f"{prefix}Value:{val} is int")
+        except:
+            if DebugConfig.trace_string_arg_parsing:
+                logging.debug(f"{prefix}Value:{val} is NOT int")
+            try:
+                final_val = float(val)
+                if DebugConfig.trace_string_arg_parsing:
+                    logging.debug(f"{prefix}Value:{val} is float")
+            except:
+                if DebugConfig.trace_string_arg_parsing:
+                    logging.debug(f"{prefix}Value:{val} is NOT float")
+                # Either string or a list
+                elems = val.split(',')
+
+                if len(elems)>1: # List
+                    if DebugConfig.trace_string_arg_parsing:
+                        logging.debug(f"{prefix}Value:{val} is list")
+                    final_val = []
+                    for elem in elems:
+                        elem = self._string_to_type(elem)
+                        final_val.append(elem)
+
+                else:
+                    if DebugConfig.trace_string_arg_parsing:
+                        logging.debug(f"{prefix}Value:{val} is string")
+                    if (val[0] == "'" and val[-1] == "'") or (val[0] == '"' and val[-1] == '"'):
+                        if DebugConfig.trace_string_arg_parsing:
+                            logging.debug(f"{prefix}Removing quotes from the string")
+                        final_val = val[1:-1]
+                    else:
+                        final_val = val
+        return final_val
+
