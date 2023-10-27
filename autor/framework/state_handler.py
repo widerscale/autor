@@ -188,7 +188,7 @@ class StateHandler(StateProducer):
 
                 #----------------------- Extension run BEGIN -------------------------#
                 try:
-                    LoggingConfig.activate_extension_logging()
+                    LoggingConfig.activate_extension_logging(listener.__class__.__name__)
                     callback_method(state_object)
                     LoggingConfig.activate_framework_logging()
                 except Exception as e:

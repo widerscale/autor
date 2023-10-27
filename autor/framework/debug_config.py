@@ -26,7 +26,7 @@ class DebugConfig():
     # Main flags
     trace_sequence_details = False # Activates all flags connected to sequence tracing.
 
-    print_final_input = True # Prints the input that Autor has after bootstrapping
+    print_final_input = False # Prints the input that Autor has after bootstrapping
 
 
     print_autor_info = False
@@ -49,7 +49,7 @@ class DebugConfig():
     context_trace_prefix = "[ctx]: "
 
     trace_string_arg_parsing = False
-    string_arg_parisng_prefix = "[srg]: "
+    string_arg_parsing_prefix = "[srg]: "
 
     print_calls_to_extensions = False
     extension_trace_prefix = "[ext]: "
@@ -57,6 +57,7 @@ class DebugConfig():
     print_state_names = False
     state_prefix = "[sta]: "
 
+    # ------------ context -----------------#
     print_context_before_activities_are_run = False
     print_context_on_finished = False
 

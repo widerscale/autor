@@ -66,19 +66,19 @@ class AutorFrameworkBootstrap(StateListener):
         # activity-config
 
         if state.activity_module is not None:
-            logging.info('activity-module is provided -> Preparing to run one activity separately')
-            logging.info(f'activity_module: {state.activity_module}')
-            logging.info(f'activity_type:   {state.activity_type}')
-            logging.info(f'activity_config: {state.activity_config}')
-            logging.info(f'activity_input:  {state.activity_input}')
-            logging.info(f'flow_run_id:     {state.flow_run_id}')
+            logging.debug('activity-module is provided -> Preparing to run one activity separately')
+            logging.debug(f'activity_module: {state.activity_module}')
+            logging.debug(f'activity_type:   {state.activity_type}')
+            logging.debug(f'activity_config: {state.activity_config}')
+            logging.debug(f'activity_input:  {state.activity_input}')
+            logging.debug(f'flow_run_id:     {state.flow_run_id}')
             state.flow_config_url, state.activity_block_id = self._create_flow_configuration(state.activity_module, state.activity_type, state.activity_config)
 
         elif state.activity_name is not None:
-            logging.info('activity-name is provided -> Preparing to run the specified activity within activity block')
+            logging.debug('activity-name is provided -> Preparing to run the specified activity within activity block')
 
         else:
-            logging.info('Preparing to run activity block')
+            logging.debug('Preparing to run activity block')
 
 
 

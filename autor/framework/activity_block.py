@@ -257,6 +257,125 @@ class ActivityBlock(StateProducer):
             Util.print_all_exceptions()
 
 
+
+    def _set_up(self):
+        try:
+            if DebugConfig.print_autor_info:
+                self._print_input_args_before_bootstrap()
+
+            # Register extensions that were provided through arguments or that
+            # are needed internally in Autor framework.
+            self._register_bootstrap_extensions(self._additional_extensions)
+
+            StateHandler.add_state_producer(self)
+            # ---------------------------------------------------------------#
+            StateHandler.change_state(State.BOOTSTRAP)
+            # ---------------------------------------------------------------#
+
+            if DebugConfig.print_final_input or DebugConfig.print_autor_info:
+                self._print_input_args_after_bootstrap()
+
+
+            # Initiate attributes that may be affected by changes done in
+            # state BOOTSTRAP.
+            self._initiate_autor_mode()
+            self._initiate_flow()
+            self._initiate_context()
+
+
+            # Create extension classes from configuration
+            self._register_extensions_from_flow_configuration(self._flow_config)
+
+            # Load activity classes and make them discoverable.
+            self._load_activity_modules(self._flow_config)
+
+            # ---------------------------------------------------------------#
+            StateHandler.change_state(State.FRAMEWORK_START)
+            # ---------------------------------------------------------------#
+
+            self._flow_context.sync_remote()
+            self._create_activities_configurations()
+
+        except Exception as e:
+            self._register_exception(
+                e, "Unhandled exception during Autor set up", ExceptionType.SET_UP
+            )
+
+    def _run(self):
+        if self._autor_aborted:
+            logging.info("Autor aborted -> not running any activities")
+            return
+
+        # Run activities
+        try:
+            # ---------------------------------------------------------------#
+            StateHandler.change_state(State.BEFORE_ACTIVITY_BLOCK)
+            # ---------------------------------------------------------------#
+            self._print_activity_block_started()
+            if DebugConfig.print_context_before_activities_are_run:
+                self._flow_context.print_context("Context before activities are run")
+            self._run_activity_block()
+
+        except Exception as e:
+            self._register_exception(
+                e,
+                "Unhandled exception during activity block execution",
+                ExceptionType.ACTIVITY_BLOCK,
+            )
+
+        # Run callbacks
+        try:
+            # ---------------------------------------------------------------#
+            StateHandler.change_state(State.BEFORE_ACTIVITY_BLOCK_CALLBACKS)
+            # ---------------------------------------------------------------#
+            self._run_activity_block_callbacks()
+        except Exception as e:
+            self._register_exception(
+                e,
+                "Unhandled exception during activity block callbacks execution",
+                ExceptionType.ACTIVITY_BLOCK,
+            )
+
+        # Finalize activity block run
+        try:
+            # ---------------------------------------------------------------#
+            StateHandler.change_state(State.AFTER_ACTIVITY_BLOCK)
+            # ---------------------------------------------------------------#
+            self._activity_block_context.set(ctx.ACTIVITY_BLOCK_STATUS, self._activity_block_status)
+            if len(self._activity_block_callback_exceptions) > 0:
+                self._activity_block_context.set(
+                    ctx.CALLBACK_EXCEPTIONS, self._activity_block_callback_exceptions
+                )
+            self._flow_context.sync_remote()
+
+            if DebugConfig.print_context_on_finished:
+                self._flow_context.print_context("Context at the end of the activity block run")
+
+        except Exception as e:
+            self._register_exception(
+                e,
+                "Unhandled exception during activity block finalization",
+                ExceptionType.ACTIVITY_BLOCK,
+            )
+
+        finally:
+            self._print_activity_block_finished()
+
+    def _tear_down(self):
+
+        # Remove all listeners
+        try:
+            # ---------------------------------------------------------------#
+            StateHandler.change_state(State.FRAMEWORK_END)
+            # ---------------------------------------------------------------#
+            StateHandler().remove_all_listeners()
+            # logging.debug(f"FLOW ID: {self._flow_id}")
+
+        except Exception as e:
+            self._register_exception(
+                e, "Unhandled exception during Autor tear down", ExceptionType.TEAR_DOWN
+            )
+
     def _initiate_autor_mode(self):
         # Set Autor mode.
         #
@@ -339,148 +458,43 @@ class ActivityBlock(StateProducer):
     def _print_activity_block_started(self):
         prefix = DebugConfig.autor_info_prefix
         Util.print_header(prefix, 'A C T I V I T Y   B L O C K   S T A R T E D', level='info')
-        if self._flow_run_id_generated:
-            logging.debug(f'{prefix}flow_run_id:           {self._flow_run_id} (generated)')
-        else:
-            logging.debug(f'{prefix}flow_run_id:           {self._flow_run_id}')
+        padding = 70
+        logging.info(f'{prefix}mode:                  {self._mode}')
+        if self._mode == Mode.ACTIVITY:
+            logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}'.ljust(padding) + ' (generated by Autor)')
+            logging.info(f'{prefix}activity_module:       {self._activity_module}')
+            logging.info(f'{prefix}activity_type:         {self._activity_type}')
+            logging.info(f'{prefix}activity_input:        {self._activity_input}')
+            logging.info(f'{prefix}activity_config:       {self._activity_config}')
+            logging.info(f'{prefix}additional_extensions: {self._additional_extensions}')
+            logging.info(f'{prefix}custom_data:           {self._custom_data}')
+            logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}'.ljust(padding) + ' (generated by Autor)')
+            logging.info(f'{prefix}activity_name:         {self._activity_name}'.ljust(padding) + ' (generated by Autor)')
+            logging.info(f'{prefix}flow_config_url:       {self._flow_config_url}'.ljust(padding) + ' (generated by Autor)')
 
-        logging.debug(f'{prefix}activity_block_run_id: {self._activity_block_run_id} (generated)')
-        logging.info(f'{prefix}flow_id:               {self._flow_id}')
-        logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}')
+        else:
+            logging.info(f'{prefix}additional_extensions: {self._additional_extensions}')
+            logging.info(f'{prefix}custom_data:           {self._custom_data}')
+            logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}'.ljust(padding) + ' (generated by Autor)')
+            logging.info(f'{prefix}flow_config_url:       {self._flow_config_url}'.ljust(padding) + ' (generated by Autor)')
+            if self._flow_run_id_generated:
+                logging.debug(f'{prefix}flow_run_id:           {self._flow_run_id}'.ljust(padding) + ' (generated by Autor)')
+            else:
+                logging.debug(f'{prefix}flow_run_id:           {self._flow_run_id}')
+
         logging.info(f'{prefix}')
+
 
     def _print_activity_block_finished(self):
         prefix = DebugConfig.autor_info_prefix
         Util.print_header(prefix, 'A C T I V I T Y   B L O C K   F I N I S H E D', level='info')
         logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
-        logging.debug(f'{prefix}activity_block_run_id: {self._activity_block_run_id}')
+        logging.info(f'{prefix}activity_block_run_id: {self._activity_block_run_id}')
         logging.info(f'{prefix}flow_id:               {self._flow_id}')
         logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}')
         logging.info(f'{prefix}activity_block_status: {self._activity_block_status}')
         logging.info(f'{prefix}')
 
-
-    def _set_up(self):
-        try:
-            if DebugConfig.print_autor_info:
-                self._print_input_args_before_bootstrap()
-
-            # Register extensions that were provided through arguments or that
-            # are needed internally in Autor framework.
-            self._register_bootstrap_extensions(self._additional_extensions)
-
-            StateHandler.add_state_producer(self)
-            # ---------------------------------------------------------------#
-            StateHandler.change_state(State.BOOTSTRAP)
-            # ---------------------------------------------------------------#
-
-            if DebugConfig.print_final_input or DebugConfig.print_autor_info:
-                self._print_input_args_after_bootstrap()
-
-
-            # Initiate attributes that may be affected by changes done in
-            # state BOOTSTRAP.
-            self._initiate_autor_mode()
-            logging.info(f'{DebugConfig.autor_info_prefix}Mode: {self._mode}')
-            self._initiate_flow()
-            self._initiate_context()
-
-
-            # Create extension classes from configuration
-            self._register_extensions_from_flow_configuration(self._flow_config)
-
-            # Load activity classes and make them discoverable.
-            self._load_activity_modules(self._flow_config)
-
-            # ---------------------------------------------------------------#
-            StateHandler.change_state(State.FRAMEWORK_START)
-            # ---------------------------------------------------------------#
-
-
-
-            self._flow_context.sync_remote()
-            logging.info(f'{DebugConfig.autor_info_prefix}Context synchronized')
-            self._create_activities_configurations()
-
-        except Exception as e:
-            self._register_exception(
-                e, "Unhandled exception during Autor set up", ExceptionType.SET_UP
-            )
-
-    def _run(self):
-        if self._autor_aborted:
-            logging.info("Autor aborted -> not running any activities")
-            return
-
-        # Run activities
-        try:
-            # ---------------------------------------------------------------#
-            StateHandler.change_state(State.BEFORE_ACTIVITY_BLOCK)
-            # ---------------------------------------------------------------#
-            self._print_activity_block_started()
-            if DebugConfig.print_context_before_activities_are_run:
-                self._flow_context.print_context("Context before activities are run")
-            self._run_activity_block()
-
-        except Exception as e:
-            self._register_exception(
-                e,
-                "Unhandled exception during activity block execution",
-                ExceptionType.ACTIVITY_BLOCK,
-            )
-
-        # Run callbacks
-        try:
-            # ---------------------------------------------------------------#
-            StateHandler.change_state(State.BEFORE_ACTIVITY_BLOCK_CALLBACKS)
-            # ---------------------------------------------------------------#
-            self._run_activity_block_callbacks()
-        except Exception as e:
-            self._register_exception(
-                e,
-                "Unhandled exception during activity block callbacks execution",
-                ExceptionType.ACTIVITY_BLOCK,
-            )
-
-        # Finalize activity block run
-        try:
-            # ---------------------------------------------------------------#
-            StateHandler.change_state(State.AFTER_ACTIVITY_BLOCK)
-            # ---------------------------------------------------------------#
-            self._activity_block_context.set(ctx.ACTIVITY_BLOCK_STATUS, self._activity_block_status)
-            if len(self._activity_block_callback_exceptions) > 0:
-                self._activity_block_context.set(
-                    ctx.CALLBACK_EXCEPTIONS, self._activity_block_callback_exceptions
-                )
-            self._flow_context.sync_remote()
-
-            if DebugConfig.print_context_on_finished:
-                self._flow_context.print_context("Context at the end of the activity block run")
-
-        except Exception as e:
-            self._register_exception(
-                e,
-                "Unhandled exception during activity block finalization",
-                ExceptionType.ACTIVITY_BLOCK,
-            )
-
-        finally:
-            self._print_activity_block_finished()
-
-    def _tear_down(self):
-
-        # Remove all listeners
-        try:
-            # ---------------------------------------------------------------#
-            StateHandler.change_state(State.FRAMEWORK_END)
-            # ---------------------------------------------------------------#
-            StateHandler().remove_all_listeners()
-            # logging.debug(f"FLOW ID: {self._flow_id}")
-
-        except Exception as e:
-            self._register_exception(
-                e, "Unhandled exception during Autor tear down", ExceptionType.TEAR_DOWN
-            )
 
     # pylint: disable-next=redefined-builtin
     def _register_exception(self, e, description, type=None, abort_autor=True):

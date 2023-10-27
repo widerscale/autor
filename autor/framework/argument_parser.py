@@ -179,11 +179,28 @@ Autor can be run in three modes:
         def json_string_or_simple_format(arg)->dict:
             try:
                 dict_data: dict = json.loads(arg)
+                logging.info(f"{DebugConfig.string_arg_parsing_prefix}Argument is JSON string: {arg}")
+
             except:
                 try:
+                    logging.info(f"{DebugConfig.string_arg_parsing_prefix}Argument is NOT JSON string: {arg}")
                     eq_split = arg.split('=')
 
-                    key = eq_split[0]
+                    # E X A M P L E
+                    #
+                    # Arguments in simple format:
+                    # argInt=1,argFloat=0.5,argStr='Hello world!',argList=1,2,3,4
+                    #
+                    #
+                    # After split on '='
+                    #
+                    # [argInt] 						#first arg name
+                    # [1,argFloat] 					#<previous arg value, this arg name>
+                    # [0.5,argStr]  				#<previous arg value, this arg name>
+                    # ['Hello world!',argList]  	#<previous arg value, this arg name>
+                    # [1,2,3,4] 					#last arg value
+
+                    key = eq_split[0] #first arg name
 
                     dict_data:dict = {}
 
@@ -194,7 +211,8 @@ Autor can be run in three modes:
                         dict_data[key] = val
                         key = next_key
 
-                    dict_data[key] = eq_split[-1]
+                    val = eq_split[-1] #last arg value
+                    dict_data[key] = self._string_to_type(val)
 
                 except Exception as e:
                     logging.error(f"Could not parse argument. Expected JSON string or simple format (key1=val1,...,keyN=valN). Received: {arg}")
@@ -264,27 +282,27 @@ Autor can be run in three modes:
         return parser
 
     def _string_to_type(self, val:str):
-        prefix = DebugConfig.string_arg_parisng_prefix
+        prefix = DebugConfig.string_arg_parsing_prefix
         try:
             final_val = int(val)
             if DebugConfig.trace_string_arg_parsing:
-                logging.debug(f"{prefix}Value:{val} is int")
+                logging.info(f"{prefix}Value:{val} is int")
         except:
             if DebugConfig.trace_string_arg_parsing:
-                logging.debug(f"{prefix}Value:{val} is NOT int")
+                logging.info(f"{prefix}Value:{val} is NOT int")
             try:
                 final_val = float(val)
                 if DebugConfig.trace_string_arg_parsing:
-                    logging.debug(f"{prefix}Value:{val} is float")
+                    logging.info(f"{prefix}Value:{val} is float")
             except:
                 if DebugConfig.trace_string_arg_parsing:
-                    logging.debug(f"{prefix}Value:{val} is NOT float")
+                    logging.info(f"{prefix}Value:{val} is NOT float")
                 # Either string or a list
                 elems = val.split(',')
 
                 if len(elems)>1: # List
                     if DebugConfig.trace_string_arg_parsing:
-                        logging.debug(f"{prefix}Value:{val} is list")
+                        logging.info(f"{prefix}Value:{val} is list")
                     final_val = []
                     for elem in elems:
                         elem = self._string_to_type(elem)
@@ -292,10 +310,10 @@ Autor can be run in three modes:
 
                 else:
                     if DebugConfig.trace_string_arg_parsing:
-                        logging.debug(f"{prefix}Value:{val} is string")
+                        logging.info(f"{prefix}Value:{val} is string")
                     if (val[0] == "'" and val[-1] == "'") or (val[0] == '"' and val[-1] == '"'):
                         if DebugConfig.trace_string_arg_parsing:
-                            logging.debug(f"{prefix}Removing quotes from the string")
+                            logging.info(f"{prefix}Removing quotes from the string")
                         final_val = val[1:-1]
                     else:
                         final_val = val
