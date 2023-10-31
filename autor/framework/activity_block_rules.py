@@ -713,12 +713,13 @@ class ActivityBlockRules:
             if activity_status == Status.FAIL:
                 new_block_status = activity_status
 
+
         self._print("(block-status) ---------> new_block_status = " + str(new_block_status))
-        #self._print_state_transition(activity, current_block_status, new_block_status)
-        return new_block_status
+        state_transition_summary = self._create_state_transition_summary(activity, current_block_status, new_block_status)
+        return new_block_status, state_transition_summary
 
 
-    def _print_state_transition(self, activity, current_block_status, new_block_status):
+    def _create_state_transition_summary(self, activity, current_block_status, new_block_status)->str:
 
         name_len = len(str(activity.id))
 
@@ -733,7 +734,7 @@ class ActivityBlockRules:
         # status as str
         status_str = str(activity.status)
 
-        # Was the activity skipped by the framewokr?
+        # Was the activity skipped by the framework?
         skip_type = activity.context.get_from_activity(key=ctx.SKIP_TYPE, default=None)
 
         # pylint: disable-next=redefined-builtin
@@ -754,7 +755,7 @@ class ActivityBlockRules:
 
         padding1 = " " * (self._max_len_activity_name - name_len)
         padding2 = " " * (15 - len(status_str))
-        logging.debug(
+        return (
             str(activity.id)
             + padding1
             + status_str
@@ -764,6 +765,7 @@ class ActivityBlockRules:
             + " -> "
             + new_block_status
         )
+
 
 
 

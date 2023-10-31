@@ -107,14 +107,14 @@ class ActivityRunner:
                 # ----------------------------------------------------------------#
                 logging.info(f'{DebugConfig.autor_info_prefix}')
                 #self._print_activity_started()
-                logging.info(f'{DebugConfig.autor_info_prefix}========> Activity started.  Name:{self._data.activity_name}, Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__} ========>')
+                logging.info(f"{DebugConfig.autor_info_prefix}--------> Started  activity '{self._data.activity_name}' (Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__}) -------->")
 
 
                 LoggingConfig.activate_activity_logging()
                 self._data.activity.print()
                 self._data.activity.run()
                 LoggingConfig.activate_framework_logging()
-                logging.info(f'{DebugConfig.autor_info_prefix}<======== Activity finished. Name:{self._data.activity_name}, Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__} <========')
+                logging.info(f"{DebugConfig.autor_info_prefix}<-------- Finished activity '{self._data.activity_name}' (Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__}) <--------")
 
             except Exception as e:
                 LoggingConfig.activate_framework_logging()

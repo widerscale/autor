@@ -139,3 +139,7 @@ cython_debug/
 
 # Pycharm
 .idea
+
+# Autor-generated files
+autor-config.yml
+file_context.json
