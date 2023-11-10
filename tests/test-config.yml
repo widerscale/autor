@@ -1,0 +1,34 @@
+---
+flowId: example-flow
+
+#   E X T E N S I O N S
+#######################
+extensions:
+   - getting_started.extensions.context.AddFileContext
+
+
+#   A C T I V I T Y   M O D U L E S
+###################################
+activityModules:
+  - test_activities.activities
+
+
+
+#   A C T I V I T Y   B L O C K S
+#################################
+activityBlocks:
+
+  modeActivityBlockRerun:
+    activities:
+      - type: MAX
+        configuration:
+          val: 1
+      - type: MAX
+        configuration:
+          val: 7
+      - type: MAX
+        configuration:
+          val: 2
+      - type: MAX
+        configuration:
+          val: 9
