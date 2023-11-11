@@ -16,9 +16,16 @@
 import logging
 
 class LoggingConfig():
-    framework_log_level = logging.INFO
-    activity_log_level = logging.INFO
-    extension_log_level = logging.INFO
+    framework_log_level = logging.DEBUG
+    activity_log_level = logging.DEBUG
+    extension_log_level = logging.DEBUG
+
+
+    @staticmethod
+    def activate_external_logging():
+        LoggingConfig.__remove_current_logging()
+        logging.basicConfig(level=LoggingConfig.framework_log_level, format="%(levelname)8s: <external> %(message)s")
+
 
     @staticmethod
     def activate_framework_logging():

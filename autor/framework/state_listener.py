@@ -17,6 +17,7 @@ import logging
 from autor.framework.debug_config import DebugConfig
 from autor.framework.state import (
     Bootstrap,
+    Context,
     FrameworkStart,
     BeforeActivityBlock,
     SelectActivity,
@@ -74,6 +75,10 @@ class StateListener:
     # ----------------- Callback Functions -----------#
     @abc.abstractmethod
     def on_bootstrap(self, state: Bootstrap):
+        pass
+
+    @abc.abstractmethod
+    def on_context(self, state: Context):
         pass
 
     @abc.abstractmethod

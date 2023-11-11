@@ -39,6 +39,7 @@ class Action():
     RUN = 'RUN'
     SKIP_BY_FRAMEWORK = "SKIP_BY_FRAMEWORK"
     SKIP_BY_CONFIGURATION = "SKIP_BY_CONFIGURATION"
+    REUSE = 'REUSE'
 
 
 class SkipType():
@@ -66,6 +67,8 @@ class Mode:
     ACTIVITY_IN_BLOCK = "ACTIVITY_IN_BLOCK"
     # run the specified activity using a provided activity config.
     ACTIVITY = "ACTIVITY"
+    # re-run the specified the activity block run from the specified activity
+    ACTIVITY_BLOCK_RERUN = "ACTIVITY_BLOCK_RERUN"
 
 # Exception types in Autor context @TODO - do we need it?
 class ExceptionType:

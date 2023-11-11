@@ -22,8 +22,16 @@ class Check:
     """
 
     @staticmethod
+    def expected(expected, actual, msg: str = ""):
+        #description = str(msg) + " <<<" + str(value1) + "==" + str(value2) + ")"
+        description = f'\n\n____________________ CHECK FAIL _____________________\nexpected: {str(expected)}\ngot:      {str(actual)}\n{msg}'
+        if expected != actual:
+            raise AutorFrameworkException(description)
+
+    @staticmethod
     def is_equal(value1, value2, msg: str = ""):
-        description = str(msg) + " ([Check]: Expected " + str(value1) + "==" + str(value2) + ")"
+        #description = str(msg) + " <<<" + str(value1) + "==" + str(value2) + ")"
+        description = f'\n\n____________________ CHECK FAIL _____________________\n<<< {str(value1)} != {str(value2)} >>>\n{msg}'
         if value1 != value2:
             raise AutorFrameworkException(description)
 

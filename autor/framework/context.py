@@ -86,9 +86,12 @@ class Context:
     def set_context(context: dict) -> None:
         Context._local_context = context
 
-    # ---------------------------------------------------------------------------------------------#
-    # ----------------------------------   D Y N A M I C  S E C T I O N  --------------------------#
-    # ---------------------------------------------------------------------------------------------#
+    @staticmethod
+    def reset_static_data():
+        Context._id: str = Context._UNDEFINED
+        Context._local_context: dict = {}              # The internal representation of the local context.
+        Context._remote_context: RemoteContext = None  # Remote context that can be added by an extension.
+
 
     # -------------------------------- I N I T  --------------------------------------#
     def __init__(self, activity_block=None, activity=None):
@@ -109,6 +112,7 @@ class Context:
             self._focus = Focus.ACTIVITY_BLOCK
         else:
             self._focus = Focus.FLOW
+
 
     # -------------------------  P R O P E R T I E S  -------------------------------#
 
@@ -302,7 +306,7 @@ class Context:
         try:  # Search on the activity level
             return self._get_from_activity(
                 key=key, activity_block=activity_block, activity=activity
-            )  # wihout default
+            )  # without default
         except AutorFrameworkContextKeyNotFoundException:
             pass
 
@@ -328,7 +332,7 @@ class Context:
         except AutorFrameworkContextKeyNotFoundException:
             pass
 
-        # No value found on the the activity block level -> try flow level
+        # No value found on the activity block level -> try flow level
         # (and now with the default value)
         return self._get_from_flow(key=key, default=default)  # with default
 
@@ -495,6 +499,26 @@ class Context:
             logging.debug(
                 DebugConfig.context_trace_prefix + "fullpath_get(" + path + ") -> " + str(value)
             )
+
+    def print_focus(self):
+        logging.info(f'focus:          {self._focus}')
+        logging.info(f'activity:       {self._activity}')
+        logging.info(f'activity_block: {self._activity_block}')
+
+    def get_focus_activity_dict(self):
+        value = None
+        try:
+            value = (
+                self.local_context.get(self._ACTIVITY_BLOCKS)
+                .get(self._activity_block)
+                .get(self._ACTIVITIES)
+                .get(self._activity)
+            )  # pylint: disable=no-member
+
+        except Exception:
+            return {}
+
+        return value
 
 
 class AutorFrameworkContextKeyNotFoundException(AutorFrameworkException):

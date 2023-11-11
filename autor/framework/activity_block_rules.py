@@ -25,6 +25,8 @@ from autor.framework.constants import Configuration, Mode, SkipType, Status
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
+from autor.framework.util import Util
+
 
 # pylint: disable=line-too-long,no-member, no-else-return
 
@@ -47,7 +49,7 @@ class ActivityBlockRules:
     # Default configuration values for different activity group types.
     # Note that when an activity group type has a configuration that is None,
     # then that means that that group type is not allowed to have that configuration and if present
-    #  in the configuration, it will be considered as an error.
+    # in the configuration, it will be considered as an error.
 
     # ----------------------------- continueOn --------------------------------#
     # If continueOn is not fulfilled, the activity block will be interrupted.
@@ -100,11 +102,25 @@ class ActivityBlockRules:
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
+    _rerun_activated = False # static attribute used form mode ACTIVITY_BLOCK_RERUN
+
+
+
+
     # fmt: on
 
     def __init__(self):
+        # Used in mode ACTIVITY_BLOCK_RERUN. In this mode
+        # The first activities are RE-USED until Autor
+        # reaches the activity from which the RE-RUN should
+        # start. Once this activity is reached _rerun_activated
+        # is set to True
 
         self._max_len_activity_name = None  # For prints
+
+    @staticmethod
+    def reset_static_data():
+        ActivityBlockRules._rerun_activated = False
 
     # pylint: disable=invalid-name
     def _choose_most_important_action(self, a1, a2, a3):
@@ -126,15 +142,54 @@ class ActivityBlockRules:
         else:
             return action1
 
-    def get_action(self, data, mode: Mode, ignore_unrun=False):
+
+    def get_action(self, data:ActivityData, mode: Mode, ignore_unrun=False, activity_id_special:str=None):
         # pylint: disable=no-else-raise
 
+        '''
+        # Only run the activity that should be run. Skip the rest.
+        elif self._mode == Mode.ACTIVITY_IN_BLOCK:
+            if activity_name == self._activity_name:
+                self._activity_data.action = Action.RUN
+            else:
+                self._activity_data.action = Action.SKIP_BY_FRAMEWORK
+        else:
+            raise AutorFrameworkException(
+                f"Autor mode: {self._mode} not supported in _run_activity()"
+            )
+        '''
+
+        #______________________________ ACTIVITY_IN_BLOCK _________________________________#
         if mode == Mode.ACTIVITY_IN_BLOCK:
-            return Action.RUN
-        elif mode == Mode.ACTIVITY_BLOCK or mode == Mode.ACTIVITY:
+            if data.activity_id == activity_id_special:
+                self._activity_data.action = Action.RUN
+            else:
+                self._activity_data.action = Action.SKIP_BY_FRAMEWORK
+
+        # ______________________________ ACTIVITY_BLOCK_RERUN _________________________________#
+        elif mode == Mode.ACTIVITY_BLOCK_RERUN:
+            if data.activity_id == activity_id_special:
+
+                Check.is_false(self._rerun_activated, "rerun_activated should not be activated twice")
+                ActivityBlockRules._rerun_activated = True
+                logging.info("Re-run initiated")
+
+            if ActivityBlockRules._rerun_activated:
+                return self._get_action(data, ignore_unrun=ignore_unrun)
+            else:
+                return Action.REUSE
+
+        # ______________________________ ACTIVITY_BLOCK _________________________________#
+        elif mode == Mode.ACTIVITY_BLOCK:
             return self._get_action(data, ignore_unrun=ignore_unrun)
 
+        # ______________________________ ACTIVITY _________________________________#
+        elif mode == Mode.ACTIVITY:
+            return Action.RUN
+
         raise AutorFrameworkException(f"Unknown Autor run mode: {str(mode)}")
+
+
 
     def _get_action(self, data, ignore_unrun=False):
 
@@ -405,7 +460,7 @@ class ActivityBlockRules:
 
         # If it is the first activity that runs, then the configuration will be ignored.
         if len(data.activities) <= 0:
-            self._print("first activitiy -> ignoring runOn.activityStatus ---> return True")
+            self._print("first activity -> ignoring runOn.activityStatus ---> return True")
 
         # Go through all the requirements for the activity statuses and see if they can
         # all be evaluated to True.
@@ -416,9 +471,7 @@ class ActivityBlockRules:
             if activity_name == Configuration.ANY:
                 self._print(activity_name + " -> condition: True")
             else:
-                activity = self._get_activity_by_name(
-                    activity_name, data
-                )  # Returns None, if not found
+                activity = self._get_activity_by_name(activity_name, data)  # Returns None, if not found
 
                 if activity is None:
                     Check.is_true(
@@ -666,7 +719,7 @@ class ActivityBlockRules:
                 current_block_status == Status.ABORTED,
                 (
                     "Activity block status should always be {Status.ABORTED} once autor has been"
-                    + " aborted by (due to framework or other unrecoverabe errors). "
+                    + " aborted by (due to framework or other unrecoverable errors). "
                     + "Current status: {current_block_status}"
                 ),
             )
@@ -725,7 +778,7 @@ class ActivityBlockRules:
 
         # Make a guess for a longest activity name (needed for having nice columns in prints)
         if self._max_len_activity_name is None:
-            self._max_len_activity_name = max(name_len + 10, 80)
+            self._max_len_activity_name = max(name_len, 30)
 
         # If our guess was too short, make a new guess.
         if name_len > self._max_len_activity_name:
@@ -736,6 +789,9 @@ class ActivityBlockRules:
 
         # Was the activity skipped by the framework?
         skip_type = activity.context.get_from_activity(key=ctx.SKIP_TYPE, default=None)
+        action_str:str = activity.context.get_from_activity(key=ctx.ACTION)
+
+
 
         # pylint: disable-next=redefined-builtin
         type = ""
@@ -753,13 +809,10 @@ class ActivityBlockRules:
 
             status_str = status_str + type
 
-        padding1 = " " * (self._max_len_activity_name - name_len)
-        padding2 = " " * (15 - len(status_str))
         return (
-            str(activity.id)
-            + padding1
-            + status_str
-            + padding2
+            str(activity.id).ljust(self._max_len_activity_name)
+            + " " + action_str.ljust(6)
+            + status_str.ljust(15)
             + "Activity-block: "
             + current_block_status
             + " -> "
@@ -767,7 +820,9 @@ class ActivityBlockRules:
         )
 
 
-
+    def print_default_config_conditions(self):
+        Util.print_dict(ActivityBlockRules.DEFAULT_CONTINUE_ON, "DEFAULT_CONTINUE_ON", 'info')
+        Util.print_dict(ActivityBlockRules.DEFAULT_RUN_ON, "DEFAULT_RUN_ON", 'info')
 
 
     # pylint: disable-next=no-self-use

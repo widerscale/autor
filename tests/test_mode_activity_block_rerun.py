@@ -76,8 +76,12 @@ def _add_to_command(val, command_name:str, command:str):
     return command
 
 
+def _empty_or_none(l:List):
+    return (l is None or len(l)==0)
+
 def _run_autor(
         nbr_activities,
+        mode,
         additional_context: dict = {},
         additional_extensions: list = None,
         activity_block_id: str = None,
@@ -145,17 +149,18 @@ def _run_autor(
         flow_config_url = flow_config_url
     )
 
-    if activity_ids is None:
+    if _empty_or_none(activity_ids):
         activity_ids = _create_default_activity_ids(activity_block_id,nbr_activities)
-    if expected_activity_statuses is None:
+    if _empty_or_none(expected_activity_statuses):
         expected_activity_statuses = _create_default_activity_statuses(nbr_activities)
-    if expected_activity_values is None:
+    if _empty_or_none(expected_activity_values):
         expected_activity_values = _create_default_activity_values(nbr_activities)
-    if expected_activity_actions is None:
+    if _empty_or_none(expected_activity_actions):
         expected_activity_actions = _create_default_activity_actions(nbr_activities)
 
     logging.info(f'nbr activities: {nbr_activities}')
     logging.info(f'nbr activities: {nbr_activities}')
+
     Check.is_equal(len(activity_ids), nbr_activities, "Internal error: nbr activity ids does not match nbr activities")
     Check.is_equal(len(expected_activity_statuses), nbr_activities, "Internal error: nbr activity statuses does not match nbr activities")
     Check.is_equal(len(expected_activity_values), nbr_activities, "Internal error: nbr activity values does not match nbr activities")
@@ -192,12 +197,99 @@ def _run_autor(
 
 
     actual_ab_status = activity_block.get_activity_block_status()
-    Check.expected(expected_ab_status, actual_ab_status, message_base)
+    Check.expected(expected_ab_status, actual_ab_status, f"Unexpected activity block status.{message_base}")
+    Check.expected(mode, activity_block.get_mode(), f"Unexpected mode.{message_base}")
 
     return activity_block.get_flow_run_id()
 
 
 
+def _mode_ACTIVITY(
+                   value_name: str,
+                   value,
+                   activity_type: str,
+                   activity_module: str,
+                   expected_ab_status: str = "SUCCESS",
+                   expected_activity_status: str = "SUCCESS",
+                   activity_input: dict = {},
+                   activity_config: dict = {},
+                   flow_run_id=None,
+                   count=1
+                   ) -> str:
+
+
+    activity_block_id = "autor-activity-block"
+
+    # Prepare activity ids data
+    activity_ids:List[str] = []
+    activity_ids.append(f'{activity_block_id}-activity{count}')
+
+
+    # Prepare activity values data
+    expected_activity_values:List[dict] = []
+    expected_activity_values.append({value_name:value})
+
+    # Prepare activity actions data
+    expected_activity_actions: List[str] = []
+    expected_activity_actions.append("RUN")
+
+    # Prepare activity status data
+    expected_activity_statuses: List[str] = []
+    expected_activity_statuses.append("SUCCESS")
+
+    flow_run_id = _run_autor(
+        nbr_activities = 1,
+        mode = "ACTIVITY",
+        activity_block_id="autor-activity-block",
+        activity_config = activity_config,
+        activity_input = activity_input,
+        activity_module = activity_module,
+        activity_type = activity_type,
+        flow_run_id = flow_run_id,
+        activity_ids=activity_ids,
+
+        expected_ab_status = expected_ab_status,
+        expected_activity_statuses = expected_activity_statuses,
+        expected_activity_actions = expected_activity_actions,
+        expected_activity_values = expected_activity_values)
+
+    return flow_run_id
+
+
+
+def _mode_ACTIVITY_BLOCK(expected_vals:List[int],
+                          value_name:str,
+                          expected_ab_status:str = "SUCCESS",
+                          flow_run_id=None,
+                          add_context:dict={})->str:
+
+    activity_block_id:str = "modeActivityBlockRerun"
+    flow_config_url:str = "test-config.yml"
+    nbr_activities = len(expected_vals)
+
+    # Prepare activity values data
+    expected_activity_values:List[dict] = []
+    for val in expected_vals:
+        val_dict = {value_name:val}
+        expected_activity_values.append(val_dict)
+
+    # Prepare activity actions data
+    expected_activity_actions: List[str] = []
+    for i in range(nbr_activities):
+        expected_activity_actions.append("RUN")
+
+    flow_run_id = _run_autor(
+        nbr_activities=nbr_activities,
+        mode="ACTIVITY_BLOCK",
+        expected_ab_status=expected_ab_status,
+        flow_config_url=flow_config_url,
+        activity_block_id=activity_block_id,
+        flow_run_id=flow_run_id,
+        expected_activity_values=expected_activity_values,
+        expected_activity_actions=expected_activity_actions,
+        additional_context=add_context)
+
+    return flow_run_id
 
 
 
@@ -205,13 +297,12 @@ def _run_autor(
 
 
 
-
-def _run_activity_block(expected_vals:List[int],
-                        value_name:str,
-                        expected_ab_status:str = "SUCCESS",
-                        flow_run_id=None,
-                        rerun_from_activity_nbr=None,
-                        add_context:dict={})->str:
+def _mode_ACTIVITY_BLOCK_RERUN(expected_vals:List[int],
+                               value_name:str,
+                               expected_ab_status:str = "SUCCESS",
+                               flow_run_id=None,
+                               rerun_from_activity_nbr=None,
+                               add_context:dict={})->str:
 
     activity_block_id:str = "modeActivityBlockRerun"
     flow_config_url:str = "test-config.yml"
@@ -244,6 +335,8 @@ def _run_activity_block(expected_vals:List[int],
 
     flow_run_id = _run_autor(
         nbr_activities=nbr_activities,
+        mode="ACTIVITY_BLOCK_RERUN",
+        expected_ab_status=expected_ab_status,
         flow_config_url=flow_config_url,
         activity_block_id=activity_block_id,
         flow_run_id=flow_run_id,
@@ -279,19 +372,28 @@ def _create_default_activity_ids(activity_block_id:str, nbr_activities:int)->Lis
     return results
 
 def test_mode_activity_block_rerun():
-    flow_run_id = _run_activity_block(expected_vals=[1, 7, 7, 9], value_name='max')
-    flow_run_id = _run_activity_block(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=2, flow_run_id=flow_run_id)
-    flow_run_id = _run_activity_block(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=3, flow_run_id=flow_run_id)
-    flow_run_id = _run_activity_block(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=2, flow_run_id=flow_run_id)
-    flow_run_id = _run_activity_block(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=4, flow_run_id=flow_run_id)
-    flow_run_id = _run_activity_block(expected_vals=[9, 9, 9, 9], value_name='max', rerun_from_activity_nbr=1, flow_run_id=flow_run_id)
-    flow_run_id = _run_activity_block(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=1, flow_run_id=flow_run_id, add_context={'max':None})
-    flow_run_id = _run_activity_block(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=1, flow_run_id=flow_run_id, add_context={'max':None})
-    flow_run_id = _run_activity_block(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=2, flow_run_id=flow_run_id)
-    flow_run_id = _run_activity_block(expected_vals=[1, 7, 7, 9], value_name='max')
+    flow_run_id = _mode_ACTIVITY_BLOCK(expected_vals=[1, 7, 7, 9], value_name='max')
+    flow_run_id = _mode_ACTIVITY_BLOCK_RERUN(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=2, flow_run_id=flow_run_id)
+    flow_run_id = _mode_ACTIVITY_BLOCK_RERUN(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=3, flow_run_id=flow_run_id)
+    flow_run_id = _mode_ACTIVITY_BLOCK_RERUN(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=2, flow_run_id=flow_run_id)
+    flow_run_id = _mode_ACTIVITY_BLOCK_RERUN(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=4, flow_run_id=flow_run_id)
+    flow_run_id = _mode_ACTIVITY_BLOCK_RERUN(expected_vals=[9, 9, 9, 9], value_name='max', rerun_from_activity_nbr=1, flow_run_id=flow_run_id)
+    flow_run_id = _mode_ACTIVITY_BLOCK_RERUN(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=1, flow_run_id=flow_run_id, add_context={'max':None})
+    flow_run_id = _mode_ACTIVITY_BLOCK_RERUN(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=1, flow_run_id=flow_run_id, add_context={'max':None})
+    flow_run_id = _mode_ACTIVITY_BLOCK_RERUN(expected_vals=[1, 7, 7, 9], value_name='max', rerun_from_activity_nbr=2, flow_run_id=flow_run_id)
+    flow_run_id = _mode_ACTIVITY_BLOCK(expected_vals=[1, 7, 7, 9], value_name='max')
 
 def test_mode_activity():
-    pass
+    flow_run_id = _mode_ACTIVITY(value_name='max',value=1,activity_config={'val':1},activity_type='MAX',activity_module='test_activities.activities')
+    flow_run_id = _mode_ACTIVITY(value_name='max',value=7,activity_config={'val':7},activity_type='MAX',activity_module='test_activities.activities')
+    flow_run_id = _mode_ACTIVITY(value_name='max',value=2,activity_config={'val':2},activity_type='MAX',activity_module='test_activities.activities')
+    flow_run_id = _mode_ACTIVITY(value_name='max',value=9,activity_config={'val':9},activity_type='MAX',activity_module='test_activities.activities')
+    
+    flow_run_id = _mode_ACTIVITY(value_name='max',value=1,activity_config={'val':1},activity_type='MAX',activity_module='test_activities.activities')
+    flow_run_id = _mode_ACTIVITY(value_name='max',value=7,activity_config={'val':7},activity_type='MAX',activity_module='test_activities.activities', flow_run_id=flow_run_id, count=2)
+    flow_run_id = _mode_ACTIVITY(value_name='max',value=7,activity_config={'val':2},activity_type='MAX',activity_module='test_activities.activities', flow_run_id=flow_run_id, count=3)
+    flow_run_id = _mode_ACTIVITY(value_name='max',value=9,activity_config={'val':9},activity_type='MAX',activity_module='test_activities.activities', flow_run_id=flow_run_id, count=4)
+    
 
 def test_rerun_from_first_activity_that_optionally_reads_context():
     pass

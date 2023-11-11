@@ -11,7 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+import logging
 from typing import List
 
 from autor.framework.autor_framework_exception import AutorFrameworkException
@@ -24,6 +24,7 @@ from autor.framework.context_property import ContextProperty
 from autor.framework.key_handler import KeyHandler
 from autor.framework.keys import ClassPropertiesKeys as prp
 from autor.framework.keys import FlowContextKeys as ctx
+from autor.framework.util import Util
 
 
 class ContextPropertiesHandlerException(AutorFrameworkException):
@@ -86,6 +87,8 @@ class ContextPropertiesHandler:
             ctx_key = KeyHandler.convert_key(
                 prop.name, from_format=prp.format, to_format=ctx.format
             )
+
+
             prop_value = self._context.get(key=ctx_key, default=None, search=True)
             # prop_value = self._context.get_from_activity(key=ctx_key, default=None)
 
@@ -166,6 +169,7 @@ class ContextPropertiesHandler:
                     prop.name, from_format=prp.format, to_format=ctx.format
                 )
                 self._context.set(ctx_key, prop_value)
+
 
         # Synchronize the context with the remote context (if it exists)
         self._context.sync_remote()

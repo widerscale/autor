@@ -16,6 +16,7 @@ import logging
 from autor.activity import Activity
 from autor.framework.activity_data import ActivityData
 from autor.framework.activity_factory import ActivityFactory
+from autor.framework.reuse_activity import ReuseActivity
 from autor.framework.check import Check
 from autor.framework.constants import Action, ExceptionType, SkipType, Status
 from autor.framework.context_properties_handler import ContextPropertiesHandler
@@ -33,16 +34,26 @@ from autor.framework.util import Util
 # Activity runner handles running of one activity.
 class ActivityRunner:
     """
-    ActivityRunner handles runnig of one activity.
+    ActivityRunner handles running of one activity.
     It creates the activity, runs it.
     """
 
     def __init__(self):
-        self._data = None
+        self._data:ActivityData = None
         self._error_occurred = False  # An exception outside Activity.run().
         self._activity_run_exception_occurred = False  # An exception inside Activity.run()
+        self._input_context_properties_handler = None
+        self._output_context_properties_handler = None
+        self._data:ActivityData = None
 
     def run_activity(self, data: ActivityData):
+        if data.action == Action.REUSE:
+            #activity = AutorFrameworkDummyActivity() # Create an activity scale
+            #activity.status = data.context.get(key='status')
+            #data.activity = activity
+            data.activity_type = "AUTOR_FWK_DUMMY"
+
+
         self._data = data
 
         self._preprocess()
@@ -73,6 +84,13 @@ class ActivityRunner:
 
             # Create activity
             self._create_activity()  # Can set activity status to ERROR
+
+            # Create context properties handlers
+            self._input_context_properties_handler  = ContextPropertiesHandler(self._data.activity, self._data.input_context)
+            self._output_context_properties_handler = ContextPropertiesHandler(self._data.activity, self._data.output_context)
+
+            # Create ContextProperties for the Activity (to be used inside Activity)
+            self._data.output_context_properties_handler = self._output_context_properties_handler
 
             # Load activity properties.
             self._load_activity_properties()
@@ -111,7 +129,8 @@ class ActivityRunner:
 
 
                 LoggingConfig.activate_activity_logging()
-                self._data.activity.print()
+                if DebugConfig.print_activity:
+                    self._data.activity.print()
                 self._data.activity.run()
                 LoggingConfig.activate_framework_logging()
                 logging.info(f"{DebugConfig.autor_info_prefix}<-------- Finished activity '{self._data.activity_name}' (Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__}) <--------")
@@ -183,7 +202,6 @@ class ActivityRunner:
         try:
             self._data.activity = ActivityFactory.create(self._data.activity_type)
         except Exception as e:
-            # TODO: This probably doesn't work, can't instantiate an abstract class.
             self._data.activity = (
                 Activity()
             )  # If activity creation failed, create an activity scale.
@@ -192,34 +210,30 @@ class ActivityRunner:
             )  # Framework rules not followed -> framework error
 
     def _load_activity_properties(self):
-        self._data.context_properties_handler = ContextPropertiesHandler(
-            self._data.activity, self._data.context
-        )
+        handler = ContextPropertiesHandler(self._data.activity, self._data.input_context)
 
         try:
             # If the framework has decided that the activity status is ERROR,
             #  no input parameter checks should be performed.
-            self._data.context_properties_handler.load_input_properties(
-                mandatory_inputs_check=self._ok_to_run()
-            )
+            handler.load_input_properties(mandatory_inputs_check=self._ok_to_run())
         except Exception as e:
             self._register_error(e, "Exception loading activity input properties.")
 
     def _save_activity_properties(self):
         status = self._data.activity.status
-        handler = self._data.context_properties_handler
+
 
         try:
-            # Save activity output properties to context and push the conext to remote.
+            # Save activity output properties to context and push the context to remote.
             # Mandatory output properties are required only from the activities with the status
             #  SUCCESS.
-            handler.save_output_properties(mandatory_outputs_check=(status == Status.SUCCESS))
+            self._output_context_properties_handler.save_output_properties(mandatory_outputs_check=(status == Status.SUCCESS))
         except Exception as e:
             self._register_error(e)
 
     def _update_activity_context(self):
         activity = self._data.activity
-        context = self._data.context
+        context = self._data.output_context
         action = self._data.action
 
         # Sanity check

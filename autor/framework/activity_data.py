@@ -41,8 +41,9 @@ class ActivityData:
         self.activity_type:str = None
 
         self.activity_context:ActivityContext = None
-        self.context:Context = None
-        self.context_properties_handler:ContextPropertiesHandler = None
+        self.input_context:Context = None # To read input props from (Activity Block level)
+        self.output_context:Context = None # To write output props to (Activity level)
+        self.output_context_properties_handler:ContextPropertiesHandler = None
 
         self.activities = []
         self.activities_by_name = {}

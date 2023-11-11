@@ -23,6 +23,7 @@ from pprint import pprint
 
 from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.constants import ExceptionType
+from autor.framework.context import Context
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import StateKeys as sta
 from autor.framework.key_handler import KeyConverter
@@ -165,6 +166,8 @@ class StateHandler(StateProducer):
     # pylint: disable=too-many-branches, too-many-statements
     def _run_state_callbacks(state_name, state_data, listeners:List[StateListener]):
 
+        #Context.print_context(f"Context before state: {state_name}")
+
         # Run state callbacks for all listeners that listen to the given state.
         # Callback method name and the state class name that is needed for calling the callbacks
         # are derived from the 'state_name' according to following:
@@ -176,6 +179,9 @@ class StateHandler(StateProducer):
         state_class_name = KeyConverter.UCU_to_PASCAL(state_name)
         callback_method_name = f'on_{KeyConverter.UCU_to_SNAKE(state_name)}'
 
+        if DebugConfig.print_context_before_state:
+            Context.print_context(f"Context before state: {state_name}")
+
         for listener in listeners:
             is_listening:bool = StateHandler._overrides_callback(listener, callback_method_name)
             if is_listening:
@@ -183,7 +189,7 @@ class StateHandler(StateProducer):
                 callback_method = getattr(listener, callback_method_name)
 
                 if DebugConfig.print_calls_to_extensions:
-                    logging.debug(f'{DebugConfig.extension_trace_prefix}{listener.__class__.__name__}: ENTER {callback_method_name}()')
+                    logging.info(f'{DebugConfig.extension_trace_prefix}{listener.__class__.__name__}: ENTER {callback_method_name}()')
 
 
                 #----------------------- Extension run BEGIN -------------------------#
@@ -203,10 +209,11 @@ class StateHandler(StateProducer):
 
 
                 # ----------------------- Extension run END -------------------------#
-
                 if DebugConfig.print_calls_to_extensions:
-                    logging.debug(f'{DebugConfig.extension_trace_prefix}{listener.__class__.__name__}: LEAVE {callback_method_name}()')
+                    logging.info(f'{DebugConfig.extension_trace_prefix}{listener.__class__.__name__}: LEAVE {callback_method_name}()')
 
+        if DebugConfig.print_context_after_state:
+            Context.print_context(f"Context after state: {state_name}")
 
 
     @staticmethod

@@ -29,6 +29,8 @@ from autor.framework.keys import StateKeys as sta
 from autor.framework.state import Bootstrap, FrameworkStart, BeforeActivityBlock
 from autor.framework.state_listener import StateListener
 from autor.framework.keys import StateKeys as sta
+from autor.framework.util import Util
+
 
 # pylint: disable=no-member, abstract-method
 
@@ -74,12 +76,20 @@ class AutorFrameworkBootstrap(StateListener):
             logging.debug(f'flow_run_id:     {state.flow_run_id}')
             state.flow_config_url, state.activity_block_id = self._create_flow_configuration(state.activity_module, state.activity_type, state.activity_config)
 
-        elif state.activity_name is not None:
-            logging.debug('activity-name is provided -> Preparing to run the specified activity within activity block')
+        elif state.flow_run_id is not None and state.activity_name_special is not None:
+            logging.debug('flow-run-id and activity-name are provided -> Preparing to re-run activity block')
+            if state.activity_block_id is not None:
+                state.activity_id_special = f'{state.activity_block_id}-{state.activity_name_special}'
+                logging.debug(f'Created activity-id: {state.activity_id_special}')
+            else:
+                logging.debug('activity-block-id not provided -> did not create "activity-id" -> expecting an extension to create "activity-id"')
+        '''
+        elif state.activity_name_special is not None:
+            logging.debug('activity-name is provided without flow-run-id -> Preparing to run the specified activity within activity block')
 
         else:
             logging.debug('Preparing to run activity block')
-
+        '''
 
 
 
@@ -96,7 +106,7 @@ class AutorFrameworkBootstrap(StateListener):
         counter:int = activity_block_context.get(counter_key, 0)
         counter = counter + 1
         activity_block_context.set(counter_key, counter)
-        return f'activity-{counter}'
+        return f'activity{counter}'
 
 
     def _add_activity_inputs_to_context(self, activity_input:dict, activity_block_context:Context):
@@ -115,23 +125,37 @@ class AutorFrameworkBootstrap(StateListener):
 
     def on_before_activity_block(self, state: BeforeActivityBlock):
 
+
         if state.dict[sta.MODE] == Mode.ACTIVITY:
 
-            # We will be working with Context and it should be the closest
-            # layer to the Activity Context. In Autor the closest layer is
-            # Activity Block layer.
             activity_block_context: Context = state.dict[sta.ACTIVITY_BLOCK_CONTEXT]
 
 
             # --------------- Create activity name --------------------------#
             activity_name = self._create_activity_name(activity_block_context)
-            state.dict[sta.ACTIVITY_NAME] = activity_name
-            logging.debug(f'Generated activity name: {state.dict[sta.ACTIVITY_NAME]}')
+            state.dict[sta.ACTIVITY_NAME_SPECIAL] = activity_name
+            logging.debug(f'Generated activity name: {state.dict[sta.ACTIVITY_NAME_SPECIAL]}')
 
 
             # -------------- Add activity inputs to context -----------------#
             activity_input:dict = state.dict[sta.ACTIVITY_INPUT]
             self._add_activity_inputs_to_context(activity_input, activity_block_context)
+
+
+        if state.dict[sta.MODE] == Mode.ACTIVITY_BLOCK_RERUN:
+            ctx: Context = state.dict[sta.ACTIVITY_BLOCK_CONTEXT]
+            additions:dict = state.dict[sta.ACTIVITY_BLOCK_CONTEXT_ADDITION]
+            for key,val in additions.items():
+                ctx.set(key,val)
+
+            if DebugConfig.trace_context:
+                Util.print_dict(additions,level='info',comment='Context additions', prefix=DebugConfig.context_trace_prefix)
+                ctx.print_context("Context updated with additions")
+
+
+            #ctx:Context = state.dict[sta.ACTIVITY_BLOCK_CONTEXT]
+            #ctx.set("max",-444444)
+            #ctx.set("activityBlockStatus",None)
 
 
 

@@ -26,13 +26,17 @@ class DebugConfig():
     # Main flags
     trace_sequence_details = False # Activates all flags connected to sequence tracing.
 
-    print_final_input = False # Prints the input that Autor has after bootstrapping
-
+    print_final_input = True # Prints the input that Autor has after bootstrapping
+    print_activity = False # Prints activity details when it's about to run
+    print_default_config_conditions = False # Prints default rules for continue/runOn
 
     print_autor_info = False
     autor_info_prefix = "[aut]: "
 
     # Detail flags
+
+    # For internal debugging only. To see the activity details
+    # use flag: print_activity
     print_selected_activity = False
     selected_activity_prefix = "[sel]: "
 
@@ -45,25 +49,27 @@ class DebugConfig():
     trace_callbacks = False
     callbacks_trace_prefix = "[clb]: "
 
-    trace_context = False
-    context_trace_prefix = "[ctx]: "
 
     trace_string_arg_parsing = False
     string_arg_parsing_prefix = "[srg]: "
 
-    print_calls_to_extensions = False
+    print_calls_to_extensions = True
     extension_trace_prefix = "[ext]: "
 
     print_state_names = False
     state_prefix = "[sta]: "
 
-    # ------------ context -----------------#
+    # ------------  C O N T E X T  -----------------#
+    trace_context = False # All context
+    context_trace_prefix = "[ctx]: "
+    print_context_on_finished = True
     print_context_before_activities_are_run = False
-    print_context_on_finished = False
+    print_context_before_state = False
+    print_context_after_state = False
 
     print_loaded_extensions = False
     print_loaded_modules = False
-    print_registered_exceptions = False
+    print_registered_exceptions = True
 
     exit_on_extension_exceptions = False
 
@@ -75,5 +81,7 @@ class DebugConfig():
     if trace_context:
         print_context_before_activities_are_run = True
         print_context_on_finished = True
+        print_context_before_state = True
+        print_context_after_state = True
 
 # fmt: on

@@ -158,6 +158,24 @@ Autor can be run in three modes:
             )
         )
 
+        parser.add_argument(
+            # pylint: disable-next=no-member
+            "--" + cln.ACTIVITY_NAME,
+            required=False,
+            action="store",
+            type=str,
+            help="The unique identifier of the activity within Flow Configuration."
+        )
+
+        parser.add_argument(
+            # pylint: disable-next=no-member
+            "--" + cln.ACTIVITY_ID,
+            required=False,
+            action="store",
+            type=str,
+            help="The unique identifier of the activity run within an activity block run."
+        )
+
         # An argument type for a list of strings
         def list_of_strings(arg):
             if arg is None or arg == "":
@@ -221,8 +239,6 @@ Autor can be run in three modes:
             return dict_data
 
 
-
-
         parser.add_argument(
             # pylint: disable-next=no-member
             "--" + cln.CUSTOM_DATA,
@@ -230,19 +246,21 @@ Autor can be run in three modes:
             action="store",
             type=json_string_or_simple_format,
             help=(
-                "Custom data/configurations that can be provided to extensions. Format: JSON string."
+                "Custom data/configurations that can be provided to extensions. Format: JSON string or simple format: 'key1=1,key2=2,..,keyN=N'."
             )
         )
 
-        ##################### ACTIVITY MODE SUPPORT ######################
-        """
-            --mode                   activity
-            --flow-run-id            12121312414
-            --activity-module        getting_started.activities
-            --activity-type          INPUT_OUTPUT
-            --activity-config        "{\"myScore\":9}"
-            --activity-input         "{\"highest_score\":4}"
-        """
+        parser.add_argument(
+            # pylint: disable-next=no-member
+            "--" + cln.ADDITIONAL_CONTEXT,
+            required=False,
+            action="store",
+            type=json_string_or_simple_format,
+            help=(
+                "Context that will be added to the existing context. Format: JSON string or simple format: 'key1=1,key2=2,..,keyN=N'."
+            )
+        )
+
 
         parser.add_argument(
             # pylint: disable-next=no-member
@@ -279,10 +297,26 @@ Autor can be run in three modes:
             help="Values for activity's input properties."
         )
 
+        parser.add_argument(
+            # pylint: disable-next=no-member
+            "--" + cln.ACTIVITY_BLOCK_CONTEXT_ADDITION,
+            required=False,
+            action="store",
+            type=json_string_or_simple_format,
+            help="The defined values will be added to the activity block context. To 'remove' and existing value set the value to null"
+        )
+
         return parser
 
     def _string_to_type(self, val:str):
         prefix = DebugConfig.string_arg_parsing_prefix
+
+        if val.lower() in ('none','null'):
+            if DebugConfig.trace_string_arg_parsing:
+                logging.info(f"{prefix}Value:{val} is None")
+            return None
+
+
         try:
             final_val = int(val)
             if DebugConfig.trace_string_arg_parsing:
@@ -297,25 +331,40 @@ Autor can be run in three modes:
             except:
                 if DebugConfig.trace_string_arg_parsing:
                     logging.info(f"{prefix}Value:{val} is NOT float")
-                # Either string or a list
-                elems = val.split(',')
 
-                if len(elems)>1: # List
+
+                if val in ('True','true'):
+                    final_val = True
                     if DebugConfig.trace_string_arg_parsing:
-                        logging.info(f"{prefix}Value:{val} is list")
-                    final_val = []
-                    for elem in elems:
-                        elem = self._string_to_type(elem)
-                        final_val.append(elem)
-
+                        logging.info(f"{prefix}Value:{val} is bool")
+                elif val in ('False', 'false'):
+                    final_val = False
+                    if DebugConfig.trace_string_arg_parsing:
+                        logging.info(f"{prefix}Value:{val} is bool")
                 else:
                     if DebugConfig.trace_string_arg_parsing:
-                        logging.info(f"{prefix}Value:{val} is string")
-                    if (val[0] == "'" and val[-1] == "'") or (val[0] == '"' and val[-1] == '"'):
+                        logging.info(f"{prefix}Value:{val} is NOT bool")
+
+
+                    # Either string or a list
+                    elems = val.split(',')
+
+                    if len(elems)>1: # List
                         if DebugConfig.trace_string_arg_parsing:
-                            logging.info(f"{prefix}Removing quotes from the string")
-                        final_val = val[1:-1]
+                            logging.info(f"{prefix}Value:{val} is list")
+                        final_val = []
+                        for elem in elems:
+                            elem = self._string_to_type(elem)
+                            final_val.append(elem)
+
                     else:
-                        final_val = val
+                        if DebugConfig.trace_string_arg_parsing:
+                            logging.info(f"{prefix}Value:{val} is string")
+                        if (val[0] == "'" and val[-1] == "'") or (val[0] == '"' and val[-1] == '"'):
+                            if DebugConfig.trace_string_arg_parsing:
+                                logging.info(f"{prefix}Removing quotes from the string")
+                            final_val = val[1:-1]
+                        else:
+                            final_val = val
         return final_val
 

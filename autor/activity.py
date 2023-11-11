@@ -103,48 +103,55 @@ class Activity(abc.ABC):
         # A context object for reading context data from flow context.
         self.__context = data.activity_context
 
-        Check.is_instance_of(data.context_properties_handler, ContextPropertiesHandler)
+        Check.is_instance_of(data.output_context_properties_handler, ContextPropertiesHandler)
         # Used for reading/saving properties from/to context.
-        self.__context_properties_handler = data.context_properties_handler
+        self.__context_properties_handler = data.output_context_properties_handler
+
+        # Internal Autor framework info. Not intended to be used by Activity
+        # developers. Used for debugging purposes.
+        Check.is_non_empty_string(data.action)
+        self.__action = data.action
+
 
     def print(self):
         # fmt: off
-        logging.debug("")
-        logging.debug("   _____________________ ACTIVITY _____________________")
-        logging.debug(f"   self.id:                         {str(self.id)}")
-        logging.debug(f"   self.run_id:                     {str(self.run_id)}")
-        logging.debug(f"   self.name:                       {str(self.name)}")
-        logging.debug(f"   self.type:                       {str(self.type)}")
-        logging.debug(f"   self.class:                      {str(self.__class__.__name__)}")
-        logging.debug(f"   self.status:                     {str(self.status)}")
-        logging.debug(f"   self.flow_id:                    {str(self.flow_id)}")
-        logging.debug(f"   self.flow_run_id:                {str(self.flow_run_id)}")
-        logging.debug(f"   self.activity_block_id:          {str(self.activity_block_id)}")
-        logging.debug(f"   self.activity_block_run_id:      {str(self.activity_block_run_id)}")
-        logging.debug(f"   self.configuration:              {str(self.configuration)}")
+        logging.info("")
+        logging.info("   _____________________ ACTIVITY _____________________")
+        logging.info(f"   self.id:                         {str(self.id)}")
+        logging.info(f"   self.run_id:                     {str(self.run_id)}")
+        logging.info(f"   self.name:                       {str(self.name)}")
+        logging.info(f"   self.type:                       {str(self.type)}")
+        logging.info(f"   self.class:                      {str(self.__class__.__name__)}")
+        logging.info(f"   self.status:                     {str(self.status)}")
+        logging.info(f"   self.__action                    {str(self.__action)}")
+        logging.info(f"   self.flow_id:                    {str(self.flow_id)}")
+        logging.info(f"   self.flow_run_id:                {str(self.flow_run_id)}")
+        logging.info(f"   self.activity_block_id:          {str(self.activity_block_id)}")
+        logging.info(f"   self.activity_block_run_id:      {str(self.activity_block_run_id)}")
+        logging.info(f"   self.configuration:              {str(self.configuration)}")
         # fmt: on
         if len(self.activity_block_callbacks) == 0:
-            logging.debug("   self.activity_block_callbacks:  []")
+            logging.info("   self.activity_block_callbacks:  []")
         else:
             first_callback = True
             for cb_ in self.activity_block_callbacks:
                 if first_callback:
                     first_callback = False
-                    logging.debug(
+                    logging.info(
                         (
                             "   self.activity_block_callbacks:   "
                             + f"{str(cb_.__class__.__name__)} {cb_.run_on}"
                         )
                     )
                 else:
-                    logging.debug(
+                    logging.info(
                         (
                             f"                                    {str(cb_.__class__.__name__)}"
                             + f" {cb_.run_on}"
                         )
                     )
 
-        logging.debug("")
+        logging.info("")
 
     ################################### CONTEXT properties ##################################
     # Context properties are read/written from/to flow context.

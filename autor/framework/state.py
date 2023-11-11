@@ -32,6 +32,7 @@ class State:
     # State names
     UNKNOWN = "UNKNOWN"
     BOOTSTRAP = "BOOTSTRAP"
+    CONTEXT = "CONTEXT"
     FRAMEWORK_START = "FRAMEWORK_START"
     BEFORE_ACTIVITY_BLOCK = "BEFORE_ACTIVITY_BLOCK"
     SELECT_ACTIVITY = "SELECT_ACTIVITY"
@@ -93,6 +94,15 @@ class Bootstrap(State):
     def activity_block_id(self, n:str) -> None:  # setter
         self._dict[sta.ACTIVITY_BLOCK_ID] = n
 
+    # --------------- activity_block_run_id --------------------#
+    @property
+    def activity_block_fun_ids(self) -> str:  # getter
+        return self._dict[sta.ACTIVITY_BLOCK_RUN_ID]
+
+    @activity_block_id.setter
+    def activity_block_run_ids(self, n: str) -> None:  # setter
+        self._dict[sta.ACTIVITY_BLOCK_RUN_ID] = n
+
 
     # ------------------ flow_run_id ----------------------#
     @property
@@ -106,12 +116,22 @@ class Bootstrap(State):
 
     # ---------------- activity_name ---------------------#
     @property
-    def activity_name(self) -> str:  # getter
-        return self._dict[sta.ACTIVITY_NAME]
+    def activity_name_special(self) -> str:  # getter
+        return self._dict[sta.ACTIVITY_NAME_SPECIAL]
 
-    @activity_name.setter
-    def activity_name(self, n:str) -> None:  # setter
-        self._dict[sta.ACTIVITY_NAME] = n
+    @activity_name_special.setter
+    def activity_name_special(self, n:str) -> None:  # setter
+        self._dict[sta.ACTIVITY_NAME_SPECIAL] = n
+
+
+    # ---------------- activity_id ---------------------#
+    @property
+    def activity_id_special(self) -> str:  # getter
+        return self._dict[sta.ACTIVITY_ID_SPECIAL]
+
+    @activity_id_special.setter
+    def activity_id_special(self, n: str) -> None:  # setter
+        self._dict[sta.ACTIVITY_ID_SPECIAL] = n
 
 
     # ---------------- custom_data ---------------------#
@@ -154,7 +174,9 @@ class Bootstrap(State):
         return deepcopy(self._dict[sta.ACTIVITY_INPUT])
 
 
-
+class Context(State):
+    def __init__(self, dict: dict):
+        super().__init__(name=State.CONTEXT, dict=dict)
 
 
 class FrameworkStart(State):

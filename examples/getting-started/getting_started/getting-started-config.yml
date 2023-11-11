@@ -99,6 +99,34 @@ activityBlocks:
         - type: EMPTY
           name: AB2
 
+
+  full-flow-example-without-names:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: EMPTY
+        - type: EMPTY
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+        - type: EMPTY
+        - type: EMPTY
+
+    activities: # main activities
+      - type: EMPTY
+      - type: EMPTY
+      - type: EMPTY
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: EMPTY
+        - type: EMPTY
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: EMPTY
+        - type: EMPTY
+
+
   callback-example:
     activities:
       - type: CALLBACK
@@ -140,6 +168,9 @@ activityBlocks:
       - type: INPUT_OUTPUT
         configuration:
           myScore: 2
+      - type: INPUT_OUTPUT
+        configuration:
+          myScore: 1111
 
   config-example:
     activities:
