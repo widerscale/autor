@@ -22,6 +22,7 @@ from autor.framework.check import Check
 from autor.framework.constants import Action
 from autor.framework.constants import ActivityGroupType as agt
 from autor.framework.constants import Configuration, Mode, SkipType, Status
+from autor.framework.context import Context
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
@@ -102,7 +103,8 @@ class ActivityBlockRules:
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
-    _rerun_activated = False # static attribute used form mode ACTIVITY_BLOCK_RERUN
+    _rerun_activated = False # static attribute used for mode ACTIVITY_BLOCK_RERUN
+    _special_activity_detected = False # static attribute used for mode ACTIVITY_IN_BLOCK
 
 
 
@@ -121,6 +123,7 @@ class ActivityBlockRules:
     @staticmethod
     def reset_static_data():
         ActivityBlockRules._rerun_activated = False
+        ActivityBlockRules._special_activity_detected = False
 
     # pylint: disable=invalid-name
     def _choose_most_important_action(self, a1, a2, a3):
@@ -158,34 +161,59 @@ class ActivityBlockRules:
                 f"Autor mode: {self._mode} not supported in _run_activity()"
             )
         '''
+        skip_with_outputs = data.activity_config.skip_with_outputs
+
 
         #______________________________ ACTIVITY_IN_BLOCK _________________________________#
         if mode == Mode.ACTIVITY_IN_BLOCK:
             if data.activity_id == activity_id_special:
-                self._activity_data.action = Action.RUN
+
+                Check.is_false(self._special_activity_detected, "_special_activity_detected should not be activated twice")
+                ActivityBlockRules._special_activity_detected = True
+                logging.info(f"_special_activity_detected: {ActivityBlockRules._special_activity_detected}")
+
+                if skip_with_outputs:
+                    return Action.SKIP_WITH_OUTPUT_VALUES
+                else:
+                    return self._get_action(data, ignore_unrun=ignore_unrun)
             else:
-                self._activity_data.action = Action.SKIP_BY_FRAMEWORK
+                #if ActivityBlockRules._special_activity_detected:
+                    #return Action.SKIP_BY_FRAMEWORK # Activities that follow after the special activity
+                #else:
+                return Action.KEEP_AS_IS # Activities before the special activity should not have any impact on the flow.
+                #return Action.SKIP_BY_FRAMEWORK
+                #return Action.REUSE
+
 
         # ______________________________ ACTIVITY_BLOCK_RERUN _________________________________#
         elif mode == Mode.ACTIVITY_BLOCK_RERUN:
-            if data.activity_id == activity_id_special:
+            if data.activity_id == activity_id_special: # The activity from which the re-run starts
 
                 Check.is_false(self._rerun_activated, "rerun_activated should not be activated twice")
                 ActivityBlockRules._rerun_activated = True
                 logging.info("Re-run initiated")
 
             if ActivityBlockRules._rerun_activated:
-                return self._get_action(data, ignore_unrun=ignore_unrun)
+                if skip_with_outputs:
+                    return Action.SKIP_WITH_OUTPUT_VALUES
+                else:
+                    return self._get_action(data, ignore_unrun=ignore_unrun)
             else:
                 return Action.REUSE
 
         # ______________________________ ACTIVITY_BLOCK _________________________________#
         elif mode == Mode.ACTIVITY_BLOCK:
-            return self._get_action(data, ignore_unrun=ignore_unrun)
+            if skip_with_outputs:
+                return Action.SKIP_WITH_OUTPUT_VALUES
+            else:
+                return self._get_action(data, ignore_unrun=ignore_unrun)
 
         # ______________________________ ACTIVITY _________________________________#
-        elif mode == Mode.ACTIVITY:
-            return Action.RUN
+        elif mode == Mode.ACTIVITY: # In mode ACTIVITY there is always only ONE activity in the activity block
+            if skip_with_outputs:
+                return Action.SKIP_WITH_OUTPUT_VALUES
+            else:
+                return Action.RUN
 
         raise AutorFrameworkException(f"Unknown Autor run mode: {str(mode)}")
 
@@ -231,9 +259,7 @@ class ActivityBlockRules:
         # ---------------- AFTER-ACTIVITY -----------------#
         if activity_group_type == agt.AFTER_ACTIVITY:
 
-            if self._main_was_skipped_by_framework(
-                data
-            ) and self._all_before_activities_were_skipped_by_framework(data):
+            if self._main_was_skipped_by_framework(data) and self._all_before_activities_were_skipped_by_framework(data):
                 action_based_on_necessity = Action.SKIP_BY_FRAMEWORK
 
         # ---------------- AFTER-BLOCK -----------------#
@@ -245,9 +271,7 @@ class ActivityBlockRules:
         self._print("ACTION: based on runOn config: " + action_based_on_run_on_config)
         self._print("ACTION: based on interrupt:    " + action_based_on_interrupt)
         self._print("ACTION: based on necessity:    " + action_based_on_necessity)
-        action = self._choose_most_important_action(
-            action_based_on_run_on_config, action_based_on_interrupt, action_based_on_necessity
-        )
+        action = self._choose_most_important_action(action_based_on_run_on_config, action_based_on_interrupt, action_based_on_necessity)
 
         self._print("(run-decision) -----> " + action)
         return action
@@ -597,7 +621,7 @@ class ActivityBlockRules:
 
     # continueOn
     # Return True if the flow should continue based on the latest activity status.
-    def continue_on(self, data):
+    def continue_on(self, data:ActivityData, mode:Mode, action:Action):
 
         activity = data.activity
         activity_group_type = data.activity_group_type
@@ -606,7 +630,7 @@ class ActivityBlockRules:
             raise AutorFrameworkException("parameter 'activity' may not be None")
 
         # Read the activity's continueOnStatus requirements from the configuration.
-        continue_on = data.activity_config.continue_on
+        continue_on:list = data.activity_config.continue_on
 
         if continue_on is None:  # Value not obligatory -> use default
             continue_on = ActivityBlockRules.DEFAULT_CONTINUE_ON[activity_group_type]
@@ -615,6 +639,15 @@ class ActivityBlockRules:
                 + activity_group_type
                 + "]"
             )
+
+        if mode == Mode.ACTIVITY_IN_BLOCK and action == Action.KEEP_AS_IS:
+            # An activity can have status UNKNOWN ony if it has never been run for real, but we've
+            # been skipping it with action KEEP_AS_IS to make sure that no changes are made
+            # to the context. A status for an unrun activity should not have impact on wether the
+            # activity block will continue to run or not.
+            self._print(f"(continue-decision) mode={mode} && action={action} -> add UNKNOWN to continue_on")
+            continue_on = continue_on + [Status.UNKNOWN]
+            #continue_on.append(Status.UNKNOWN)
 
         self._print("(continue-decision) continue_on     = " + str(continue_on))
         self._print("(continue-decision) activity.status = " + str(activity.status))

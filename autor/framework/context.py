@@ -77,6 +77,10 @@ class Context:
     _remote_context: RemoteContext = None  # Remote context that can be added by an extension.
 
     @staticmethod
+    def get_context_dict() -> dict:
+        return Context._local_context
+
+    @staticmethod
     def print_context(message="") -> None:
         #Util.print_framed(prefix=DebugConfig.context_trace_prefix,text="Context",frame_symbol='-',level='info')
         Util.print_header(prefix=DebugConfig.context_trace_prefix,text=message,level='info')
@@ -513,6 +517,19 @@ class Context:
                 .get(self._activity_block)
                 .get(self._ACTIVITIES)
                 .get(self._activity)
+            )  # pylint: disable=no-member
+
+        except Exception:
+            return {}
+
+        return value
+
+    def get_focus_activity_block_dict(self):
+        value = None
+        try:
+            value = (
+                self.local_context.get(self._ACTIVITY_BLOCKS)
+                .get(self._activity_block)
             )  # pylint: disable=no-member
 
         except Exception:

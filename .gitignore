@@ -140,6 +140,10 @@ cython_debug/
 # Pycharm
 .idea
 
-# Autor-generated files
+# Autor-generated files and directories
 autor-config.yml
 file_context.json
+tests/context/
+tests/skip_with_outputs/
+tests/test____old.py
+

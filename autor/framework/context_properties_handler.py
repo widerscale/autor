@@ -94,7 +94,7 @@ class ContextPropertiesHandler:
 
             # Check that the mandatory properties have a value
             if mandatory_inputs_check:
-                if prop.mandatory and not prop_value:
+                if prop.mandatory and (prop_value is None):
                     raise ContextPropertiesHandlerValueException(
                         (
                             f"Could not find in context mandatory input property: '{ctx_key},"
@@ -144,7 +144,7 @@ class ContextPropertiesHandler:
 
             # Check that the mandatory property values are provided
             if mandatory_outputs_check:
-                if prop.mandatory and not prop_value:
+                if prop.mandatory and (prop_value is None):
                     raise ContextPropertiesHandlerValueException(
                         (
                             f"Mandatory output context property: '{prop.name}' not set in activity:"

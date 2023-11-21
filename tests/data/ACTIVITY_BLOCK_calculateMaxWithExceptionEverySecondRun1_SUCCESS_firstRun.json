@@ -1,0 +1,47 @@
+{
+    "_activityBlocks": {
+        "calculateMaxWithExceptionEverySecondRun1": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigUrl": "test-config.yml",
+            "_activities": {
+                "calculateMaxWithExceptionEverySecondRun1-activity1": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "runNbr": 1
+                },
+                "calculateMaxWithExceptionEverySecondRun1-activity2": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithExceptionEverySecondRun1-activity3": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithExceptionEverySecondRun1-exceptionEverySecondRun": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMaxWithExceptionEverySecondRun1-activity5": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "runNbr": 1,
+            "max": 5,
+            "activityBlockStatus": "SUCCESS"
+        }
+    },
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigUrl": "test-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "runNbr": 1,
+    "max": 5,
+    "activityBlockStatus": "SUCCESS"
+}

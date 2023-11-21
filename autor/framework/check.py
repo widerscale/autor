@@ -35,6 +35,19 @@ class Check:
         if value1 != value2:
             raise AutorFrameworkException(description)
 
+
+    @staticmethod
+    def is_in(val, collection, msg: str = ""):
+        description = f'\n\n____________________ CHECK FAIL _____________________\n<<< {val} not found in collection >>>\n{msg}'
+        if not val in collection:
+            raise AutorFrameworkException(description)
+
+    @staticmethod
+    def is_true(value, msg: str = ""):
+        description = str(msg) + " ([Check]: Expected True, received: " + str(value) + ")"
+        if value is False:
+            raise AutorFrameworkException(description)
+
     @staticmethod
     def is_non_empty_string(value: str, msg: str = ""):
         description = (

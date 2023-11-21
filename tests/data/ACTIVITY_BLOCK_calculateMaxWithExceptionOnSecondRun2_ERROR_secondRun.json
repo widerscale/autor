@@ -1,0 +1,67 @@
+{
+    "_activityBlocks": {
+        "calculateMaxWithExceptionOnSecondRun2": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigUrl": "test-config.yml",
+            "_activities": {
+                "calculateMaxWithExceptionOnSecondRun2-activity1": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMaxWithExceptionOnSecondRun2-activity2": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMaxWithExceptionOnSecondRun2-exceptionOnSecondRun": {
+                    "action": "RUN",
+                    "status": "ERROR",
+                    "max": 5,
+                    "isFirstRun": false
+                },
+                "calculateMaxWithExceptionOnSecondRun2-activity4": {
+                    "skipType": "SKIPPED_BY_FRAMEWORK",
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED",
+                    "max": 5
+                }
+            },
+            "action": "SKIP_BY_FRAMEWORK",
+            "status": "SKIPPED",
+            "max": 5,
+            "isFirstRun": false,
+            "skipType": "SKIPPED_BY_FRAMEWORK",
+            "activityBlockStatus": "ERROR"
+        }
+    },
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigUrl": "test-config.yml",
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "SKIPPED",
+    "max": 5,
+    "isFirstRun": false,
+    "activityBlockStatus": "ERROR",
+    "exceptions": [
+        {
+            "message": "This is a planned exception for the second run",
+            "class": "Exception",
+            "description": "Exception caught during activity run: Exception: This is a planned exception for the second run",
+            "type": "ACTIVITY",
+            "state": "BEFORE_ACTIVITY_RUN",
+            "stackTrace": [
+                "Traceback (most recent call last):",
+                "  File \"C:\\github\\widerscale\\autor\\autor\\framework\\activity_runner.py\", line 126, in _run",
+                "    self._data.activity.run()",
+                "  File \"C:\\github\\widerscale\\autor\\tests\\test_activities\\activities.py\", line 114, in run",
+                "    raise Exception(\"This is a planned exception for the second run\")",
+                "Exception: This is a planned exception for the second run"
+            ],
+            "custom": {
+                "activityId": "calculateMaxWithExceptionOnSecondRun2-exceptionOnSecondRun",
+                "activityStatus": "ERROR"
+            }
+        }
+    ],
+    "skipType": "SKIPPED_BY_FRAMEWORK"
+}

@@ -11,17 +11,23 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+import datetime
 # The entry point to Autor
 # Call run() to run Autor.
 
 import importlib
+import json
 import logging
+import os.path
+import shutil
 import uuid
 from typing import List
 from urllib.request import url2pathname
 
+import yaml
+
 from autor import Activity
+from autor.flow_configuration.activity_configuration import ActivityConfiguration
 from autor.flow_configuration.flow_configuration import FlowConfiguration
 from autor.flow_configuration.flow_configuration_factory import (
     load_flow_configuration,
@@ -66,6 +72,7 @@ class ActivityBlock(StateProducer):
 
     def __init__(
         self,
+        mode,
         additional_context: dict = {},  # mode: ACTIVITY_BLOCK_RERUN
         additional_extensions: list = None,
         activity_block_id: str = None,
@@ -144,7 +151,10 @@ class ActivityBlock(StateProducer):
             self._activity_block_context_addition = {}
         else:
             self._activity_block_context_addition = additional_context
-        
+
+        # After each run Autor adds 'skip-with-outputs' configuration to the flow
+        # configuration. The attribute holds the URL to the updated configuration.
+        self._skip_with_outputs_flow_configuration_url = None
 
         # Any data that the user of Autor would like to provide for
         # extensions.
@@ -178,7 +188,7 @@ class ActivityBlock(StateProducer):
         #    Runs the specified activity with the provided activity
         #       configuration (and context).
         #
-        self._mode = None
+        self._mode = mode
 
 
 
@@ -193,10 +203,10 @@ class ActivityBlock(StateProducer):
 
 
         # Attributes that are INITIATED after state BOOTSTRAP
-        self._flow_id = None          # Unique identifier of the flow provided by flow configuration.
-        self._flow_context_id = None  # Unique identifier of a context for a flow run.
-        self._flow_config = None      # The configuration object representing the whole flow.
-        self._flow_context:Context = None     # Context, focused on the root (flow) level.
+        self._flow_id = None                            # Unique identifier of the flow provided by flow configuration.
+        self._flow_context_id = None                    # Unique identifier of a context for a flow run.
+        self._flow_config:FlowConfiguration = None      # The configuration object representing the whole flow.
+        self._flow_context:Context = None               # Context, focused on the root (flow) level.
 
 
         # ------------------------------  A C T I V I T Y   B L O C K   D A T A   -----------------#
@@ -204,7 +214,7 @@ class ActivityBlock(StateProducer):
         self._activity_block_run_id = None
         self._activity_block_activities:List[Activity] = [] # A list of activities that is created as the activities are run.
         self._activity_block_callback_exceptions = [] # [dict{str:str}] Exceptions in activity block callbacks.
-        self._activity_block_status = Status.UNKNOWN # Current status of the activity block. Updated as the activities are run.
+        self._activity_block_status = Status.UNKNOWN # Current status of the activity block. Updated as the activities are run or from context
         self._activity_block_latest_activity = None # The latest activity that has been run (or skipped) in the activity block.
         # Set to true when the activity-block is considered to be interrupted
         #  (== before or main activities interrupted)
@@ -216,7 +226,6 @@ class ActivityBlock(StateProducer):
         self._activity_block_configs_after_block     = None
         self._activity_block_configs_before_activity = None
         self._activity_block_configs_after_activity  = None
-        self._activity_block_name = None
 
         self._before_block_activities = []
         self._before_activities = [] # Reset for each main-loop iteration
@@ -314,13 +323,16 @@ class ActivityBlock(StateProducer):
             StateHandler.change_state(State.BOOTSTRAP)
             # ---------------------------------------------------------------#
 
+            # Inputs finalized from user perspective -> perform internal trim
+            self._trim_inputs()
+
             if DebugConfig.print_final_input or DebugConfig.print_autor_info:
                 self._print_input_args_after_bootstrap()
 
 
             # Initiate attributes that may be affected by changes done in
             # state BOOTSTRAP.
-            self._initiate_autor_mode()
+            #self._initiate_autor_mode()
             self._initiate_flow()
             self._initiate_context()
 
@@ -332,7 +344,6 @@ class ActivityBlock(StateProducer):
             self._register_extensions_from_flow_configuration(self._flow_config)
 
 
-
             # Load activity classes and make them discoverable.
             self._load_activity_modules(self._flow_config)
 
@@ -340,12 +351,42 @@ class ActivityBlock(StateProducer):
             StateHandler.change_state(State.FRAMEWORK_START)
             # ---------------------------------------------------------------#
             self._flow_context.sync_remote()
+            self._add_additional_context()
+            self._update_activity_block_state_from_context()
+
+
             self._create_activities_configurations()
+            self._activity_block_context.set(ctx.MODE, self._mode)
+
 
         except Exception as e:
             self._register_exception(
                 e, "Unhandled exception during Autor set up", ExceptionType.SET_UP
             )
+
+    def _update_activity_block_state_from_context(self):
+        #self._activity_block_interrupted = self._activity_block_context.get(ctx.ACTIVITY_BLOCK_INTERRUPTED, search=False, default=False)
+        #self._activity_block_status = self._activity_block_context.get(ctx.ACTIVITY_BLOCK_STATUS, search=False, default=Status.UNKNOWN)
+
+        # Currently we don't want activity block status data to be re-loaded when the same run is being used. The status will be
+        # re-calculated from activity statuses as if it was a first activity block run. We need this behaviour to support re-runs.
+        pass
+
+    def _trim_inputs(self):
+        if self._activity_name_special is not None and self._activity_id_special is None:
+            Check.is_non_empty_string(self._activity_block_id, f"Missing activity_block_id. Cannot create special activity-id from special activity name: {self._activity_name_special}.")
+            self._activity_id_special = f"{self._activity_block_id}-{self._activity_name_special}"
+
+    def _add_additional_context(self):
+        for key,val in self._activity_block_context_addition.items():
+            self._activity_block_context.set(key,val)
+
+        for key,val in self._activity_input.items():
+            if Util.is_camel_case(key):
+                self._activity_block_context.set(key, val)
+            else:
+                raise AutorFrameworkValueException(f"Activity input context keys must be in camelCase. Found: {key}")
+
 
     def _run(self):
         if self._autor_aborted:
@@ -388,10 +429,10 @@ class ActivityBlock(StateProducer):
             StateHandler.change_state(State.AFTER_ACTIVITY_BLOCK)
             # ---------------------------------------------------------------#
             self._activity_block_context.set(ctx.ACTIVITY_BLOCK_STATUS, self._activity_block_status)
+            self._activity_block_context.set(ctx.ACTIVITY_BLOCK_INTERRUPTED, self._activity_block_interrupted)
+
             if len(self._activity_block_callback_exceptions) > 0:
-                self._activity_block_context.set(
-                    ctx.CALLBACK_EXCEPTIONS, self._activity_block_callback_exceptions
-                )
+                self._activity_block_context.set(ctx.CALLBACK_EXCEPTIONS, self._activity_block_callback_exceptions)
             self._flow_context.sync_remote()
 
             if DebugConfig.print_context_on_finished:
@@ -405,7 +446,63 @@ class ActivityBlock(StateProducer):
             )
 
         finally:
-            self._print_activity_block_finished()
+            # These methods are good to always have for debugging
+            self._dbg_save_skip_with_outputs_flow_config()
+            self._dbg_print_activity_block_finished()
+            self._dbg_save_context()
+
+
+    def _dbg_save_context(self):
+
+        context:dict = Context.get_context_dict()
+
+        filename_unmodified = f'{self._mode}_{self._activity_block_id}_{self._activity_block_status}_unmodified.json'
+        filename_generic_ab = f'{self._mode}_{self._activity_block_id}_{self._activity_block_status}_uc.json'
+
+        shutil.rmtree('context', ignore_errors=True)
+        #if not os.path.exists('context'):
+        os.mkdir('context')
+
+        path_unmodified = os.path.join('context', filename_unmodified)
+        path_generic_ab = os.path.join('context', filename_generic_ab)
+
+        with open(path_unmodified, 'w', encoding='utf-8') as f:
+            json.dump(context, f, ensure_ascii=False, indent=4)
+
+
+        del context[ctx.ACTIVITY_BLOCK_RUN_ID]
+        del context[ctx.FLOW_RUN_ID]
+
+        activity_blocks:dict = context['_activityBlocks']
+
+        for ab_id, ab in activity_blocks.items():
+            del ab[ctx.ACTIVITY_BLOCK_RUN_ID]
+
+        #ab = context['_activityBlocks'][self._activity_block_id]
+        #del ab[ctx.ACTIVITY_BLOCK_RUN_ID]
+        with open(path_generic_ab, 'w', encoding='utf-8') as f:
+            json.dump(context, f, ensure_ascii=False, indent=4)
+
+
+    def _dbg_save_skip_with_outputs_flow_config(self):
+        # Skip-with-outputs data has already been added to flow
+        # configuration. We only need to save the configuration
+        # to a file.
+        config = self._flow_config.get_raw_configuration()
+
+        now_str = Util.get_datetime_str()
+
+        file_name = f"skip-with-outputs-flow-config-{now_str}.yml"
+        if not os.path.exists('skip_with_outputs'):
+            os.mkdir('skip_with_outputs')
+
+        path = os.path.join('skip_with_outputs', file_name)
+        self._skip_with_outputs_flow_configuration_url = path # save
+
+        with open(path, 'w') as outfile:
+            yaml.dump(config, outfile, default_flow_style=False, sort_keys = False)
+
+
 
     def _tear_down(self):
 
@@ -421,7 +518,7 @@ class ActivityBlock(StateProducer):
             self._register_exception(
                 e, "Unhandled exception during Autor tear down", ExceptionType.TEAR_DOWN
             )
-
+    '''
     def _initiate_autor_mode(self):
         # Set Autor mode.
         #
@@ -442,7 +539,8 @@ class ActivityBlock(StateProducer):
 
         if self._activity_module is not None:
             self._mode = Mode.ACTIVITY
-            Check.is_non_empty_string(self._activity_block_id, "Expected activity-block-id as input. activity-module provided -> run mode ACTIVITY -> activity-block-id required")
+            Check.is_non_empty_string(self._activity_block_id, "Expected activity-block-id as input. activity-module provided -> run mode ACTIVITY -> activity-block-id is also required")
+            Check.is_non_empty_string(self._activity_type, "Expected activity-type as input. activity-module provided -> run mode ACTIVITY -> activity-type is also required")
 
         elif self._flow_run_id is not None and self._activity_id_special is not None:
             self._mode = Mode.ACTIVITY_BLOCK_RERUN
@@ -455,9 +553,7 @@ class ActivityBlock(StateProducer):
         else:
             self._mode = Mode.ACTIVITY_BLOCK
             Check.is_non_empty_string(self._activity_block_id, "Expected activity-block-id as input to run mode ACTIVITY_BLOCK")
-
-
-
+    '''
 
     def _initiate_flow(self):
 
@@ -469,14 +565,6 @@ class ActivityBlock(StateProducer):
             self._flow_run_id = str(uuid.uuid4())
             self._flow_run_id_generated = True
 
-        '''
-        # Fetch the flow configuration
-        if self._flow_config_url is None:
-            self._activity_block_context.get(key=ctx.FLOW_CONFIG_URL, default=None)
-            if self._flow_config_url is None:
-                self._flow_context.print_context("Context")
-                raise AutorFrameworkValueException("flow_config_url not provided through arguments nor found in context")
-        '''
         self._flow_config = load_flow_configuration(self._flow_config_url)
         self._flow_id = self._flow_config.flow_id
 
@@ -492,6 +580,8 @@ class ActivityBlock(StateProducer):
         self._flow_context = Context() # Empty context, focused on the root (flow) level
         self._flow_context.id = self._flow_run_id
         self._activity_block_context = Context(activity_block=self._activity_block_id)
+
+
 
 
     def _print_attributes(self, title):
@@ -523,7 +613,7 @@ class ActivityBlock(StateProducer):
 
 
 
-    def _print_activity_block_finished(self):
+    def _dbg_print_activity_block_finished(self):
         prefix = DebugConfig.autor_info_prefix
         Util.print_header(prefix, 'A C T I V I T Y   B L O C K   F I N I S H E D', level='info')
         logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
@@ -589,7 +679,7 @@ class ActivityBlock(StateProducer):
             self._activity_block_configs_after_block     = self._activity_block_config.after_block
             self._activity_block_configs_before_activity = self._activity_block_config.before_activity
             self._activity_block_configs_after_activity  = self._activity_block_config.after_activity
-            self._activity_block_name = self._activity_block_config.name
+
             # fmt: on
             # pylint: enable=line-too-long
 
@@ -612,7 +702,7 @@ class ActivityBlock(StateProducer):
                 f"Could not create activity configurations: {e.__class__.__name__}: {str(e)}"
             ) from e
 
-    def _create_data(self, activity_id, activity_group_type, activity_config):  # -> ActivityData
+    def _create_data(self, activity_id, activity_group_type, activity_config:ActivityConfiguration):  # -> ActivityData
 
         self._print_activity_preparation_msg(
             activity_config.name, activity_id, activity_group_type, activity_config.activity_type
@@ -691,16 +781,15 @@ class ActivityBlock(StateProducer):
 
     def _update_activity_block_status(self, error_occurred):
 
-        data = self._activity_data
+        data:ActivityData = self._activity_data
+        action = data.action
 
-        if (
-            self._activity_block_interrupted is False
-        ):  # Once the activity block has been interrupted it will remain interrupted.
+        if self._activity_block_interrupted is False: # Once the activity block has been interrupted it will remain interrupted.
             if error_occurred:
                 self._activity_block_interrupted = True  # All framework and framework usage errors
                 data.interrupted = self._activity_block_interrupted
             else:
-                self._activity_block_interrupted = not self._rules.continue_on(data)
+                self._activity_block_interrupted = not self._rules.continue_on(data, self._mode, action)
                 data.interrupted = self._activity_block_interrupted
 
         self._activity_block_status, state_transition_summary = self._rules.get_activity_block_status(data, self._autor_aborted)
@@ -724,8 +813,8 @@ class ActivityBlock(StateProducer):
         if self._activity_data is not None:
             self._activity_data.activity_block_status = Status.ABORTED
 
-    def _run_activity(self, activity_name, activity_id, activity_group_type, activity_config):
-        self._activity_data = self._create_data(activity_id, activity_group_type, activity_config)
+    def _run_activity(self, activity_name, activity_id, activity_group_type, activity_config:ActivityConfiguration):
+        self._activity_data:ActivityData = self._create_data(activity_id, activity_group_type, activity_config)
 
         # ---------------------------------------------------------------------#
         StateHandler.change_state(State.SELECT_ACTIVITY)
@@ -736,19 +825,56 @@ class ActivityBlock(StateProducer):
         self._activity_data.action = self._rules.get_action(data=self._activity_data, mode=self._mode, activity_id_special=self._activity_id_special)
 
 
-        # -----------------   R U N   A C T I V I T Y   --------------------- #
+        if self._activity_data.action == Action.REUSE:
+            self._activity_data.activity_type = "REUSE"
+        elif self._activity_data.action == Action.SKIP_WITH_OUTPUT_VALUES:
+            self._activity_data.activity_type = "SKIP_WITH_OUTPUT_VALUES"
+        # elif self._activity_data.action == Action.SKIP_BY_FRAMEWORK or self._activity_data.action == Action.SKIP_BY_CONFIGURATION:
+        #     self._activity_data.activity_type = "SKIP"
+        # elif self._activity_data.action == Action.RUN:
+        #     pass
+        # else:
+        #     raise AutorFrameworkException(f"Unknown action type: {self._activity_data.action}")
+
+        # ---------------------------------------------------------------------#
+        # -----------------   R U N   A C T I V I T Y   ---------------------- #
         error_occurred = ActivityRunner().run_activity(self._activity_data)
+        # ---------------------------------------------------------------------#
+        # ---------------------------------------------------------------------#
+
 
         if error_occurred:
             self._abort_autor("Error occurred during activity run")
 
         self._update_activity_lists(self._activity_data.activity, activity_config, activity_group_type)
         self._update_activity_block_status(error_occurred)
+        self._create_activity_skip_with_outputs_config(self._activity_data)
 
         if DebugConfig.print_default_config_conditions:
             self._rules.print_default_config_conditions()
 
+
+    def _create_activity_skip_with_outputs_config(self, data:ActivityData):
+
+        # A part of original flow configuration
+        raw_dict = data.activity_config.raw()
+
+        # skip-with-outputs configuration that we want to create
+        skip_with_outputs_conf = {}
+        raw_dict["skipReuse"] = True
+        raw_dict["skipWithOutputsValues"] = skip_with_outputs_conf
+
+        # the outputs that the activity has saved into its context
+        ctx:dict = data.output_context.get_focus_activity_dict()
+
+        for key,val in ctx.items():
+            skip_with_outputs_conf[key] = val
+
+
+
+
     def _run_activity_block(self):
+
         # Make sure activity block run id is present.
         if self._activity_block_run_id is None: # run id can be provided when re-run is performed
             self._activity_block_run_id = str(uuid.uuid4())
@@ -760,14 +886,14 @@ class ActivityBlock(StateProducer):
 
         # Create an ordered list of data tuples that are needed for creating activities.
         # The order is the order in which the activities will be run.
-        self._activity_block_status = (
-            Status.SUCCESS
-        )  # If an activity block has been initiated correctly, the start status should be SUCCESS.
+        if self._activity_block_status == Status.UNKNOWN: # First run of the activity block
+            self._activity_block_status = Status.SUCCESS
+
 
         # --------------------- BEFORE-BLOCK ----------------------------#
         for act_conf_before_block in self._activity_block_configs_before_block:
             activity_id = (
-                self._activity_block_name
+                self._activity_block_id
                 + "-"
                 + self._get_activity_name(act_conf_before_block, ActivityGroupType.BEFORE_BLOCK)
             )
@@ -787,7 +913,7 @@ class ActivityBlock(StateProducer):
             # ----------------------- BEFORE-ACTIVITY --------------------------#
             for act_conf_before in self._activity_block_configs_before_activity:
                 activity_id = (
-                    self._activity_block_name
+                    self._activity_block_id
                     + "-"
                     + main_name
                     + "-"
@@ -801,7 +927,7 @@ class ActivityBlock(StateProducer):
                 )
 
             # ------------------------ MAIN-ACTIVITY ---------------------------#
-            activity_id = self._activity_block_name + "-" + main_name
+            activity_id = self._activity_block_id + "-" + main_name
             self._run_activity(
                 act_conf_main.name, activity_id, ActivityGroupType.MAIN_ACTIVITY, act_conf_main
             )
@@ -828,12 +954,12 @@ class ActivityBlock(StateProducer):
         # ----------------------- AFTER-BLOCK ------------------------------#
         for act_conf_after_block in self._activity_block_configs_after_block:
             activity_id = (
-                self._activity_block_name
+                self._activity_block_id
                 + "-"
                 + self._get_activity_name(act_conf_after_block, ActivityGroupType.AFTER_BLOCK)
             )
             self._run_activity(
-                self._activity_block_name,
+                self._activity_block_id,
                 activity_id,
                 ActivityGroupType.AFTER_BLOCK,
                 act_conf_after_block,
@@ -968,7 +1094,9 @@ class ActivityBlock(StateProducer):
         Load and add the listeners in the list.
         """
         listener_names = []
+        logging.info(f"liteners: {listeners}")
         for listener in listeners:
+            logging.info(f"listener: {listener}")
             [module_name, class_name] = listener.rsplit(".", 1) # retrieve module name and class name
             module = importlib.import_module(module_name)       # import the module
             class_ = getattr(module, class_name)                # create the class
@@ -1218,3 +1346,5 @@ class ActivityBlock(StateProducer):
     def get_mode(self)->str:
         return self._mode
 
+    def skip_with_outputs_flow_configuration_url(self):
+        return self._skip_with_outputs_flow_configuration_url

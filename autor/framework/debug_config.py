@@ -27,7 +27,7 @@ class DebugConfig():
     trace_sequence_details = False # Activates all flags connected to sequence tracing.
 
     print_final_input = True # Prints the input that Autor has after bootstrapping
-    print_activity = False # Prints activity details when it's about to run
+    print_activity = True # Prints activity details when it's about to run
     print_default_config_conditions = False # Prints default rules for continue/runOn
 
     print_autor_info = False
@@ -37,10 +37,10 @@ class DebugConfig():
 
     # For internal debugging only. To see the activity details
     # use flag: print_activity
-    print_selected_activity = False
+    print_selected_activity = True
     selected_activity_prefix = "[sel]: "
 
-    trace_activity_sequence_decisions = False
+    trace_activity_sequence_decisions = True
     activity_sequence_decisions_trace_prefix = "[seq]: "
 
     trace_activity_processing = False
@@ -63,7 +63,7 @@ class DebugConfig():
     trace_context = False # All context
     context_trace_prefix = "[ctx]: "
     print_context_on_finished = True
-    print_context_before_activities_are_run = False
+    print_context_before_activities_are_run = True
     print_context_before_state = False
     print_context_after_state = False
 

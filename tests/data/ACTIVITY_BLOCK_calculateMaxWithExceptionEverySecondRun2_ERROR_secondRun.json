@@ -1,0 +1,74 @@
+{
+    "_activityBlocks": {
+        "calculateMaxWithExceptionEverySecondRun2": {
+            "mode": "ACTIVITY_BLOCK",
+            "activityBlockRunId": "0fb00340-a912-4520-9449-d88f73e130f9",
+            "flowConfigUrl": "test-config.yml",
+            "_activities": {
+                "calculateMaxWithExceptionEverySecondRun2-activity1": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "runNbr": 2
+                },
+                "calculateMaxWithExceptionEverySecondRun2-activity2": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMaxWithExceptionEverySecondRun2-activity3": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMaxWithExceptionEverySecondRun2-exceptionEverySecondRun": {
+                    "action": "RUN",
+                    "status": "ERROR",
+                    "max": 5
+                },
+                "calculateMaxWithExceptionEverySecondRun2-activity5": {
+                    "skipType": "SKIPPED_BY_FRAMEWORK",
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED",
+                    "max": 5
+                }
+            },
+            "action": "SKIP_BY_FRAMEWORK",
+            "status": "SKIPPED",
+            "runNbr": 2,
+            "max": 5,
+            "skipType": "SKIPPED_BY_FRAMEWORK",
+            "activityBlockStatus": "ERROR"
+        }
+    },
+    "mode": "ACTIVITY_BLOCK",
+    "flowRunId": "efe4f819-b1cd-4c59-9b7d-3085760e7837",
+    "activityBlockRunId": "0fb00340-a912-4520-9449-d88f73e130f9",
+    "flowConfigUrl": "test-config.yml",
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "SKIPPED",
+    "runNbr": 2,
+    "max": 5,
+    "activityBlockStatus": "ERROR",
+    "exceptions": [
+        {
+            "message": "This is a planned exception for an odd run number.",
+            "class": "Exception",
+            "description": "Exception caught during activity run: Exception: This is a planned exception for an odd run number.",
+            "type": "ACTIVITY",
+            "state": "BEFORE_ACTIVITY_RUN",
+            "stackTrace": [
+                "Traceback (most recent call last):",
+                "  File \"C:\\github\\widerscale\\autor\\autor\\framework\\activity_runner.py\", line 126, in _run",
+                "    self._data.activity.run()",
+                "  File \"C:\\github\\widerscale\\autor\\tests\\test_activities\\activities.py\", line 107, in run",
+                "    raise Exception(\"This is a planned exception for an odd run number.\")",
+                "Exception: This is a planned exception for an odd run number."
+            ],
+            "custom": {
+                "activityId": "calculateMaxWithExceptionEverySecondRun2-exceptionEverySecondRun",
+                "activityStatus": "ERROR"
+            }
+        }
+    ],
+    "skipType": "SKIPPED_BY_FRAMEWORK"
+}

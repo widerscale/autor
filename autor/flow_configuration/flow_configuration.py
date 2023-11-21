@@ -66,3 +66,6 @@ class FlowConfiguration:
         return ActivityBlockConfiguration(
             name, configuration, self.configuration, self.dummy_configuration
         )
+
+    def get_raw_configuration(self)->dict:
+        return self.__flow_configuration_dictionary

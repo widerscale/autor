@@ -15,6 +15,7 @@ import json
 import logging
 import traceback
 
+from autor.framework.debug_config import DebugConfig
 from autor.framework.extension_exception import AutorExtensionException
 from autor.framework.remote_context import RemoteContext
 from autor.framework.util import Util
@@ -40,8 +41,18 @@ class FileContext(RemoteContext):
                 f"Failed to open file context for syncing. Exception: {exception.args}"
             ) from exception
 
+        if DebugConfig.trace_context:
+            logging.info(f"ID:     {id}")
+            Util.print_dict(context, "local context before sync", 'info')
+            Util.print_dict(remote_context, "remote context before sync", 'info')
+
         remote_context.update(context)
         context.update(remote_context)
+
+        if DebugConfig.trace_context:
+            logging.info(f"ID:     {id}")
+            Util.print_dict(context, "context after sync", 'info')
+
         file_content.update({id: remote_context})
 
         try:
@@ -52,3 +63,5 @@ class FileContext(RemoteContext):
             raise AutorExtensionException(
                 f"Failed to open file context for syncing. Exception: {exception.args}"
             ) from exception
+
+

@@ -1,0 +1,40 @@
+{
+    "_activityBlocks": {
+        "calculateMax": {
+            "mode": "ACTIVITY_BLOCK_RERUN",
+            "flowConfigUrl": "test-config.yml",
+            "_activities": {
+                "calculateMax-activity1": {
+                    "action": "REUSE",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMax-activity2": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMax-activity3": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMax-activity4": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "max": 5,
+            "activityBlockStatus": "SUCCESS"
+        }
+    },
+    "mode": "ACTIVITY_BLOCK_RERUN",
+    "flowConfigUrl": "test-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "max": 5,
+    "activityBlockStatus": "SUCCESS"
+}

@@ -1,0 +1,45 @@
+{
+    "_activityBlocks": {
+        "calculateMaxWithNames": {
+            "mode": "ACTIVITY_IN_BLOCK",
+            "flowConfigUrl": "test-config.yml",
+            "_activities": {
+                "calculateMaxWithNames-first": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithNames-second": {
+                    "skipType": "SKIPPED_BY_FRAMEWORK",
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED",
+                    "max": 3
+                },
+                "calculateMaxWithNames-third": {
+                    "skipType": "SKIPPED_BY_FRAMEWORK",
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED",
+                    "max": 3
+                },
+                "calculateMaxWithNames-fourth": {
+                    "skipType": "SKIPPED_BY_FRAMEWORK",
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED",
+                    "max": 3
+                }
+            },
+            "action": "SKIP_BY_FRAMEWORK",
+            "status": "SKIPPED",
+            "max": 3,
+            "skipType": "SKIPPED_BY_FRAMEWORK",
+            "activityBlockStatus": "SUCCESS"
+        }
+    },
+    "mode": "ACTIVITY_IN_BLOCK",
+    "flowConfigUrl": "test-config.yml",
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "SKIPPED",
+    "max": 3,
+    "skipType": "SKIPPED_BY_FRAMEWORK",
+    "activityBlockStatus": "SUCCESS"
+}

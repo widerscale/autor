@@ -11,17 +11,20 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+#
 # Utility functions. Small functions that didn't have a better place to end up in.
 # Currently contains some support for error registering and printing that should probably be
 # lifted out to a separate class.
 
+
+
+import datetime
 import json
 import logging
 import os
 import pprint
-import sys
 import traceback
+
 
 from autor.framework.constants import ExceptionType
 from autor.framework.debug_config import DebugConfig
@@ -32,6 +35,10 @@ from autor.framework.keys import FlowContextKeys as ctx
 
 
 class Util:
+    @staticmethod
+    def is_camel_case(string:str):
+        return string.isalnum() and not string.istitle()
+
     @staticmethod
     def print_framed(prefix:str, text: str, frame_symbol: str, frame_width=56, level ='debug'):
         text = f"   {text}   "
@@ -173,6 +180,23 @@ class Util:
 
         #Util.log(f'{prefix}\n{string}', level)
 
+    def read_json(file_name:str)->dict:
+        import json
+
+        with open(file_name) as json_data:
+            d = json.load(json_data)
+            json_data.close()
+
+        return d
+
+    @staticmethod
+    def get_datetime_str()->str:
+        now = datetime.datetime.now()
+        now_str = f'{now}'
+        now_str = now_str.replace(' ','-')
+        now_str = now_str.replace('.', '-')
+        now_str = now_str.replace(':', '-')
+        return now_str
 
     @staticmethod
     # pylint: disable-next=redefined-builtin

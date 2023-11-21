@@ -1,0 +1,38 @@
+{
+    "_activityBlocks": {
+        "calculateMaxWithNames": {
+            "mode": "ACTIVITY_IN_BLOCK",
+            "flowConfigUrl": "test-config.yml",
+            "_activities": {
+                "calculateMaxWithNames-first": {
+                    "action": "KEEP_AS_IS",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithNames-second": {
+                    "action": "KEEP_AS_IS",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithNames-third": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMaxWithNames-fourth": {
+                    "action": "KEEP_AS_IS"
+                }
+            },
+            "action": "KEEP_AS_IS",
+            "status": "SUCCESS",
+            "max": 5,
+            "activityBlockStatus": "SUCCESS"
+        }
+    },
+    "mode": "ACTIVITY_IN_BLOCK",
+    "flowConfigUrl": "test-config.yml",
+    "action": "KEEP_AS_IS",
+    "status": "SUCCESS",
+    "max": 5,
+    "activityBlockStatus": "SUCCESS"
+}

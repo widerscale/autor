@@ -26,6 +26,9 @@ class Configurable:
         self.__configuration = None
         self.__dummy_configuration = None
 
+    def raw(self) -> dict:
+        return self.__configuration_dict
+
     @property
     def name(self) -> str:
         return self.__name

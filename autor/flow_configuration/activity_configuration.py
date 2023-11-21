@@ -43,6 +43,13 @@ class ActivityConfiguration(Configurable):
     @property
     def continue_on(self) -> List[str]:
         return self.__configuration_dict.get("continueOn", None)
+    @property
+    def skip_with_outputs(self) -> bool:
+        return self.__configuration_dict.get("skipWithOutputs", False)
+
+    @property
+    def skip_with_outputs_values(self) -> dict:
+        return self.__configuration_dict.get("skipWithOutputsValues")
 
     def function(self, name: str) -> FunctionConfiguration:
         configuration_dict = {}

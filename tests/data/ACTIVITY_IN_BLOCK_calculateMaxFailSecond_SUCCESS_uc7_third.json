@@ -1,0 +1,34 @@
+{
+    "_activityBlocks": {
+        "calculateMaxFailSecond": {
+            "mode": "ACTIVITY_IN_BLOCK",
+            "flowConfigUrl": "test-config.yml",
+            "_activities": {
+                "calculateMaxFailSecond-first": {
+                    "action": "KEEP_AS_IS"
+                },
+                "calculateMaxFailSecond-second": {
+                    "action": "KEEP_AS_IS"
+                },
+                "calculateMaxFailSecond-third": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMaxFailSecond-fourth": {
+                    "action": "KEEP_AS_IS"
+                }
+            },
+            "action": "KEEP_AS_IS",
+            "status": "SUCCESS",
+            "max": 5,
+            "activityBlockStatus": "SUCCESS"
+        }
+    },
+    "mode": "ACTIVITY_IN_BLOCK",
+    "flowConfigUrl": "test-config.yml",
+    "action": "KEEP_AS_IS",
+    "status": "SUCCESS",
+    "max": 5,
+    "activityBlockStatus": "SUCCESS"
+}

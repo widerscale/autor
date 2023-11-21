@@ -1,0 +1,27 @@
+{
+    "_activityBlocks": {
+        "generatedActivityBlock": {
+            "max": 11,
+            "mode": "ACTIVITY",
+            "__AutorFrameworkBootstrap_activityModeCounter": 1,
+            "flowConfigUrl": "autor-config.yml",
+            "_activities": {
+                "generatedActivityBlock-activity1": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 11
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "activityBlockStatus": "SUCCESS"
+        }
+    },
+    "max": 11,
+    "mode": "ACTIVITY",
+    "__AutorFrameworkBootstrap_activityModeCounter": 1,
+    "flowConfigUrl": "autor-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "activityBlockStatus": "SUCCESS"
+}

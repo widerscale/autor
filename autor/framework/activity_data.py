@@ -11,11 +11,15 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import logging
+
+from autor.flow_configuration.activity_configuration import ActivityConfiguration
 from autor.framework.activity_context import ActivityContext
 from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.constants import ActivityGroupType
 from autor.framework.context import Context
 from autor.framework.context_properties_handler import ContextPropertiesHandler
+from autor.framework.debug_config import DebugConfig
 
 
 class ActivityData:
@@ -37,7 +41,7 @@ class ActivityData:
         self.activity_run_id = None
         self.activity_name:str = None
         self.activity_group_type = None
-        self.activity_config:str = None
+        self.activity_config:ActivityConfiguration = None
         self.activity_type:str = None
 
         self.activity_context:ActivityContext = None
@@ -63,6 +67,42 @@ class ActivityData:
 
         self.next_main_activity_data = None
         # fmt: on
+
+    def _print(self, msg:str):
+        logging.info(f"{DebugConfig.selected_activity_prefix}: {msg}")
+        
+    def print(self):
+        self._print(f"flow_id: {self.flow_id}")
+        self._print(f"flow_run_id: {self.flow_run_id}")
+        self._print(f"activity_block_id: {self.activity_block_id}")
+        self._print(f"activity_block_run_id: {self.activity_block_run_id}")
+        self._print(f"activity_block_status: {self.activity_block_status}")
+        self._print(f"interrupted: {self.interrupted}")
+        self._print(f"action: {self.action}")
+        self._print(f"activity: {self.activity}")
+        self._print(f"activity_id: {self.activity_id}")
+        self._print(f"activity_run_id: {self.activity_run_id}")
+        self._print(f"activity_name: {self.activity_name}")
+        self._print(f"activity_group_type: {self.activity_group_type}")
+        self._print(f"activity_config: {self.activity_config}")
+        self._print(f"activity_type: {self.activity_type}")
+        self._print(f"activity_context: {self.activity_context}")
+        self._print(f"input_context: {self.input_context}")
+        self._print(f"output_context: {self.output_context}")
+        self._print(f"output_context_properties_handler: {self.output_context_properties_handler}")
+        self._print(f"activities: {self.activities}")
+        self._print(f"activities_by_name: {self.activities_by_name}")
+        self._print(f"before_block_activities: {self.before_block_activities}")
+        self._print(f"before_activities: {self.before_activities}")
+        self._print(f"main_activities: {self.main_activities}")
+        self._print(f"after_activities: {self.after_activities}")
+        self._print(f"after_block_activities: {self.after_block_activities}")
+        self._print(f"before_block_activities_configurations: {self.before_block_activities_configurations}")
+        self._print(f"before_activities_configurations: {self.before_activities_configurations}")
+        self._print(f"main_activities_configurations: {self.main_activities_configurations}")
+        self._print(f"after_activities_configurations: {self.after_activities_configurations}")
+        self._print(f"after_block_activities_configurations: {self.after_block_activities_configurations}")
+        self._print(f"next_main_activity_data: {self.next_main_activity_data}")
 
     def get_activities(self, activity_group_type):
         # pylint: disable-next=no-else-return

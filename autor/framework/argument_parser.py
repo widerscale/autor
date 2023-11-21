@@ -126,8 +126,20 @@ Autor can be run in three modes:
                    If a flow-run-id is provided the data in the context
                    can be used by Autor.
         """
-        #logging.info(description)
+
+
+
         parser = argparse.ArgumentParser(description="")
+
+        parser.add_argument(
+            # pylint: disable-next=no-member
+            "--" + cln.MODE,
+            required=True,
+            action="store",
+            type=str,
+            help="Autor mode",
+        )
+
         parser.add_argument(
             # pylint: disable-next=no-member
             "--" + cln.FLOW_CONFIG_URL,

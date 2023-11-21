@@ -74,7 +74,15 @@ class AutorFrameworkBootstrap(StateListener):
             logging.debug(f'activity_config: {state.activity_config}')
             logging.debug(f'activity_input:  {state.activity_input}')
             logging.debug(f'flow_run_id:     {state.flow_run_id}')
-            state.flow_config_url, state.activity_block_id = self._create_flow_configuration(state.activity_module, state.activity_type, state.activity_config)
+            Check.is_non_empty_string(state.activity_module, "activity_mode is mandatory in mode ACTIVITY")
+            Check.is_non_empty_string(state.activity_type, "activity_type is mandatory in mode ACTIVITY")
+
+            state.flow_config_url, state.activity_block_id = self._create_flow_configuration(
+                state.activity_module,
+                state.activity_type,
+                state.activity_config)
+
+
 
         elif state.flow_run_id is not None and state.activity_name_special is not None:
             logging.debug('flow-run-id and activity-name are provided -> Preparing to re-run activity block')
@@ -138,24 +146,24 @@ class AutorFrameworkBootstrap(StateListener):
 
 
             # -------------- Add activity inputs to context -----------------#
-            activity_input:dict = state.dict[sta.ACTIVITY_INPUT]
-            self._add_activity_inputs_to_context(activity_input, activity_block_context)
+            #activity_input:dict = state.dict[sta.ACTIVITY_INPUT]
+            #self._add_activity_inputs_to_context(activity_input, activity_block_context)
 
 
-        if state.dict[sta.MODE] == Mode.ACTIVITY_BLOCK_RERUN:
-            ctx: Context = state.dict[sta.ACTIVITY_BLOCK_CONTEXT]
-            additions:dict = state.dict[sta.ACTIVITY_BLOCK_CONTEXT_ADDITION]
-            for key,val in additions.items():
-                ctx.set(key,val)
-
-            if DebugConfig.trace_context:
-                Util.print_dict(additions,level='info',comment='Context additions', prefix=DebugConfig.context_trace_prefix)
-                ctx.print_context("Context updated with additions")
-
-
-            #ctx:Context = state.dict[sta.ACTIVITY_BLOCK_CONTEXT]
-            #ctx.set("max",-444444)
-            #ctx.set("activityBlockStatus",None)
+        # if state.dict[sta.MODE] == Mode.ACTIVITY_BLOCK_RERUN:
+        #     ctx: Context = state.dict[sta.ACTIVITY_BLOCK_CONTEXT]
+        #     additions:dict = state.dict[sta.ACTIVITY_BLOCK_CONTEXT_ADDITION]
+        #     for key,val in additions.items():
+        #         ctx.set(key,val)
+        #
+        #     if DebugConfig.trace_context:
+        #         Util.print_dict(additions,level='info',comment='Context additions', prefix=DebugConfig.context_trace_prefix)
+        #         ctx.print_context("Context updated with additions")
+        #
+        #
+        #     #ctx:Context = state.dict[sta.ACTIVITY_BLOCK_CONTEXT]
+        #     #ctx.set("max",-444444)
+        #     #ctx.set("activityBlockStatus",None)
 
 
 
@@ -168,7 +176,7 @@ class AutorFrameworkBootstrap(StateListener):
 
 
         flow_id = 'autor-flow'
-        activity_block_id = 'autor-activity-block'
+        activity_block_id = 'generatedActivityBlock'
         flow_config_url = 'autor-config.yml'
 
         # flow_config:OrderedDict = OrderedDict()

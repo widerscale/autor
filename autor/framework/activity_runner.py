@@ -16,7 +16,7 @@ import logging
 from autor.activity import Activity
 from autor.framework.activity_data import ActivityData
 from autor.framework.activity_factory import ActivityFactory
-from autor.framework.reuse_activity import ReuseActivity
+from autor.framework.autor_framework_activities import ReuseActivity, DummyActivity
 from autor.framework.check import Check
 from autor.framework.constants import Action, ExceptionType, SkipType, Status
 from autor.framework.context_properties_handler import ContextPropertiesHandler
@@ -47,15 +47,8 @@ class ActivityRunner:
         self._data:ActivityData = None
 
     def run_activity(self, data: ActivityData):
-        if data.action == Action.REUSE:
-            #activity = AutorFrameworkDummyActivity() # Create an activity scale
-            #activity.status = data.context.get(key='status')
-            #data.activity = activity
-            data.activity_type = "AUTOR_FWK_DUMMY"
-
-
+        logging.info(f"####################### {data.activity_type} ###########################")
         self._data = data
-
         self._preprocess()
         self._run()
         self._postprocess()
@@ -66,10 +59,12 @@ class ActivityRunner:
         # An activity will be run only if it is allowed by the framework and by the configuration
         #  AND no error has occurred.
         ok = (
-            (self._data.action != Action.SKIP_BY_FRAMEWORK)
+            not self._error_occurred
+            and (self._data.action != Action.SKIP_BY_FRAMEWORK)
             and (self._data.action != Action.SKIP_BY_CONFIGURATION)
-            and not self._error_occurred
+            and (self._data.action != Action.KEEP_AS_IS)
         )
+
         return ok
 
     def _preprocess(self):
@@ -105,6 +100,9 @@ class ActivityRunner:
             elif self._data.action in (Action.SKIP_BY_FRAMEWORK, Action.SKIP_BY_CONFIGURATION):
                 self._data.activity.status = Status.SKIPPED
                 self._print("skipping activity...")
+            elif self._data.action == Action.KEEP_AS_IS:
+                self._data.activity.status = self._data.output_context.get(ctx.STATUS, default=Status.UNKNOWN)  # Keep the same status
+                self._print("keeping activity data from previous run unchanged...")
 
 
 
@@ -159,16 +157,21 @@ class ActivityRunner:
         try:
             self._print("PRELIMINARY activity status: " + self._data.activity.status)
             # See rules: https://jira-dowhile.atlassian.net/l/c/zy6Q0oJ8
-            self._adjust_activity_status()
-            logging.info(f'{DebugConfig.autor_info_prefix}Activity status: {self._data.activity.status}')
-            logging.info(DebugConfig.autor_info_prefix)
+
+            if self._data.action != Action.KEEP_AS_IS:
+                self._adjust_activity_status()
+
+            if self._ok_to_run():
+                logging.info(f'{DebugConfig.autor_info_prefix}Activity status: {self._data.activity.status}')
+                logging.info(DebugConfig.autor_info_prefix)
 
 
             # Add more data to the activity context.
             self._update_activity_context()
 
             # Save activity output properties
-            self._save_activity_properties()
+            if self._data.action != Action.KEEP_AS_IS:
+                self._save_activity_properties()
 
         except Exception as e:
             self._register_error(e, "Exception during activity post-processing")
@@ -202,9 +205,7 @@ class ActivityRunner:
         try:
             self._data.activity = ActivityFactory.create(self._data.activity_type)
         except Exception as e:
-            self._data.activity = (
-                Activity()
-            )  # If activity creation failed, create an activity scale.
+            self._data.activity = ActivityFactory.create("EXCEPTION")
             self._register_error(
                 e, description="Failed to create activity", framework_error=True
             )  # Framework rules not followed -> framework error
@@ -246,13 +247,14 @@ class ActivityRunner:
                 ),
             )
 
-        # Add the SKIPPED reason to the context
-        if action == Action.SKIP_BY_CONFIGURATION:
-            context.set(ctx.SKIP_TYPE, SkipType.SKIPPED_BY_CONFIGURATION)
-        elif action == Action.SKIP_BY_FRAMEWORK:
-            context.set(ctx.SKIP_TYPE, SkipType.SKIPPED_BY_FRAMEWORK)
-        elif activity.status == Status.SKIPPED:
-            context.set(ctx.SKIP_TYPE, SkipType.SKIPPED_BY_ACTIVITY)
+        if action != Action.KEEP_AS_IS:
+            # Add the SKIPPED reason to the context
+            if action == Action.SKIP_BY_CONFIGURATION:
+                context.set(ctx.SKIP_TYPE, SkipType.SKIPPED_BY_CONFIGURATION)
+            elif action == Action.SKIP_BY_FRAMEWORK:
+                context.set(ctx.SKIP_TYPE, SkipType.SKIPPED_BY_FRAMEWORK)
+            elif activity.status == Status.SKIPPED:
+                context.set(ctx.SKIP_TYPE, SkipType.SKIPPED_BY_ACTIVITY)
 
         # Add the action to the context
         context.set(ctx.ACTION, action)

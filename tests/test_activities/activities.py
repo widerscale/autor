@@ -16,9 +16,7 @@
 import logging
 
 from autor import Activity
-from autor.framework.activity_block_callback import ActivityBlockCallback
 from autor.framework.activity_registry import ActivityRegistry
-from autor.framework.constants import Status
 from autor.framework.context_properties_registry import ContextPropertiesRegistry
 
 output = ContextPropertiesRegistry.output
@@ -26,17 +24,17 @@ output = ContextPropertiesRegistry.output
 input = ContextPropertiesRegistry.input
 
 
-
 # Calculate return the maximum value of the current max (received through property) and
 # my max (received through configuration)
 @ActivityRegistry.activity(type="MAX")
 class Max(Activity):
+    # region constructor
     def __init__(self):
         super().__init__()
         # initial value that is used if no value has been provided by flow context
         self.__max: int = None
-
-
+    # endregion
+    # region property: max:int
     @property
     @input(mandatory=False, type=int)  # load the value before run() is called
     @output(mandatory=True, type=int)  # save the value after run() is finished
@@ -46,28 +44,121 @@ class Max(Activity):
     @max.setter
     def max(self, n) -> None:  # setter
         self.__max = n
+    # endregion
 
     def run(self):
+        # ---------------- Prepare inputs -------------------#
         my_val = self.configuration["val"]  # Read my max from Flow Configuration file
-        logging.info(f"Property:        'max': {self.max} (initial value)")
-        logging.info(f"Configuration:   'val:' {my_val}")
-        if self.max is None:
-            self.max = my_val
-        else:
-            self.max = max(self.max, my_val)  # Calculate the new max
-        logging.info(f"Property:        'max': {self.max} (final value)")
+        logging.info(f"Property:        'max': {self.max} (initial value read from context)")
+        logging.info(f"Configuration:   'val': {my_val} (value provided through configuration)")
+
+        # ----------------- Call helper ----------------------#
+        new_max = Helper.max(val1=my_val, val2=self.max)
+        logging.info(f"Property:        'max': {new_max} (final value written to context)")
+
+        # --------------- Prepare outputs --------------------#
+        self.max = new_max
+
+        # ------------------ Set status ----------------------#
+        if "status" in self.configuration:
+            self.status = self.configuration["status"]
 
 
+# Calculate return the maximum value of the current max (received through property) and
+# my max (received through configuration). Every second run the activity casts an exception.
+# Use this activity to simulate a failure that will be fixed when re-run.
+# The first run will fail, the second will succeed.
+@ActivityRegistry.activity(type="MAX_WITH_EXCEPTION_EVERY_SECOND_RUN")
+class MaxWithExceptionEverySecondRun(Activity):
+    # region constructor
+    def __init__(self):
+        super().__init__()
+        # initial values that is used if no value has been provided by flow context
+        self.__max: int = None
+        self.__run_nbr: int = 0
+    # endregion
+    # region property: max:int
+    @property
+    @input(mandatory=False, type=int)  # load the value before run() is called
+    @output(mandatory=True, type=int)  # save the value after run() is finished
+    def max(self) -> int:  # getter
+        return self.__max
+    @max.setter
+    def max(self, n) -> None:  # setter
+        self.__max = n
+    # endregion
+    # region property: run_nbr:int
 
+    @property
+    @input(mandatory=False, type=int)  # load the value before run() is called
+    def run_nbr(self) -> int:      # getter
+        return self.__run_nbr
 
-    def _run(self):
+    @run_nbr.setter
+    def run_nbr(self, n) -> None:  # setter
+        self.__run_nbr = n
+    # endregion
+
+    def run(self):
+        # ---------------- Prepare inputs -------------------#
         my_val = self.configuration["val"]  # Read my max from Flow Configuration file
-        self.max = self.helper_max(self.max, my_val)
+        logging.info(f"Property:        'max': {self.max} (initial value read from context)")
+        logging.info(f"Configuration:   'val': {my_val} (value provided through configuration)")
+        logging.info(f"Property:        'run_nbr': {self.run_nbr} (initial value read from context)")
 
+        if self.run_nbr % 2 == 0:
+            logging.info("odd run -> throw an exception")
+            raise Exception("This is a planned exception for an odd run number.")
 
-
-    def helper_max(self, self_max, my_val):
-        if self_max is None:
-            return my_val
         else:
-            return max(self_max, my_val)  # Calculate the new max
+            logging.info("Not odd run -> not throwing exception")
+            # ----------------- Call helper ----------------------#
+            new_max = Helper.max(val1=my_val, val2=self.max)
+            logging.info(f"Property:        'max': {new_max} (final value written to context)")
+
+        # --------------- Prepare outputs --------------------#
+        self.max = new_max
+
+
+
+
+# Increase 'runNbr' in context each time the activity is run.
+@ActivityRegistry.activity(type="RUN_NBR")
+class CountRuns(Activity):
+    # region constructor
+    def __init__(self):
+        super().__init__()
+        # initial values that is used if no value has been provided by flow context
+        self.__run_nbr: int = 0
+    # endregion
+    # region property: run_nbr:int
+
+    @property
+    @input(mandatory=False, type=int)  # load the value before run() is called
+    @output(mandatory=True, type=int)  # save the value after run() is finished
+    def run_nbr(self) -> int:      # getter
+        return self.__run_nbr
+
+    @run_nbr.setter
+    def run_nbr(self, n) -> None:  # setter
+        self.__run_nbr = n
+    # endregion
+
+    def run(self):
+        self.run_nbr = self.run_nbr + 1
+        logging.info(f"Setting run_nbr: {self.run_nbr}")
+
+
+
+class Helper:
+
+    @staticmethod
+    def max(val1: int, val2: int):
+        if val1 is None and val2 is None:
+            raise ValueError("Both parameters to Helper.max() were None.")
+        if val1 is None:
+            return val2
+        if val2 is None:
+            return val1
+        return max(val1,val2)
+

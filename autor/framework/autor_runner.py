@@ -13,6 +13,7 @@
 #    under the License.
 from autor.framework.activity_block import ActivityBlock
 from autor.framework.argument_parser import CommandlineArgumentParser
+from autor.framework.key_handler import KeyConverter
 from autor.framework.keys import ArgParserKeys as argp
 
 
@@ -28,6 +29,7 @@ def run():
 
     # Create and run activity block
     activity_block = ActivityBlock(
+        mode                    = KeyConverter.LCD_to_UCU(params.get(argp.MODE)),  # mandatory
         additional_context      = params.get(argp.ADDITIONAL_CONTEXT, None),
         additional_extensions   = params.get(argp.ADDITIONAL_EXTENSIONS, None),
         activity_block_id       = params.get(argp.ACTIVITY_BLOCK_ID, None),
@@ -40,6 +42,7 @@ def run():
         custom_data             = params.get(argp.CUSTOM_DATA, None),
         flow_run_id             = params.get(argp.FLOW_RUN_ID, None),
         flow_config_url         = params.get(argp.FLOW_CONFIG_URL, None)
+
     )
     # pylint: enable=no-member
     activity_block.run()

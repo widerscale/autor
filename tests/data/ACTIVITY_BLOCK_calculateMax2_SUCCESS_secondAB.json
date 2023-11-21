@@ -1,0 +1,40 @@
+{
+    "_activityBlocks": {
+        "calculateMax2": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigUrl": "test-config.yml",
+            "_activities": {
+                "calculateMax2-activity1": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMax2-activity2": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 6
+                },
+                "calculateMax2-activity3": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 9
+                },
+                "calculateMax2-activity4": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 9
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "max": 9,
+            "activityBlockStatus": "SUCCESS"
+        }
+    },
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigUrl": "test-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "max": 9,
+    "activityBlockStatus": "SUCCESS"
+}

@@ -187,6 +187,22 @@ activityBlocks:
       - type: TYPE 1
       - type: TYPE 2
 
+
+  calculateMax:
+    activities:
+      - type: MAX
+        configuration:
+          val: 1
+      - type: MAX
+        configuration:
+          val: 7
+      - type: MAX
+        configuration:
+          val: 2
+      - type: MAX
+        configuration:
+          val: 9
+
   #flow_id: example-flow
 
   #activityBlocks:
