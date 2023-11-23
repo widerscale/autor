@@ -18,7 +18,7 @@ from autor.framework.activity_data import ActivityData
 from autor.framework.activity_factory import ActivityFactory
 from autor.framework.autor_framework_activities import ReuseActivity, DummyActivity
 from autor.framework.check import Check
-from autor.framework.constants import Action, ExceptionType, SkipType, Status
+from autor.framework.constants import Action, ExceptionType, Status
 from autor.framework.context_properties_handler import ContextPropertiesHandler
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import FlowContextKeys as ctx
@@ -112,7 +112,7 @@ class ActivityRunner:
         logging.info(f'{DebugConfig.autor_info_prefix}{arrow}Name:  {self._data.activity_name}')
         logging.info(f'{DebugConfig.autor_info_prefix}{arrow}Type:  {self._data.activity_type}')
         logging.info(f'{DebugConfig.autor_info_prefix}{arrow}Class: {self._data.activity.__class__.__name__}')
-       # logging.info(f'{DebugConfig.autor_info_prefix}{arrow}>')
+
 
     def _run(self):
 
@@ -247,14 +247,6 @@ class ActivityRunner:
                 ),
             )
 
-        if action != Action.KEEP_AS_IS:
-            # Add the SKIPPED reason to the context
-            if action == Action.SKIP_BY_CONFIGURATION:
-                context.set(ctx.SKIP_TYPE, SkipType.SKIPPED_BY_CONFIGURATION)
-            elif action == Action.SKIP_BY_FRAMEWORK:
-                context.set(ctx.SKIP_TYPE, SkipType.SKIPPED_BY_FRAMEWORK)
-            elif activity.status == Status.SKIPPED:
-                context.set(ctx.SKIP_TYPE, SkipType.SKIPPED_BY_ACTIVITY)
 
         # Add the action to the context
         context.set(ctx.ACTION, action)

@@ -19,13 +19,11 @@
                     "status": "ERROR"
                 },
                 "unknownActivityType-activity4": {
-                    "skipType": "SKIPPED_BY_FRAMEWORK",
                     "action": "SKIP_BY_FRAMEWORK",
                     "status": "SKIPPED",
                     "max": 7
                 },
                 "unknownActivityType-activity5": {
-                    "skipType": "SKIPPED_BY_FRAMEWORK",
                     "action": "SKIP_BY_FRAMEWORK",
                     "status": "SKIPPED",
                     "max": 7
@@ -35,7 +33,6 @@
             "status": "SKIPPED",
             "max": 7,
             "abortType": "ABORTED_BY_FRAMEWORK",
-            "skipType": "SKIPPED_BY_FRAMEWORK",
             "activityBlockStatus": "ABORTED"
         }
     },

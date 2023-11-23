@@ -37,10 +37,10 @@ class DebugConfig():
 
     # For internal debugging only. To see the activity details
     # use flag: print_activity
-    print_selected_activity = True
+    print_selected_activity = False
     selected_activity_prefix = "[sel]: "
 
-    trace_activity_sequence_decisions = True
+    trace_activity_sequence_decisions = False
     activity_sequence_decisions_trace_prefix = "[seq]: "
 
     trace_activity_processing = False
@@ -53,7 +53,7 @@ class DebugConfig():
     trace_string_arg_parsing = False
     string_arg_parsing_prefix = "[srg]: "
 
-    print_calls_to_extensions = True
+    print_calls_to_extensions = False
     extension_trace_prefix = "[ext]: "
 
     print_state_names = False

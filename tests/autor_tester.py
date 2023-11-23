@@ -59,7 +59,7 @@ class AutorTester():
             flow_run_id: str = None,
             flow_config_url: str = "test-config.yml",
             mode: str = None
-    )->str:
+    )->ActivityBlock:
 
         mode, activity_block_id = AutorTester._parse_expectation(expectation)
 
@@ -102,7 +102,7 @@ class AutorTester():
 
         AutorTester._validate_context(expectation)
 
-        return activity_block.get_flow_run_id()
+        return activity_block
 
 
     def _validate_context(file_name:str)->bool:

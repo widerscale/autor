@@ -21,7 +21,6 @@
                 },
                 "calculateMaxFailSecond-fourth": {
                     "action": "SKIP_BY_FRAMEWORK",
-                    "skipType": "SKIPPED_BY_FRAMEWORK",
                     "status": "SKIPPED",
                     "max": 5
                 }
@@ -30,8 +29,7 @@
             "status": "SKIPPED",
             "max": 5,
             "activityBlockStatus": "ERROR",
-            "activityBlockInterrupted": true,
-            "skipType": "SKIPPED_BY_FRAMEWORK"
+            "activityBlockInterrupted": true
         }
     },
     "mode": "ACTIVITY_IN_BLOCK",
@@ -40,6 +38,5 @@
     "status": "SKIPPED",
     "max": 5,
     "activityBlockStatus": "ERROR",
-    "activityBlockInterrupted": true,
-    "skipType": "SKIPPED_BY_FRAMEWORK"
+    "activityBlockInterrupted": true
 }

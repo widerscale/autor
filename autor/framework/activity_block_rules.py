@@ -21,8 +21,7 @@ from autor.framework.autor_framework_exception import (
 from autor.framework.check import Check
 from autor.framework.constants import Action
 from autor.framework.constants import ActivityGroupType as agt
-from autor.framework.constants import Configuration, Mode, SkipType, Status
-from autor.framework.context import Context
+from autor.framework.constants import Configuration, Mode, Status
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
@@ -582,17 +581,17 @@ class ActivityBlockRules:
 
     def _main_was_skipped_by_framework(self, data):
         last_main_context = data.main_activities[-1].context
-        skip_type = last_main_context.get(ctx.SKIP_TYPE, None)
-        skipped = skip_type == SkipType.SKIPPED_BY_FRAMEWORK
+        skip_type = last_main_context.get(ctx.ACTION, None)
+        skipped = (skip_type == Action.SKIP_BY_FRAMEWORK)
         self._print("_main_was_skipped_by_framework ---> " + str(skipped))
         return skipped
 
     def _all_before_activities_were_skipped_by_framework(self, data):
         all_skipped = True
         for activity in data.before_activities:
-            skip_type = activity.context.get(ctx.SKIP_TYPE, None)
+            skip_type = activity.context.get(ctx.ACTION, None)
             # print("skip_type: " + str(skip_type) + " " + activity.id)
-            all_skipped = all_skipped and (skip_type == SkipType.SKIPPED_BY_FRAMEWORK)
+            all_skipped = all_skipped and (skip_type == Action.SKIP_BY_FRAMEWORK)
         self._print("_all_before_activities_were_skipped_by_framework ---> " + str(all_skipped))
         # print("_all_before_activities_were_skipped_by_framework ---> " + str(all_skipped))
         return all_skipped
@@ -600,8 +599,8 @@ class ActivityBlockRules:
     def _all_before_block_activities_were_skipped_by_framework(self, data):
         all_skipped = True
         for activity in data.before_block_activities:
-            skip_type = activity.context.get(ctx.SKIP_TYPE, None)
-            all_skipped = all_skipped and (skip_type == SkipType.SKIPPED_BY_FRAMEWORK)
+            skip_type = activity.context.get(ctx.ACTION, None)
+            all_skipped = all_skipped and (skip_type == Action.SKIP_BY_FRAMEWORK)
         self._print(
             "_all_before_block_activities_were_skipped_by_framework ---> " + str(all_skipped)
         )
@@ -824,23 +823,22 @@ class ActivityBlockRules:
         skip_type = activity.context.get_from_activity(key=ctx.SKIP_TYPE, default=None)
         action_str:str = activity.context.get_from_activity(key=ctx.ACTION)
 
-
-
         # pylint: disable-next=redefined-builtin
-        type = ""
-        if skip_type is not None:
-            if skip_type == SkipType.SKIPPED_BY_ACTIVITY:
-                type = " (act)"
-            elif skip_type == SkipType.SKIPPED_BY_CONFIGURATION:
-                type = " (cfg)"
-            elif skip_type == SkipType.SKIPPED_BY_FRAMEWORK:
-                type = " (fwk)"
-            else:
-                raise AutorFrameworkException(
-                    "Unknown SKIP_TYPE: " + str(skip_type) + " found in context"
-                )
+        # type = ""
+        # if skip_type is not None:
+        #     if skip_type == SkipType.SKIPPED_BY_ACTIVITY:
+        #         type = " (act)"
+        #     elif skip_type == SkipType.SKIPPED_BY_CONFIGURATION:
+        #         type = " (cfg)"
+        #     elif skip_type == SkipType.SKIPPED_BY_FRAMEWORK:
+        #         type = " (fwk)"
+        #     else:
+        #         raise AutorFrameworkException(
+        #             "Unknown SKIP_TYPE: " + str(skip_type) + " found in context"
+        #         )
+        #
+        #    # status_str = status_str + type
 
-            status_str = status_str + type
 
         return (
             str(activity.id).ljust(self._max_len_activity_name)

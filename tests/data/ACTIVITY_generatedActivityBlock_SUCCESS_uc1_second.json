@@ -1,0 +1,62 @@
+{
+    "_activityBlocks": {
+        "generatedActivityBlock": {
+            "mode": "ACTIVITY",
+            "__AutorFrameworkBootstrap_activityModeCounter": 2,
+            "flowConfigUrl": "autor-config.yml",
+            "_activities": {
+                "generatedActivityBlock-activity1": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "generatedActivityBlock-activity2": {
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "max": 3,
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false
+        }
+    },
+    "mode": "ACTIVITY",
+    "__AutorFrameworkBootstrap_activityModeCounter": 2,
+    "flowConfigUrl": "autor-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "max": 3,
+    "__generatedFlowConfig": {
+        "flowId": "autor-flow",
+        "extensions": [
+            "getting_started.extensions.context.AddFileContext"
+        ],
+        "activityModules": [
+            "test_activities.activities",
+            "test_activities.activities2"
+        ],
+        "activityBlocks": {
+            "generatedActivityBlock": {
+                "activities": [
+                    {
+                        "type": "MAX",
+                        "configuration": {
+                            "val": 3
+                        }
+                    },
+                    {
+                        "type": "MAX2",
+                        "configuration": {
+                            "val": 1
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false
+}

@@ -25,7 +25,6 @@
                     "max": 5
                 },
                 "calculateMaxWithExceptionEverySecondRun2-activity5": {
-                    "skipType": "SKIPPED_BY_FRAMEWORK",
                     "action": "RUN",
                     "status": "SUCCESS",
                     "max": 5
@@ -35,7 +34,6 @@
             "status": "SUCCESS",
             "runNbr": 3,
             "max": 5,
-            "skipType": "SKIPPED_BY_FRAMEWORK",
             "activityBlockStatus": "SUCCESS"
         }
     },
@@ -66,6 +64,5 @@
                 "activityStatus": "ERROR"
             }
         }
-    ],
-    "skipType": "SKIPPED_BY_FRAMEWORK"
+    ]
 }
