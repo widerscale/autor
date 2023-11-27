@@ -36,7 +36,7 @@ class AutorTester():
         else:
             raise ValueError(f"The file name for the expected result should begin with Autor mode name (ex: ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity4.json). Received: {expectation}")
 
-        print(f"\nExpectation after remove mode: {expectation}")
+        #print(f"\nExpectation after remove mode: {expectation}")
 
         activity_block_id = expectation.split('_')[0]
 
@@ -189,10 +189,10 @@ class AutorTester():
         AutorTester.__commands.append(command)
 
 
-        print("---------------- all commands ------------------")
-        print("Must be run from directory autor/tests")
-        for c in AutorTester.__commands:
-            print(c)
+        #print("---------------- all commands ------------------")
+       # print("Must be run from directory autor/tests")
+        #for c in AutorTester.__commands:
+            #print(c)
 
     @staticmethod
     def _dict_to_json_string(d:dict)->str:

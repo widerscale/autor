@@ -398,7 +398,8 @@ class ActivityBlock(StateProducer):
             # ---------------------------------------------------------------#
             StateHandler.change_state(State.BEFORE_ACTIVITY_BLOCK)
             # ---------------------------------------------------------------#
-            self._print_activity_block_started()
+            if DebugConfig.print_activity_block_started_summary:
+                self._print_activity_block_started()
             if DebugConfig.print_context_before_activities_are_run:
                 self._flow_context.print_context("Context before activities are run")
             self._run_activity_block()
@@ -446,10 +447,15 @@ class ActivityBlock(StateProducer):
             )
 
         finally:
-            # These methods are good to always have for debugging
-            self._dbg_save_skip_with_outputs_flow_config()
-            self._dbg_print_activity_block_finished()
-            self._dbg_save_context()
+            if DebugConfig.create_skip_with_output_flow_config:
+                self._dbg_save_skip_with_outputs_flow_config() # creates a flow config with skip configuration with results from the current run.
+            if DebugConfig.print_activity_block_finished_summary:
+                #self._dbg_print_activity_block_finished()
+                ActivityBlockRules.transition_summary().print()
+            if DebugConfig.save_activity_block_context_locally: # can be used for test cases
+                self._dbg_save_context()
+
+
 
 
     def _dbg_save_context(self):
@@ -1093,10 +1099,8 @@ class ActivityBlock(StateProducer):
         """
         Load and add the listeners in the list.
         """
-        listener_names = []
-        logging.info(f"liteners: {listeners}")
+
         for listener in listeners:
-            logging.info(f"listener: {listener}")
             [module_name, class_name] = listener.rsplit(".", 1) # retrieve module name and class name
             module = importlib.import_module(module_name)       # import the module
             class_ = getattr(module, class_name)                # create the class

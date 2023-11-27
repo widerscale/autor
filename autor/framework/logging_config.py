@@ -16,9 +16,9 @@
 import logging
 
 class LoggingConfig():
-    framework_log_level = logging.DEBUG
-    activity_log_level = logging.DEBUG
-    extension_log_level = logging.DEBUG
+    framework_log_level = logging.INFO
+    activity_log_level = logging.INFO
+    extension_log_level = logging.INFO
 
 
     @staticmethod

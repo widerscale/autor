@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import logging
+from typing import List
 
 from autor.framework.activity_data import ActivityData
 from autor.framework.autor_framework_exception import (
@@ -25,7 +26,13 @@ from autor.framework.constants import Configuration, Mode, Status
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
+from autor.framework.transition_summary import TransitionSummary
 from autor.framework.util import Util
+
+
+
+
+
 
 
 # pylint: disable=line-too-long,no-member, no-else-return
@@ -104,9 +111,11 @@ class ActivityBlockRules:
 
     _rerun_activated = False # static attribute used for mode ACTIVITY_BLOCK_RERUN
     _special_activity_detected = False # static attribute used for mode ACTIVITY_IN_BLOCK
+    _transition_summary:TransitionSummary = TransitionSummary() # summary of activity block status changes
 
-
-
+    @staticmethod
+    def transition_summary() -> TransitionSummary:
+        return ActivityBlockRules._transition_summary
 
     # fmt: on
 
@@ -119,10 +128,12 @@ class ActivityBlockRules:
 
         self._max_len_activity_name = None  # For prints
 
+
     @staticmethod
     def reset_static_data():
         ActivityBlockRules._rerun_activated = False
         ActivityBlockRules._special_activity_detected = False
+        ActivityBlockRules._transition_summary = TransitionSummary()
 
     # pylint: disable=invalid-name
     def _choose_most_important_action(self, a1, a2, a3):
@@ -169,7 +180,7 @@ class ActivityBlockRules:
 
                 Check.is_false(self._special_activity_detected, "_special_activity_detected should not be activated twice")
                 ActivityBlockRules._special_activity_detected = True
-                logging.info(f"_special_activity_detected: {ActivityBlockRules._special_activity_detected}")
+
 
                 if skip_with_outputs:
                     return Action.SKIP_WITH_OUTPUT_VALUES
@@ -728,7 +739,7 @@ class ActivityBlockRules:
 
         return ok_to_run_activity
 
-    def get_activity_block_status(self, data, autor_aborted):
+    def get_activity_block_status(self, data, autor_aborted)->(str,str):
 
         assert len(data.activities) > 0
 
@@ -801,6 +812,8 @@ class ActivityBlockRules:
 
         self._print("(block-status) ---------> new_block_status = " + str(new_block_status))
         state_transition_summary = self._create_state_transition_summary(activity, current_block_status, new_block_status)
+        action_str: str = activity.context.get_from_activity(key=ctx.ACTION)
+        ActivityBlockRules._transition_summary.add(activity.id,activity.status,action_str,current_block_status,new_block_status)
         return new_block_status, state_transition_summary
 
 
@@ -823,23 +836,6 @@ class ActivityBlockRules:
         skip_type = activity.context.get_from_activity(key=ctx.SKIP_TYPE, default=None)
         action_str:str = activity.context.get_from_activity(key=ctx.ACTION)
 
-        # pylint: disable-next=redefined-builtin
-        # type = ""
-        # if skip_type is not None:
-        #     if skip_type == SkipType.SKIPPED_BY_ACTIVITY:
-        #         type = " (act)"
-        #     elif skip_type == SkipType.SKIPPED_BY_CONFIGURATION:
-        #         type = " (cfg)"
-        #     elif skip_type == SkipType.SKIPPED_BY_FRAMEWORK:
-        #         type = " (fwk)"
-        #     else:
-        #         raise AutorFrameworkException(
-        #             "Unknown SKIP_TYPE: " + str(skip_type) + " found in context"
-        #         )
-        #
-        #    # status_str = status_str + type
-
-
         return (
             str(activity.id).ljust(self._max_len_activity_name)
             + " " + action_str.ljust(6)
@@ -860,4 +856,9 @@ class ActivityBlockRules:
     def _print(self, text):
         if DebugConfig.trace_activity_sequence_decisions:
             logging.debug(f'{DebugConfig.activity_sequence_decisions_trace_prefix}{str(text)}')
+
+
+
+
+
 

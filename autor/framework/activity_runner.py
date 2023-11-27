@@ -47,7 +47,6 @@ class ActivityRunner:
         self._data:ActivityData = None
 
     def run_activity(self, data: ActivityData):
-        logging.info(f"####################### {data.activity_type} ###########################")
         self._data = data
         self._preprocess()
         self._run()

@@ -26,8 +26,14 @@ class DebugConfig():
     # Main flags
     trace_sequence_details = False # Activates all flags connected to sequence tracing.
 
-    print_final_input = True # Prints the input that Autor has after bootstrapping
-    print_activity = True # Prints activity details when it's about to run
+    print_final_input = False # Prints the input that Autor has after bootstrapping
+    print_activity_block_started_summary = False # Gives an overview of the inputs before a run
+    print_activity_block_finished_summary = True
+    create_skip_with_output_flow_config = False
+    save_activity_block_context_locally = True # Creates files in context/ directory. These can be used for creating test cases.
+
+
+    print_activity = False # Prints activity details when it's about to run
     print_default_config_conditions = False # Prints default rules for continue/runOn
 
     print_autor_info = False
@@ -62,8 +68,8 @@ class DebugConfig():
     # ------------  C O N T E X T  -----------------#
     trace_context = False # All context
     context_trace_prefix = "[ctx]: "
-    print_context_on_finished = True
-    print_context_before_activities_are_run = True
+    print_context_on_finished = False
+    print_context_before_activities_are_run = False
     print_context_before_state = False
     print_context_after_state = False
 
