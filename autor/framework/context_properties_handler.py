@@ -21,9 +21,11 @@ from autor.framework.context_properties_registry import (
     ContextPropertiesRegistry,
 )
 from autor.framework.context_property import ContextProperty
+from autor.framework.debug_config import DebugConfig
 from autor.framework.key_handler import KeyHandler
 from autor.framework.keys import ClassPropertiesKeys as prp
 from autor.framework.keys import FlowContextKeys as ctx
+from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.util import Util
 
 
@@ -39,41 +41,111 @@ class ContextPropertiesHandlerValueException(ContextPropertiesHandlerException):
 class ContextPropertiesHandler:
     """
     ContextPropertiesHandler loads/saves and validates context properties for instances that use
-    @input or/and @output decorators for their properties (see ContextPropertiesRegistry).
-    The values for these properties will be read from context with load_input_properties() and
-    saved to context with save_output_properties().
+    @input, @output or @config decorators for their properties (see ContextPropertiesRegistry).
+    The values for these properties will be read from context with load_input_properties(),
+    load_config_properties() and saved to context with save_output_properties().
     """
 
     # pylint: disable-next=redefined-builtin
-    def __init__(self, object: object, context: Context):
+    def __init__(self, object: object, context: Context = None, config: dict = None):
         """Creates and initiates the ContextPropertiesHandler instance for the 'object'
-        that uses 'context' for storing its properties.
+        that uses 'context' for storing its properties and/or 'configuration' for reading
+        configuration properties from.
 
         Arguments:
             object {Object} -- An object whose properties need to be read/written
-            Context {Context} -- The context used for storing properties.
+            context {Context} -- The context used for storing properties.
+            configuration {dict} -- Configuration from where the configuration properties are read from.
         """
 
-        Check.not_none(
-            object,
-            (
-                "Mandatory parameter None - "
-                + "An object whose properties need to be read/written may not be None."
-            ),
-        )
+        Check.not_none(object, "Mandatory parameter None - An object whose properties need to be read/written may not be None.")
         self._object = object
 
-        Check.is_instance_of(context, Context)
-        self._context = context
+        if context is not None:
+            Check.is_instance_of(context, Context)
+            self._context = context
 
-    def load_input_properties(self, mandatory_inputs_check: bool = True):
+        if config is not None:
+            Check.is_instance_of(config, dict)
+            self._config = config
+
+
+
+    def load_config_properties(self, check_mandatory_properties: bool = True):
+        """Load the configuration properties values from the context.
+        Args:
+            check_mandatory_properties (bool, optional): If true, check that the mandatory input \
+                properties can be loaded from the context. Defaults to True.
+        Raises:
+            ContextPropertiesHandlerValueException: If mandatory configurations are not found \
+                and check_mandatory_properties==True
+            ContextPropertiesHandlerValueException: If an input property has a wrong type
+        """
+
+        if self._config is None:
+            # No configuration to load.
+            return
+
+        # Get a list of input properties for the object.
+        props: List[ContextProperty] = ContextPropertiesRegistry.get_config_properties(self._object)
+
+        for prop in props:
+            Check.is_instance_of(prop, ContextProperty)
+
+            # Get the property value
+            cfg_key = KeyHandler.convert_key(prop.name, from_format=prp.format, to_format=cfg.format)
+            prop_value = self._config.get(cfg_key, None)
+
+            # Check that the mandatory properties have a value
+            if check_mandatory_properties:
+                if prop.mandatory and (prop_value is None):
+                    raise ContextPropertiesHandlerValueException(f"Could not find in context mandatory configuration key: '{cfg_key}, for activity: '{str(self._object.__class__.__name__)}'")
+
+            # Check that the value type is correct.
+            if prop_value is not None:
+                if not isinstance(prop_value, prop.property_type):
+                    raise ContextPropertiesHandlerValueException(
+                        (
+                            f"Type error in Object: {str(self._object.__class__.__name__)}."
+                            + f" Expected configuration: {cfg_key} of type:"
+                            + f" {str(prop.property_type)}, "
+                            + f"received type: {str(prop_value.__class__.__name__)}"
+                        )
+                    )
+                setattr(self._object, prop.name, prop_value)
+
+
+            else:
+                # If a (non-mandatory) property is None, check if the class has defined a default value. If not,
+                # set the default value to None. This way there will not be a case when a class does not have a property
+                # attribute defined at all.
+
+                # Get the property value from the object
+                try:
+                    prop_value = getattr(self._object, prop.name)
+                except AttributeError as e:
+                    # The attribute needed by Getter is not defined -> set to None
+                    setattr(self._object, prop.name, None)
+                    logging.warning(f"{DebugConfig.autor_info_prefix}WARNING while trying to set configuration property {self._object.__class__.__name__}.{prop.name}:")
+                    logging. warning(f"{DebugConfig.autor_info_prefix}   No value found in configuration for key: '{cfg_key}' -> setting property: {self._object.__class__.__name__}.{prop.name} = None")
+                except Exception as e:
+                    # Getter implementation error.
+                    logging.error(f"{DebugConfig.autor_info_prefix}Could not call getter: {self._object.__class__.__name__}.{prop.name}")
+                    raise ContextPropertiesHandlerValueException(str(e)).with_traceback(e.__traceback__)
+
+
+
+
+
+
+    def load_input_properties(self, check_mandatory_properties: bool = True):
         """Load the input properties values from the context.
         Args:
-            mandatory_inputs_check (bool, optional): If true, check that the mandatory input \
+            check_mandatory_properties (bool, optional): If true, check that the mandatory input \
                 properties can be loaded from the context. Defaults to True.
         Raises:
             ContextPropertiesHandlerValueException: If mandatory input properties are not found \
-                and mandatory_inputs_check==True
+                and check_mandatory_properties==True
             ContextPropertiesHandlerValueException: If an input property has a wrong type
         """
 
@@ -93,7 +165,7 @@ class ContextPropertiesHandler:
             # prop_value = self._context.get_from_activity(key=ctx_key, default=None)
 
             # Check that the mandatory properties have a value
-            if mandatory_inputs_check:
+            if check_mandatory_properties:
                 if prop.mandatory and (prop_value is None):
                     raise ContextPropertiesHandlerValueException(
                         (
@@ -145,12 +217,7 @@ class ContextPropertiesHandler:
             # Check that the mandatory property values are provided
             if mandatory_outputs_check:
                 if prop.mandatory and (prop_value is None):
-                    raise ContextPropertiesHandlerValueException(
-                        (
-                            f"Mandatory output context property: '{prop.name}' not set in activity:"
-                            + f" '{str(self._object.__class__.__name__)}'"
-                        )
-                    )
+                    raise ContextPropertiesHandlerValueException(f"Mandatory output context property: '{prop.name}' not set in activity: '{str(self._object.__class__.__name__)}'")
 
             # Check that the provided property values have correct type
             if prop_value is not None:

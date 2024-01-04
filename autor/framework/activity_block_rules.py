@@ -114,7 +114,7 @@ class ActivityBlockRules:
     _transition_summary:TransitionSummary = TransitionSummary() # summary of activity block status changes
 
     @staticmethod
-    def transition_summary() -> TransitionSummary:
+    def get_transition_summary() -> TransitionSummary:
         return ActivityBlockRules._transition_summary
 
     # fmt: on

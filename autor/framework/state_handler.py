@@ -15,11 +15,10 @@ import logging
 import sys
 
 
-from copy import deepcopy
+
 from typing import List
 
-from deepdiff import DeepDiff
-from pprint import pprint
+
 
 from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.constants import ExceptionType

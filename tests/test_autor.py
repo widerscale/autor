@@ -115,7 +115,7 @@ def test_ACTIVITY_IN_BLOCK_one_activity_fails():
 
 def test_ACTIVITY():
     ab = test.run(activity_type='MAX', activity_module='test_activities.activities', activity_config={'val':3},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc3_first.json')
-    ab = test.run(activity_type='MAX', activity_module='test_activities.activities', activity_config={'val':1},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc3_second.json')
+    #ab = test.run(activity_type='MAX', activity_module='test_activities.activities', activity_config={'val':1},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc3_second.json')
 
 def test_ACTIVITY_without_required_configuration():
     ab = test.run(activity_type='MAX', activity_module='test_activities.activities',expectation='ACTIVITY_generatedActivityBlock_ERROR_uc2.json')

@@ -11,7 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+import inspect
 import logging
 
 from autor import Activity
@@ -20,9 +20,142 @@ from autor.framework.activity_registry import ActivityRegistry
 from autor.framework.constants import Status
 from autor.framework.context_properties_registry import ContextPropertiesRegistry
 
+
 output = ContextPropertiesRegistry.output
 # pylint: disable-next=redefined-builtin
 input = ContextPropertiesRegistry.input
+config = ContextPropertiesRegistry.config
+
+
+@ActivityRegistry.activity(type="PRINT")
+class Print(Activity):
+
+    #region property: text @config(mandatory=False, type=str)
+    @property
+    @config(mandatory=False, type=str)
+    def text(self) -> str:
+        return self._text
+
+    @text.setter
+    def text(self, n:str) -> None:
+        self._text = n
+    #endregion
+    #region property: date @input(mandatory=False, type=str)
+    @property
+    @input(mandatory=False, type=str)
+    def date(self) -> str: return self._date
+    @date.setter
+    def date(self, n:str) -> None: self._date = n
+    #endregion
+
+    def run(self):
+        logging.info(f"Welcome to Autor! {self.text}")
+
+
+
+
+
+@ActivityRegistry.activity(type="WELCOME")
+class Welcome(Activity):
+    def run(self):
+        logging.info("Welcome to Autor!")
+        #logging.info(f"Printed from: {inspect.getfile(self.__class__)}")
+
+
+@ActivityRegistry.activity(type="HELLO_WORLD")
+class HelloWorld(Activity):
+    def run(self):
+        logging.info("Hello World!")
+
+
+@ActivityRegistry.activity(type="HELLO_NAME")
+class HelloName(Activity):
+    def run(self):
+        name = self.configuration.get("name","World")
+        logging.info(f"Hello {name}!")
+
+
+@ActivityRegistry.activity(type="HELLO_TO_EVERYONE")
+class HelloEveryone(Activity):
+    def __init__(self):
+        super().__init__()
+        self.__all_persons:list = []
+        """Hej"""
+
+    def run(self):
+        name = self.configuration.get("name", default="World")
+        self.all_persons.append(name)
+        for n in self.all_persons:
+            logging.info(f"Hello {n}!")
+
+    # --------------------- all_persons ------------------------ #
+    @property
+    @input(mandatory=False, type=list)
+    @output(mandatory=True, type=list)
+
+
+    def all_persons(self) -> list:
+        return self.__all_persons
+
+    @all_persons.setter
+    def score(self, n:list) -> None:
+        self.__all_persons = n
+
+
+@ActivityRegistry.activity(type="HELLO_TO_EVERYONE_WITHOUT_INPUT")
+class HelloEveryoneNoInput(Activity):
+    def __init__(self):
+        super().__init__()
+        self.__all_persons: list = []
+
+    def run(self):
+        name = self.configuration.get("name", default="World")
+        self.all_persons.append(name)
+        for n in self.all_persons:
+            logging.info(f"Hello {n}!")
+
+    # --------------------- all_persons ------------------------ #
+    @property
+    @output(mandatory=True, type=list)
+    def all_persons(self) -> list:
+        return self.__all_persons
+
+    @all_persons.setter
+    def score(self, n: list) -> None:
+        self.__all_persons = n
+
+
+@ActivityRegistry.activity(type="HELLO_TO_EVERYONE_WITHOUT_OUTPUT")
+class HelloEveryoneNoOutput(Activity):
+    def __init__(self):
+        super().__init__()
+        self.__all_persons: list = []
+
+    def run(self):
+        name = self.configuration.get("name", default="World")
+        self.all_persons.append(name)
+        for n in self.all_persons:
+            logging.info(f"Hello {n}!")
+
+    # --------------------- all_persons ------------------------ #
+    @property
+    @input(mandatory=False, type=list)
+    def all_persons(self) -> list:
+        return self.__all_persons
+
+    @all_persons.setter
+    def score(self, n: list) -> None:
+        self.__all_persons = n
+
+
+
+
+
+
+
+
+
+
 
 
 @ActivityRegistry.activity(type="EXAMPLE")

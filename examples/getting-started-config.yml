@@ -1,39 +1,70 @@
 ---
-flowId: example-flow
+flowId: exampleFlow
 
-#   E X T E N S I O N S
-#######################
-extensions:
-   #- getting_started.extensions.print.PrintHelloInEachState
-   #- getting_started.extensions.print.PrintGoodbyeInEachState
-   - getting_started.extensions.context.AddFileContext
-   #- getting_started.extensions.print.PrintFrameworkEndState
-   #- getting_started.extensions.use_cases.GenerateException
-
-
-#   A C T I V I T Y   M O D U L E S
-###################################
+#--------------------   A C T I V I T Y   M O D U L E S   -----------------------#
 activityModules:
-  - getting_started.activities
+  - activities
 
-#   H E L P E R S
-##################
-helpers:
-  oneHelper:
-    volume: 13
-  twoHelper:
-    frequency: 155
-  resourcerHelper:
-    allocationStatusPollSeconds: 30
-
-#   A C T I V I T Y   B L O C K S
-#################################
+#---------------------   A C T I V I T Y   B L O C K S   -----------------------#
 activityBlocks:
-  example-block:
+
+  welcomeToAutor:
     activities:
-      - type: EXAMPLE
-      - type: EXAMPLE
-      - type: EXAMPLE
+      - type: PRINT
+        configuration:
+          text: "Hello from the activity nbr 1!"
+      - type: PRINT
+        configuration:
+          text: "Hello from the activity nbr 2!"
+      - type: PRINT
+        configuration:
+          text: "Hello from the activity nbr 3!"
+
+
+
+
+
+
+  helloWorld:
+    activities:
+      - type: HELLO_WORLD
+      - type: HELLO_WORLD
+      - type: HELLO_WORLD
+
+  hello:
+    activities:
+      - type: HELLO_NAME
+        configuration:
+          name: Alice
+
+      - type: HELLO_NAME
+        configuration:
+          name: Bob
+
+      - type: HELLO_NAME
+
+
+  helloEveryone:
+    activities:
+      - type: HELLO_EVERYONE
+        configuration:
+          name: Alice
+
+      - type: HELLO_EVERYONE
+        configuration:
+          name: Bob
+
+      - type: HELLO_EVERYONE
+
+
+
+
+
+
+
+
+
+
 
   block-with-worker:
     worker:

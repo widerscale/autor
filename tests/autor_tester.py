@@ -1,6 +1,7 @@
 import logging
 import json
 import os.path
+from pathlib import Path
 from typing import List
 
 from autor.framework.activity_block import ActivityBlock
@@ -61,7 +62,14 @@ class AutorTester():
             mode: str = None
     )->ActivityBlock:
 
-        mode, activity_block_id = AutorTester._parse_expectation(expectation)
+
+        #parent_directory = Path(__file__).parent
+        #flow_config_url = str(parent_directory/flow_config_url)
+
+
+
+        #mode, activity_block_id = AutorTester._parse_expectation(expectation)
+        mode,_ = AutorTester._parse_expectation(expectation)
 
         AutorTester._create_commands(
             additional_context=additional_context,
@@ -189,10 +197,10 @@ class AutorTester():
         AutorTester.__commands.append(command)
 
 
-        #print("---------------- all commands ------------------")
-       # print("Must be run from directory autor/tests")
-        #for c in AutorTester.__commands:
-            #print(c)
+        print("---------------- all commands ------------------")
+        print("Must be run from directory autor/tests")
+        for c in AutorTester.__commands:
+            print(c)
 
     @staticmethod
     def _dict_to_json_string(d:dict)->str:

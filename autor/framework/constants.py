@@ -11,13 +11,43 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import inspect
+from typing import List
+
 
 # fmt: off
-class Constants():
+
+
+
+
+# Provides functionality for checking if a value is a valid constant
+# and to get a list of valid constants.
+# To use this class, extend it and add your constants as static attributes
+# to your class.
+# Note that the constant attribute names must not begin with __.
+# Example: __THIS_IS_AN_INVALID_CONSTANT_ATTRIBUTE_NAME.
+
+class Constant():
+    @staticmethod
+    def is_valid(constant_name:str)->bool:
+        return hasattr(Mode(),constant_name)
+
+    @staticmethod
+    def get_valid_constants()->list:
+        mmbrs: List[(str, str)] = inspect.getmembers(Mode)  # returns [(name,val)]
+        values:List[str] = []
+        for (name,val) in mmbrs:
+            if not name.startswith('__') and name != "is_valid" and  name != "get_valid_constants":
+                values.append(val)
+        return values
+
+
+class Constants(Constant):
     AUTOR_ENVIRONMENT_VARIABLE_PREFIX = "AUTOR_ARGUMENT_"
     DEBUG_LINE_LENGTH = 50
 
-class ActivityGroupType:
+
+class ActivityGroupType(Constant):
     BEFORE_BLOCK = "BEFORE_BLOCK"                   # BBA
     BEFORE_ACTIVITY = "BEFORE_ACTIVITY"             # BA
     MAIN_ACTIVITY = "MAIN_ACTIVITY"                 # MA
@@ -25,7 +55,7 @@ class ActivityGroupType:
     AFTER_BLOCK = "AFTER_BLOCK"                     # ABA
 
 
-class Status:
+class Status(Constant):
     SUCCESS = 'SUCCESS'
     FAIL = 'FAIL'
     ERROR = 'ERROR'
@@ -35,7 +65,7 @@ class Status:
     ALL = 'ALL'
 
 
-class Action():
+class Action(Constant):
     RUN = 'RUN'
     SKIP_BY_FRAMEWORK = "SKIP_BY_FRAMEWORK"
     SKIP_BY_CONFIGURATION = "SKIP_BY_CONFIGURATION"
@@ -45,20 +75,23 @@ class Action():
 
 
 
-class AbortType():
+class AbortType(Constant):
     ABORTED_BY_FRAMEWORK = "ABORTED_BY_FRAMEWORK"
     ABORTED_BY_ACTIVITY = "ABORTED_BY_ACTIVITY"
 
 
 # Values used in configurations.
-class Configuration():
+class Configuration(Constant):
     ANY = "_any"
     PREVIOUS = "_previous"
     LATEST = "_latest"
 
 
+
+
+
 # Run modes for Autor
-class Mode:
+class Mode(Constant):
     # run an activity block
     ACTIVITY_BLOCK = "ACTIVITY_BLOCK"
     # run one specified activity using the activity block config.
@@ -68,8 +101,9 @@ class Mode:
     # re-run the specified the activity block run from the specified activity
     ACTIVITY_BLOCK_RERUN = "ACTIVITY_BLOCK_RERUN"
 
+
 # Exception types in Autor context @TODO - do we need it?
-class ExceptionType:
+class ExceptionType(Constant):
     ACTIVITY_BLOCK_CALLBACK = "ACTIVITY_BLOCK_CALLBACK"
     ACTIVITY = "ACTIVITY"
     EXTENSION = "EXTENSION"

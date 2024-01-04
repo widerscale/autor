@@ -14,11 +14,12 @@
 class ContextProperty:
     """A context property container class"""
 
-    def __init__(self, name, class_name, mandatory, property_type):
+    def __init__(self, name, class_name, mandatory, property_type, default):
         self.__name = name
         self.__class_name = class_name
         self.__mandatory = mandatory
         self.__property_type = property_type
+        self.__default = default
 
     @property
     def name(self) -> str:
@@ -51,3 +52,11 @@ class ContextProperty:
     @property_type.setter
     def property_type(self, n):
         self.__property_type = n
+
+    @property
+    def default(self) -> str:
+        return self.__default
+
+    @default.setter
+    def default(self, n):
+        self.__default = n

@@ -39,6 +39,8 @@ class Util:
     def is_camel_case(string:str):
         return string.isalnum() and not string.istitle()
 
+
+
     @staticmethod
     def print_framed(prefix:str, text: str, frame_symbol: str, frame_width=56, level ='debug'):
         text = f"   {text}   "
@@ -47,97 +49,32 @@ class Util:
         left = frame_symbol * round((frame_width - text_length) / 2)
         right = frame_symbol * (frame_width - text_length - len(left))
 
-        if level == 'info':
-            logging.info(prefix)
-            logging.info(prefix + full)
-            logging.info(prefix + left + text + right)
-            logging.info(prefix + full)
-        elif level == 'warning':
-            logging.warning(prefix)
-            logging.warning(prefix + full)
-            logging.warning(prefix + left + text + right)
-            logging.warning(prefix + full)
-        elif level == 'error':
-            logging.error(prefix)
-            logging.error(prefix + full)
-            logging.error(prefix + left + text + right)
-            logging.error(prefix + full)
-        else:
-            logging.debug(prefix)
-            logging.debug(prefix + full)
-            logging.debug(prefix + left + text + right)
-            logging.debug(prefix + full)
+        Util.log(prefix,level)
+        Util.log(prefix + full,level)
+        Util.log(prefix + left + text + right,level)
+        Util.log(prefix + full,level)
+
+
 
     @staticmethod
-    def print_header(prefix:str, text:str, level='debug'):
-        # FIXME: remove unused variables?
-        # text_lenght = len(text)
+    def print_header(prefix:str, text:str, level='debug',line_above:bool=True, line_below:bool=True):
+
         indent_len = 1
         side_left  = "*** "
         side_right = " ***"
         width = 56
-        indent = " " * indent_len
+
         line_len = max(len(text) + len(side_left) + len(side_right), width)
         line = "-" * line_len
         header = f'{side_left}{text}{side_right}'
-        # left = "." * round((width - text_lenght) / 2)
-        # right = "." * (width - text_lenght - len(left))
 
+        Util.log(f'{prefix}',level)
+        if line_above:
+            Util.log(f'{prefix}{line}',level)
+        Util.log(f'{prefix}{header}',level)
+        if line_below:
+            Util.log(f'{prefix}{line}',level)
 
-
-
-
-        if level == 'info':
-            logging.info(f'{prefix}')
-            logging.info(f'{prefix}{line}')
-            logging.info(f'{prefix}{header}')
-            logging.info(f'{prefix}{line}')
-        elif level == 'error':
-            logging.error(f'{prefix}')
-            logging.error(f'{prefix}{line}')
-            logging.error(f'{prefix}{header}')
-            logging.error(f'{prefix}{line}')
-        elif level == 'warning':
-            logging.warning(f'{prefix}')
-            logging.warning(f'{prefix}{line}')
-            logging.warning(f'{prefix}{header}')
-            logging.warning(f'{prefix}{line}')
-        else:
-            logging.debug(f'{prefix}')
-            logging.debug(f'{prefix}{line}')
-            logging.debug(f'{prefix}{header}')
-            logging.debug(f'{prefix}{line}')
-
-
-    @staticmethod
-    def old____print_header(text: str, prefix:str = "", level='debug'):
-        # FIXME: remove unused variables?
-        # text_lenght = len(text)
-        indent_len = 1
-        width = 56
-        indent = " " * indent_len
-        line_len = max(len(text) + 2*indent_len, width)
-        line = "_" * line_len
-        # left = "." * round((width - text_lenght) / 2)
-        # right = "." * (width - text_lenght - len(left))
-
-
-        if level == 'info':
-            logging.info(prefix)
-            logging.info(f'{prefix}{indent}{text}')
-            logging.info(f'{prefix}{line}')
-        elif level == 'error':
-            logging.error(prefix)
-            logging.error(f'{prefix}{indent}{text}')
-            logging.error(f'{prefix}{line}')
-        elif level == 'warning':
-            logging.warning(prefix)
-            logging.warning(f'{prefix}{indent}{text}')
-            logging.warning(f'{prefix}{line}')
-        else:
-            logging.debug(prefix)
-            logging.debug(f'{prefix}{indent}{text}')
-            logging.debug(f'{prefix}{line}')
 
     @staticmethod
     def format_banner(text: str, length: int = 100, pad_with: str = "-") -> str:
@@ -369,7 +306,7 @@ class Util:
         if DebugConfig.print_registered_exceptions:
             Util.log(txt,level)
 
-    staticmethod
+    @staticmethod
     def log(txt:str, level='debug'):
         if level == 'info':
             logging.info(txt)

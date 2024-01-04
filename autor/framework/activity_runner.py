@@ -42,8 +42,8 @@ class ActivityRunner:
         self._data:ActivityData = None
         self._error_occurred = False  # An exception outside Activity.run().
         self._activity_run_exception_occurred = False  # An exception inside Activity.run()
-        self._input_context_properties_handler = None
-        self._output_context_properties_handler = None
+        #self._input_context_properties_handler = None
+        #self._output_context_properties_handler = None
         self._data:ActivityData = None
 
     def run_activity(self, data: ActivityData):
@@ -79,12 +79,8 @@ class ActivityRunner:
             # Create activity
             self._create_activity()  # Can set activity status to ERROR
 
-            # Create context properties handlers
-            self._input_context_properties_handler  = ContextPropertiesHandler(self._data.activity, self._data.input_context)
-            self._output_context_properties_handler = ContextPropertiesHandler(self._data.activity, self._data.output_context)
-
-            # Create ContextProperties for the Activity (to be used inside Activity)
-            self._data.output_context_properties_handler = self._output_context_properties_handler
+            # Create ContextPropertiesHandler (can also be used by Activity)
+            self._data.output_context_properties_handler = ContextPropertiesHandler(self._data.activity, context=self._data.output_context)
 
             # Load activity properties.
             self._load_activity_properties()
@@ -210,14 +206,15 @@ class ActivityRunner:
             )  # Framework rules not followed -> framework error
 
     def _load_activity_properties(self):
-        handler = ContextPropertiesHandler(self._data.activity, self._data.input_context)
+        handler = ContextPropertiesHandler(self._data.activity, context=self._data.input_context, config=self._data.activity_config.configuration)
 
         try:
             # If the framework has decided that the activity status is ERROR,
             #  no input parameter checks should be performed.
-            handler.load_input_properties(mandatory_inputs_check=self._ok_to_run())
+            handler.load_input_properties(check_mandatory_properties=self._ok_to_run())
+            handler.load_config_properties(check_mandatory_properties=self._ok_to_run())
         except Exception as e:
-            self._register_error(e, "Exception loading activity input properties.")
+            self._register_error(e, "Exception loading activity input and/or configuration properties.")
 
     def _save_activity_properties(self):
         status = self._data.activity.status
@@ -227,7 +224,7 @@ class ActivityRunner:
             # Save activity output properties to context and push the context to remote.
             # Mandatory output properties are required only from the activities with the status
             #  SUCCESS.
-            self._output_context_properties_handler.save_output_properties(mandatory_outputs_check=(status == Status.SUCCESS))
+            self._data.output_context_properties_handler.save_output_properties(mandatory_outputs_check=(status == Status.SUCCESS))
         except Exception as e:
             self._register_error(e)
 

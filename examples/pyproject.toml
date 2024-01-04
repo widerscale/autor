@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "getting-started"
+name = "examples"
 version = "0.1.0"
 description = "Examples of activities, extensions and helpers for getting started with Autor."
 authors = ["doWhile <code@dowhile.se>"]
-packages = [{include="getting_started"}]
+packages = [{include="activities"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"

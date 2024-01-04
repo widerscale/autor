@@ -1,6 +1,4 @@
 flowId: autor-flow
-extensions:
-- getting_started.extensions.context.AddFileContext
 activityModules:
 - test_activities.activities
 - test_activities.activities2

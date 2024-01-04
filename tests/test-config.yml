@@ -4,7 +4,7 @@ flowId: example-flow
 #   E X T E N S I O N S
 #######################
 extensions:
-   - getting_started.extensions.context.AddFileContext
+   #- examples.extensions.context.AddFileContext
 
 
 #   A C T I V I T Y   M O D U L E S

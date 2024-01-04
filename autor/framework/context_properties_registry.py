@@ -72,11 +72,12 @@ class ContextPropertiesRegistry:
     # The lists are updated whenever a module is imported.
     __inputs = {}  # type: Dict[str, ContextProperty]
     __outputs = {}  # type: Dict[str, ContextProperty]
+    __configs = {} # type: Dict[str, ContextProperty]
 
     #  -------------------------------------- D E C O R A T O R S ---------------------------------#
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def input(mandatory, type):
+    def input(mandatory, type, default=None):
         """
         A property decorator.
         Properties that are decorated with this decorator indicate that the value of this
@@ -85,13 +86,14 @@ class ContextPropertiesRegistry:
         Arguments:
             mandatory {bool} -- True if the parameter is mandatory
             type {python type} -- The type of the argument (str, int, long etc.)
+            default {value of 'type'} - The value of the argument.
         Returns:
             function
         """
 
         def inp(func):
             ContextPropertiesRegistry._add_property(
-                mandatory, type, ContextPropertiesRegistry.__inputs, func
+                mandatory, type, default, ContextPropertiesRegistry.__inputs, func
             )
             return func
 
@@ -99,7 +101,7 @@ class ContextPropertiesRegistry:
 
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def output(mandatory, type):
+    def output(mandatory, type, default=None):
         """
         A property decorator.
         Properties that are decorated with this decorator indicate that the value of this
@@ -108,6 +110,7 @@ class ContextPropertiesRegistry:
         Arguments:
             mandatory {bool} -- True if the parameter is mandatory
             type {python type} -- The type of the argument (str, int, long etc.)
+            default {value of 'type'} - The value of the argument.
         Returns:
             function
         """
@@ -115,11 +118,37 @@ class ContextPropertiesRegistry:
         def out(func):
             # logging.debug(f"OUTPUT :  {str(func.__qualname__)}")
             ContextPropertiesRegistry._add_property(
-                mandatory, type, ContextPropertiesRegistry.__outputs, func
+                mandatory, type, default, ContextPropertiesRegistry.__outputs, func
             )
             return func
 
         return out
+
+
+
+    @staticmethod
+    # pylint: disable-next=redefined-builtin
+    def config(mandatory, type, default=None):
+        """
+        A property decorator.
+        Properties that are decorated with this decorator indicate that the value of this
+        property should be read from the context and considered as configuration to the entity
+        that has this property.
+        Arguments:
+            mandatory {bool} -- True if the parameter is mandatory
+            type {python type} -- The type of the argument (str, int, long etc.)
+            default {value of 'type'} - The value of the argument.
+        Returns:
+            function
+        """
+
+        def conf(func):
+            ContextPropertiesRegistry._add_property(
+                mandatory, type, default, ContextPropertiesRegistry.__configs, func
+            )
+            return func
+
+        return conf
 
     #  ------------------------------- P U B L I C   M E T H O D S -------------------------------#
     @staticmethod
@@ -146,6 +175,20 @@ class ContextPropertiesRegistry:
         Returns:    {[Property]} - The list of @output parameters for the instance."""
         return ContextPropertiesRegistry.__get_properties(
             instance, ContextPropertiesRegistry.__outputs
+        )
+
+
+    @staticmethod
+    def get_config_properties(instance: object):
+        """
+        Get registered @config properties for the instance. If the instance does not contain any \
+            @config properties,
+        an empty list is returned.
+
+        Arguments:  instance {object} - The instance whose @output parameters should be returned.
+        Returns:    {[Property]} - The list of @output parameters for the instance."""
+        return ContextPropertiesRegistry.__get_properties(
+            instance, ContextPropertiesRegistry.__configs
         )
 
     # --------------------------- P R I V A T E   M E T H O D S ---------------------------------#
@@ -176,11 +219,11 @@ class ContextPropertiesRegistry:
 
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def _add_property(mandatory, type, property_list, func):
+    def _add_property(mandatory, type, default, property_list, func):
 
         # The name of the class where the property is defined
         class_name = func.__qualname__.split(".")[0]
         property_name = func.__name__
         property_list[class_name + "_" + property_name] = ContextProperty(
-            property_name, class_name, mandatory, type
+            property_name, class_name, mandatory, type, default
         )

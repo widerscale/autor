@@ -15,7 +15,6 @@
 Import all the modules under the project (see pyproject.toml) that contain activities that need to be made available.
 """
 
-import getting_started.activities.activities1
-import getting_started.activities.activities2
+import activities.activities1
 
 __version__ = "0.0.1"

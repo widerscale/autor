@@ -53,6 +53,7 @@ from autor.framework.constants import (
 from autor.framework.context import Context
 from autor.framework.context_properties_handler import ContextPropertiesHandler
 from autor.framework.debug_config import DebugConfig
+from autor.framework.file_context import FileContext
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
 from autor.framework.keys import StateKeys as sta
@@ -123,6 +124,24 @@ class ActivityBlock(StateProducer):
         """
         logging.info(f'{DebugConfig.autor_info_prefix}{string}')
 
+        # Make sure no None values exist for collections.
+        if additional_context is None:
+            additional_context = {}
+        if additional_extensions is None:
+            additional_extensions = []
+        if activity_config is None:
+            activity_config = {}
+        if activity_input is None:
+            activity_input = {}
+        if custom_data is None:
+            custom_data = {}
+
+
+        # Check that the expected values are correct
+        Check.is_true(Mode.is_valid(mode), f'Unknown mode: {mode}. The valid modes are: {Mode.get_valid_constants()}')
+
+
+
 
 
         #------------------------- mode: ACTIVITY ------------------------------#
@@ -139,18 +158,9 @@ class ActivityBlock(StateProducer):
         # These additional extensions will be able to get on_bootstrap()
         # callbacks, that is not available for the extensions provided
         # through flow configuration.
-        if additional_extensions is None:
-            self._additional_extensions = []
-        else:
-            self._additional_extensions:list = additional_extensions
-            
-            
-            
-        
-        if additional_context is None:
-            self._activity_block_context_addition = {}
-        else:
-            self._activity_block_context_addition = additional_context
+        self._additional_extensions:list = additional_extensions
+
+        self._activity_block_context_addition = additional_context
 
         # After each run Autor adds 'skip-with-outputs' configuration to the flow
         # configuration. The attribute holds the URL to the updated configuration.
@@ -207,6 +217,7 @@ class ActivityBlock(StateProducer):
         self._flow_context_id = None                    # Unique identifier of a context for a flow run.
         self._flow_config:FlowConfiguration = None      # The configuration object representing the whole flow.
         self._flow_context:Context = None               # Context, focused on the root (flow) level.
+
 
 
         # ------------------------------  A C T I V I T Y   B L O C K   D A T A   -----------------#
@@ -307,9 +318,12 @@ class ActivityBlock(StateProducer):
 
     def _set_up(self):
         try:
-
+            # In cases when Autor is run several times within the same process
+            # the static data needs to be reset. Can be a case during testing Autor.
             ActivityBlockRules.reset_static_data()
             Context.reset_static_data()
+
+            Context.remote_context = FileContext()  # Default is to use file DB locally. Can be overriden in extensions.
 
             if DebugConfig.print_autor_info:
                 self._print_input_args_before_bootstrap()
@@ -450,8 +464,10 @@ class ActivityBlock(StateProducer):
             if DebugConfig.create_skip_with_output_flow_config:
                 self._dbg_save_skip_with_outputs_flow_config() # creates a flow config with skip configuration with results from the current run.
             if DebugConfig.print_activity_block_finished_summary:
-                #self._dbg_print_activity_block_finished()
-                ActivityBlockRules.transition_summary().print()
+                self._dbg_print_activity_block_finished()
+                Util.print_header(DebugConfig.autor_info_prefix, 'A C T I V I T Y   B L O C K   R U N   S U M M A R Y', level='info', line_below=False)
+                logging.info(DebugConfig.autor_info_prefix)
+                ActivityBlockRules.get_transition_summary().print(DebugConfig.autor_info_prefix)
             if DebugConfig.save_activity_block_context_locally: # can be used for test cases
                 self._dbg_save_context()
 
@@ -622,22 +638,12 @@ class ActivityBlock(StateProducer):
     def _dbg_print_activity_block_finished(self):
         prefix = DebugConfig.autor_info_prefix
         Util.print_header(prefix, 'A C T I V I T Y   B L O C K   F I N I S H E D', level='info')
-        logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
-        logging.info(f'{prefix}activity_block_run_id: {self._activity_block_run_id}')
         logging.info(f'{prefix}flow_id:               {self._flow_id}')
         logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}')
+        logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
+        logging.info(f'{prefix}activity_block_run_id: {self._activity_block_run_id}')
         logging.info(f'{prefix}activity_block_status: {self._activity_block_status}')
         logging.info(f'{prefix}')
-
-
-        # Print the list of all the activities that were run.
-        padding1 = 25
-        padding2 = 10
-        padding3 = 10
-        for line in self._activity_block_run_summary:
-            logging.info(f'{prefix}{line}')
-        #for data in self._activity_block_activity_data:
-            #logging.info(f'{prefix}{data.activity_name}'.ljust(padding1) + f'{data.activity.status}'.ljust(padding2) + f'{data.action}'.ljust(padding3))
 
 
 
@@ -1106,7 +1112,7 @@ class ActivityBlock(StateProducer):
             class_ = getattr(module, class_name)                # create the class
             instance = class_()                                 # create a listener instance of the class
             StateHandler.add_state_listener(instance)
-        pass
+
 
     def _register_bootstrap_extensions(self, extensions:List[str]):
 
@@ -1185,7 +1191,7 @@ class ActivityBlock(StateProducer):
         modules = config.activity_modules
         if modules:
             for module in modules:
-                module = importlib.import_module(module)
+                importlib.import_module(module)
 
         # ----------------- Debug prints -------------------------#
         if DebugConfig.print_loaded_modules or DebugConfig.print_autor_info:
