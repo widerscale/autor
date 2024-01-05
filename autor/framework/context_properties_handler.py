@@ -156,36 +156,64 @@ class ContextPropertiesHandler:
             Check.is_instance_of(prop, ContextProperty)
 
             # Get the property value
-            ctx_key = KeyHandler.convert_key(
-                prop.name, from_format=prp.format, to_format=ctx.format
-            )
-
-
+            ctx_key = KeyHandler.convert_key(prop.name, from_format=prp.format, to_format=ctx.format)
             prop_value = self._context.get(key=ctx_key, default=None, search=True)
             # prop_value = self._context.get_from_activity(key=ctx_key, default=None)
 
             # Check that the mandatory properties have a value
             if check_mandatory_properties:
                 if prop.mandatory and (prop_value is None):
-                    raise ContextPropertiesHandlerValueException(
-                        (
-                            f"Could not find in context mandatory input property: '{ctx_key},"
-                            + f" for activity: '{str(self._object.__class__.__name__)}'"
-                        )
-                    )
+                    raise ContextPropertiesHandlerValueException(f"Could not find in context mandatory input property: '{ctx_key} for activity: '{str(self._object.__class__.__name__)}'")
 
-            # Check that the value type is correct.
+            # Check that the value type is correct and set all non-None properties
             if prop_value is not None:
                 if not isinstance(prop_value, prop.property_type):
-                    raise ContextPropertiesHandlerValueException(
-                        (
-                            f"Type error in Object: {str(self._object.__class__.__name__)}."
-                            + f" Expected input context property: {ctx_key} of type:"
-                            + f" {str(prop.property_type)}, "
-                            + f"received type: {str(prop_value.__class__.__name__)}"
-                        )
-                    )
+                    raise ContextPropertiesHandlerValueException(f"Type error in Object: {str(self._object.__class__.__name__)}. Expected input context property: {ctx_key} of type: {str(prop.property_type)}, received type: {str(prop_value.__class__.__name__)}")
                 setattr(self._object, prop.name, prop_value)
+
+            else:
+                # If a (non-mandatory) property is None, check if the class has defined a default value. If not,
+                # set the default value to None. This way there will not be a case when a class does not have a property
+                # attribute defined at all.
+
+
+                if self._object_has_defined_property_value(self._object, prop.name):
+
+                    if prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED: # both object and property have defined a default property value
+                        def_val = getattr(self._object, prop.name)
+
+                        err_msg = (
+                            f"Default values for properties may not be defined both in constructor and in property decorator." +
+                            f"Class: {str(self._object.__class__.__name__)}. " +
+                            f"Property: {prop.name}. " +
+                            f"Decorator: @input(mandatory=False, type={self._get_type_name(prop.property_type)}, default={prop.default}). " +
+                            f"Defined default value in constructor: {def_val}. " +
+                            f"To fix this error: Remove property default value definition in the constructor OR remove the default value definition in the decorator."
+                        )
+                        raise ContextPropertiesHandlerValueException(err_msg)
+
+
+                else: # property not defined
+                    if prop.default is not None:
+                        setattr(self._object, prop.name, prop.default) # if default value was defined in the decorator @input -> set the decorator default value
+                    else:
+                        setattr(self._object, prop.name, None) # if no default value is available, set None
+                        logging.warning(f"{DebugConfig.autor_info_prefix}While trying to set optional input property {self._object.__class__.__name__}.{prop.name}:")
+                        logging.warning(f"{DebugConfig.autor_info_prefix}No value found in context for key: '{ctx_key}' -> setting property: {self._object.__class__.__name__}.{prop.name} = None")
+
+
+    def _get_type_name(self, t:type)->str:
+        str_type = str(t)
+        str_name = str_type.split("'")[1]
+        return str_name
+
+    def _object_has_defined_property_value(self, o:object, prop_name:str)->bool:
+        try:
+            getattr(o, prop_name)
+            return True
+        except Exception as e:
+            return False
+
 
     def save_output_properties(self, mandatory_outputs_check: bool = True):
         """Save the output properties values to the context and synchronize the \

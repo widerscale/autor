@@ -59,7 +59,7 @@ from typing import Dict, List
 from autor.framework.check import Check
 from autor.framework.context_property import ContextProperty
 
-
+_DEFAULT_PROPERTY_VALUE_NOT_DEFINED = "DEFAULT_PROPERTY_VALUE_NOT_DEFINED"
 class ContextPropertiesRegistry:
     """Class for keeping a registry of context properties.
     The class provides decorators (see input() and output()) that can used for decorationg \
@@ -74,10 +74,12 @@ class ContextPropertiesRegistry:
     __outputs = {}  # type: Dict[str, ContextProperty]
     __configs = {} # type: Dict[str, ContextProperty]
 
+    DEFAULT_PROPERTY_VALUE_NOT_DEFINED = _DEFAULT_PROPERTY_VALUE_NOT_DEFINED
+
     #  -------------------------------------- D E C O R A T O R S ---------------------------------#
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def input(mandatory, type, default=None):
+    def input(mandatory, type, default=_DEFAULT_PROPERTY_VALUE_NOT_DEFINED):
         """
         A property decorator.
         Properties that are decorated with this decorator indicate that the value of this
@@ -101,7 +103,7 @@ class ContextPropertiesRegistry:
 
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def output(mandatory, type, default=None):
+    def output(mandatory, type):
         """
         A property decorator.
         Properties that are decorated with this decorator indicate that the value of this
@@ -110,13 +112,13 @@ class ContextPropertiesRegistry:
         Arguments:
             mandatory {bool} -- True if the parameter is mandatory
             type {python type} -- The type of the argument (str, int, long etc.)
-            default {value of 'type'} - The value of the argument.
         Returns:
             function
         """
 
         def out(func):
             # logging.debug(f"OUTPUT :  {str(func.__qualname__)}")
+            default = ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED # Default may not be defined for output
             ContextPropertiesRegistry._add_property(
                 mandatory, type, default, ContextPropertiesRegistry.__outputs, func
             )
@@ -128,7 +130,7 @@ class ContextPropertiesRegistry:
 
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def config(mandatory, type, default=None):
+    def config(mandatory, type, default=_DEFAULT_PROPERTY_VALUE_NOT_DEFINED):
         """
         A property decorator.
         Properties that are decorated with this decorator indicate that the value of this

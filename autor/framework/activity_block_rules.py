@@ -23,6 +23,7 @@ from autor.framework.check import Check
 from autor.framework.constants import Action
 from autor.framework.constants import ActivityGroupType as agt
 from autor.framework.constants import Configuration, Mode, Status
+from autor.framework.context import Context
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
@@ -834,6 +835,7 @@ class ActivityBlockRules:
 
         # Was the activity skipped by the framework?
         skip_type = activity.context.get_from_activity(key=ctx.SKIP_TYPE, default=None)
+
         action_str:str = activity.context.get_from_activity(key=ctx.ACTION)
 
         return (
@@ -855,7 +857,7 @@ class ActivityBlockRules:
     # pylint: disable-next=no-self-use
     def _print(self, text):
         if DebugConfig.trace_activity_sequence_decisions:
-            logging.debug(f'{DebugConfig.activity_sequence_decisions_trace_prefix}{str(text)}')
+            logging.info(f'{DebugConfig.activity_sequence_decisions_trace_prefix}{str(text)}')
 
 
 

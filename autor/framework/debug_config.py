@@ -27,7 +27,7 @@ class DebugConfig():
     trace_sequence_details = False # Activates all flags connected to sequence tracing.
 
     print_final_input = False # Prints the input that Autor has after bootstrapping
-    print_activity_block_started_summary = False # Gives an overview of the inputs before a run
+    print_activity_block_started_summary = True # Gives an overview of the inputs before a run
     print_activity_block_finished_summary = True
     create_skip_with_output_flow_config = False
     save_activity_block_context_locally = True # Creates files in context/ directory. These can be used for creating test cases.
@@ -55,7 +55,6 @@ class DebugConfig():
     trace_callbacks = False
     callbacks_trace_prefix = "[clb]: "
 
-
     trace_string_arg_parsing = False
     string_arg_parsing_prefix = "[srg]: "
 
@@ -72,11 +71,11 @@ class DebugConfig():
     print_context_before_activities_are_run = False
     print_context_before_state = False
     print_context_after_state = False
+    save_exceptions_in_context = False
 
     print_loaded_extensions = False
     print_loaded_modules = False
     print_registered_exceptions = True
-
     exit_on_extension_exceptions = False
 
     if trace_sequence_details:

@@ -791,13 +791,13 @@ class ActivityBlock(StateProducer):
                 "Unknown activity group type: " + str(activity_group_type)
             )
 
-    def _update_activity_block_status(self, error_occurred):
+    def _update_activity_block_status(self, framework_error_occurred):
 
         data:ActivityData = self._activity_data
         action = data.action
 
         if self._activity_block_interrupted is False: # Once the activity block has been interrupted it will remain interrupted.
-            if error_occurred:
+            if framework_error_occurred:
                 self._activity_block_interrupted = True  # All framework and framework usage errors
                 data.interrupted = self._activity_block_interrupted
             else:
@@ -850,16 +850,18 @@ class ActivityBlock(StateProducer):
 
         # ---------------------------------------------------------------------#
         # -----------------   R U N   A C T I V I T Y   ---------------------- #
-        error_occurred = ActivityRunner().run_activity(self._activity_data)
+        framework_error_occurred = ActivityRunner().run_activity(self._activity_data)
         # ---------------------------------------------------------------------#
         # ---------------------------------------------------------------------#
 
 
-        if error_occurred:
-            self._abort_autor("Error occurred during activity run")
+        if framework_error_occurred:
+            self._abort_autor("Autor framework error occurred during activity run")
+
+
 
         self._update_activity_lists(self._activity_data.activity, activity_config, activity_group_type)
-        self._update_activity_block_status(error_occurred)
+        self._update_activity_block_status(framework_error_occurred)
         self._create_activity_skip_with_outputs_config(self._activity_data)
 
         if DebugConfig.print_default_config_conditions:

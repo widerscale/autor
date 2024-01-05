@@ -24,7 +24,7 @@ import logging
 import os
 import pprint
 import traceback
-
+import uuid
 
 from autor.framework.constants import ExceptionType
 from autor.framework.debug_config import DebugConfig
@@ -178,39 +178,64 @@ class Util:
 
     _framework_exceptions = []
     _other_exceptions = []
+    _raw_exceptions = []
 
     @staticmethod
     def debug_reset():
-        Util._framework_exceptions = []
-        Util._other_exceptions = []
+        Util._framework_exceptions = [] # Original
+        Util._other_exceptions = [] # Original
+        Util._raw_exceptions = [] # All registered raw exceptions with ID [{raw,uuid}]
         Util._first_exception = None
         Util._abort_exception = None
+
 
     @staticmethod
     def print_all_exceptions():
 
         nbr_fwk_exceptions = len(Util._framework_exceptions)
         nbr_other_exceptions = len(Util._other_exceptions)
+
         if nbr_fwk_exceptions == 0 and nbr_other_exceptions == 0:
             logging.info(f"{DebugConfig.autor_info_prefix}No registered exceptions")
             return
 
 
         if nbr_other_exceptions + nbr_fwk_exceptions > 1:
-            logging.info(f'{DebugConfig.autor_info_prefix}')
-            logging.info(f'{DebugConfig.autor_info_prefix}______ List of registered exceptions _____')
+            logging.info(f'')
+            logging.info(f'')
+            logging.info(f'')
+
+
+            Util.print_header("","List of registered exceptions",'info')
+            logging.info('Use <UUID> to find the exception in the log.')
+            logging.info(f'')
+            '''
             for ex in Util._framework_exceptions:
                 logging.info(f"{DebugConfig.autor_info_prefix} Framework exception: {str(ex)}")
 
             if len(Util._other_exceptions) > 0:
                 for ex in Util._other_exceptions:
-                    logging.info(f"{DebugConfig.autor_info_prefix} Non-framework exeption: {str(ex)}")
+                    logging.info(f"{DebugConfig.autor_info_prefix} Non-framework exception: {str(ex)}")
+            '''
+
+        i = 0
+        for exception in Util._raw_exceptions:
+            i = i + 1
+            logging.info(f"EXCEPTION: {i}")
+            logging.info(f"UUID: {exception[ctx.UUID]} ")
+            logging.info(f"TYPE: {exception[ctx.TYPE]} ")
+            logging.info("", exc_info=exception[ctx.RAW])
+            logging.info(f'')
+            logging.info(f'')
+            logging.info(f'')
+
+
 
     @staticmethod
-    def register_exception(
-        ex: Exception, context=None, description="", type="", custom=None, framework_error=True
-    ):
+    def register_exception(ex: Exception, context=None, description="", type="", custom=None, framework_error=True):
         # pylint: disable=redefined-builtin, too-many-branches
+
+
 
         if framework_error:
             Util._framework_exceptions.append(ex)
@@ -230,6 +255,8 @@ class Util:
         if Util._abort_exception is None and framework_error:
             Util._abort_exception = ex
 
+        exception[ctx.UUID] = str(uuid.uuid4())
+        exception[ctx.CUSTOM] = custom
         exception[ctx.MESSAGE] = str(ex)
         exception[ctx.CLASS] = ex.__class__.__name__
 
@@ -260,51 +287,49 @@ class Util:
         exception[ctx.STACK_TRACE] = formatted_st
 
 
-
         tot_len = 110
         message = exception.get(ctx.MESSAGE, "")
         padding_len = (int)((tot_len - len(message))/2)
         padding = "-" * padding_len
 
-        if DebugConfig.print_registered_exceptions:
-            logging.warning("", exc_info=ex)
-        Util._print_registered_exception("", 'warning')
-        Util._print_registered_exception("R E G I S T E R I N G   E X E P T I O N" , 'warning')
-        if custom is not None:
-            exception[ctx.CUSTOM] = custom
 
-        if exception.get(ctx.MESSAGE, None) is not None:
-            Util._print_registered_exception("MESSAGE:                 " + exception[ctx.MESSAGE], 'warning')
+        logging.warning("", exc_info=ex)
 
-        if exception.get(ctx.CLASS, None) is not None:
-            Util._print_registered_exception("EXCEPTION CLASS:         " + exception[ctx.CLASS], 'warning')
-
+        Util._print("", 'info')
+        Util._print("R E G I S T E R I N G   E X C E P T I O N", 'info')
+        Util._print("UUID:                    " + exception[ctx.UUID], 'info')
+        if exception.get(ctx.CUSTOM, None) is not None:
+            Util._print("CUSTOM:                  " + str(exception[ctx.CUSTOM]), 'info')
         if exception.get(ctx.DESCRIPTION, None) is not None:
-            Util._print_registered_exception(
-                "DESCRIPTION:             " + exception[ctx.DESCRIPTION]
-            , 'warning')
-
+            Util._print("DESCRIPTION:             " + exception[ctx.DESCRIPTION], 'info')
+        if exception.get(ctx.CLASS, None) is not None:
+            Util._print("EXCEPTION CLASS:         " + exception[ctx.CLASS], 'info')
         if exception.get(ctx.TYPE, None) is not None:
-            Util._print_registered_exception("TYPE:                    " + exception[ctx.TYPE], 'warning')
-
+            Util._print("TYPE:                    " + exception[ctx.TYPE], 'info')
         if exception.get(ctx.STATE, None) is not None:
-            Util._print_registered_exception("LATEST EVENT:            " + exception[ctx.STATE], 'warning')
+            Util._print("LATEST EVENT:            " + exception[ctx.STATE], 'info')
+        if exception.get(ctx.MESSAGE, None) is not None:
+            Util._print("MESSAGE:                 " + exception[ctx.MESSAGE], 'info')
 
-
-
-        #Util._print_registered_exception("\n" + "- " * 55 + "\n\n\n", 'info')
-        #Util._print_registered_exception("")
-        Util._print_registered_exception("", "warning")
+        Util._print("", "info")
+        Util._print("", "info")
 
         exceptions.append(exception)
-        context.set(ctx.EXCEPTIONS, exceptions)
+
+        raw_ex = {}
+        raw_ex[ctx.RAW] = ex
+        raw_ex[ctx.UUID] = exception[ctx.UUID]
+        raw_ex[ctx.TYPE] = exception[ctx.TYPE]
+        Util._raw_exceptions.append(raw_ex)
+
+        if DebugConfig.save_exceptions_in_context:
+            context.set(ctx.EXCEPTIONS, exceptions)
 
         return exception
 
     @staticmethod
-    def _print_registered_exception(txt, level='debug'):
-        if DebugConfig.print_registered_exceptions:
-            Util.log(txt,level)
+    def _print(txt, level='debug'):
+        Util.log(DebugConfig.autor_info_prefix + txt,level)
 
     @staticmethod
     def log(txt:str, level='debug'):

@@ -32,7 +32,7 @@ class Echo(Activity):
 
     def __init__(self):
         super().__init__()
-        self._echo_nbr: int = 0
+
 
     #region property: name @config(mandatory=True, type=str)
     @property
@@ -45,25 +45,25 @@ class Echo(Activity):
         self._name = n
     #endregion
 
-    #region property: echo_nbr @input(mandatory=False, type=int)
+    #region property: times_to_echo @input(mandatory=False, type=int)
     @property
-    @input(mandatory=False, type=int, default=0)
+    @input(mandatory=False, type=int, default=1)
     @output(mandatory=True, type=int)
-    def echo_nbr(self) -> int:
-        return self._echo_nbr
+    def times_to_echo(self) -> int:
+        return self._times_to_echo
     #endregion
 
-    #region property: echo_nbr @output(mandatory=True, type=int)
-    @echo_nbr.setter
-    def echo_nbr(self, n:int) -> None:
-        self._echo_nbr = n
+    #region property: times_to_echo @output(mandatory=True, type=int)
+    @times_to_echo.setter
+    def times_to_echo(self, n:int) -> None:
+        self._times_to_echo = n
     #endregion
 
     def run(self):
-        self.echo_nbr = self._echo_nbr +1
         logging.info(f"{self.name}")
-        for i in range(self.echo_nbr):
+        for i in range(self.times_to_echo):
             logging.info("Echo!")
+        self.times_to_echo = self.times_to_echo + 1
 
 
 
