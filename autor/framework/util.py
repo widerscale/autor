@@ -200,12 +200,10 @@ class Util:
             return
 
 
-        if nbr_other_exceptions + nbr_fwk_exceptions > 1:
+        if nbr_other_exceptions + nbr_fwk_exceptions >= 1:
             logging.info(f'')
             logging.info(f'')
             logging.info(f'')
-
-
             Util.print_header("","List of registered exceptions",'info')
             logging.info('Use <UUID> to find the exception in the log.')
             logging.info(f'')
@@ -218,16 +216,15 @@ class Util:
                     logging.info(f"{DebugConfig.autor_info_prefix} Non-framework exception: {str(ex)}")
             '''
 
-        i = 0
-        for exception in Util._raw_exceptions:
-            i = i + 1
-            logging.info(f"EXCEPTION: {i}")
-            logging.info(f"UUID: {exception[ctx.UUID]} ")
-            logging.info(f"TYPE: {exception[ctx.TYPE]} ")
-            logging.info("", exc_info=exception[ctx.RAW])
-            logging.info(f'')
-            logging.info(f'')
-            logging.info(f'')
+
+            for i,exception in enumerate(Util._raw_exceptions):
+                logging.info(f"EXCEPTION: {i+1}")
+                logging.info(f"UUID: {exception[ctx.UUID]} ")
+                logging.info(f"TYPE: {exception[ctx.TYPE]} ")
+                logging.info("", exc_info=exception[ctx.RAW])
+                logging.info(f'')
+                logging.info(f'')
+                logging.info(f'')
 
 
 

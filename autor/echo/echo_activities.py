@@ -34,6 +34,7 @@ class Echo(Activity):
         super().__init__()
 
 
+
     #region property: name @config(mandatory=True, type=str)
     @property
     @config(mandatory=True, type=str)

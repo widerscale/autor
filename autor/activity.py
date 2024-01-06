@@ -137,21 +137,15 @@ class Activity(abc.ABC):
             for cb_ in self.activity_block_callbacks:
                 if first_callback:
                     first_callback = False
-                    logging.info(
-                        (
-                            "   self.activity_block_callbacks:   "
-                            + f"{str(cb_.__class__.__name__)} {cb_.run_on}"
-                        )
-                    )
+                    logging.info(f"   self.activity_block_callbacks:   {str(cb_.__class__.__name__)} {cb_.run_on}")
                 else:
-                    logging.info(
-                        (
-                            f"                                    {str(cb_.__class__.__name__)}"
-                            + f" {cb_.run_on}"
-                        )
-                    )
+                    logging.info(f"                                    {str(cb_.__class__.__name__)} {cb_.run_on}")
 
         logging.info("")
+
+
+        #logging.info(str(self))
+
 
     ################################### CONTEXT properties ##################################
     # Context properties are read/written from/to flow context.
@@ -251,7 +245,8 @@ class Activity(abc.ABC):
         self.__context_properties_handler.save_output_properties()
 
     def __str__(self):
-        return str(vars(self))
+        from pprint import pformat
+        return pformat(vars(self))
 
 
 class ActivityException(Exception):
