@@ -119,9 +119,14 @@ class ActivityRunner:
                 # ----------------------------------------------------------------#
                 StateHandler.change_state(State.BEFORE_ACTIVITY_RUN)
                 # ----------------------------------------------------------------#
+                activity_full_class_name:str = f"{self._data.activity.__module__}.{self._data.activity.__class__.__name__}"
                 logging.info(f'{DebugConfig.autor_info_prefix}')
-                #self._print_activity_started()
-                logging.info(f"{DebugConfig.autor_info_prefix}--------> Started  activity '{self._data.activity_name}' (Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__}) -------->")
+                logging.info(f'{DebugConfig.autor_info_prefix}')
+                logging.info(f"{DebugConfig.autor_info_prefix}---------> Started activity: [Name:{self._data.activity_name} Type:{self._data.activity_type}, Class:{activity_full_class_name}] -------->")
+                #logging.info(f'{DebugConfig.autor_info_prefix}')
+                #logging.info(f'{DebugConfig.autor_info_prefix}Started activity name:  {self._data.activity_name}')
+                #logging.info(f'{DebugConfig.autor_info_prefix}Started activity type:  {self._data.activity_type}')
+                #logging.info(f'{DebugConfig.autor_info_prefix}Started activity class: {activity_full_class_name}')
 
 
                 LoggingConfig.activate_activity_logging()
@@ -129,7 +134,9 @@ class ActivityRunner:
                     self._data.activity.print()
                 self._data.activity.run()
                 LoggingConfig.activate_framework_logging()
-                logging.info(f"{DebugConfig.autor_info_prefix}<-------- Finished activity '{self._data.activity_name}' (Type:{self._data.activity_type}, Class:{self._data.activity.__class__.__name__}) <--------")
+
+                #logging.info(f'{DebugConfig.autor_info_prefix}')
+                logging.info(f"{DebugConfig.autor_info_prefix}<-------- Finished activity: [Name:{self._data.activity_name} Type:{self._data.activity_type}, Class:{activity_full_class_name}] <--------")
 
             except Exception as e:
                 LoggingConfig.activate_framework_logging()

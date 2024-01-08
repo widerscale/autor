@@ -11,10 +11,15 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-"""
-Import all the modules under the project (see pyproject.toml) that contain activities that need to be made available.
-"""
 
-import activities.activities1
 
-__version__ = "0.0.1"
+
+
+import logging
+from autor import Activity
+from autor.framework.activity_registry import ActivityRegistry
+
+@ActivityRegistry.activity(type="hello-world")
+class HelloWorld(Activity):
+    def run(self):
+        logging.info("Hello World!")

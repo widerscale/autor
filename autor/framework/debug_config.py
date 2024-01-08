@@ -26,8 +26,11 @@ class DebugConfig():
     # Main flags
     trace_sequence_details = False # Activates all flags connected to sequence tracing.
 
-    print_final_input = False # Prints the input that Autor has after bootstrapping
-    print_activity_block_started_summary = True # Gives an overview of the inputs before a run
+    print_final_input = True # Prints the input that Autor has after bootstrapping
+    print_activity_block_started_inputs_summary = False # Gives an overview of the inputs before a run
+    print_also_uninitiated_inputs = False # Lists also uninitiated inputs in various inputs prints.
+
+
     print_activity_block_finished_summary = True
     create_skip_with_output_flow_config = False
     save_activity_block_context_locally = True # Creates files in context/ directory. These can be used for creating test cases.

@@ -57,7 +57,7 @@ class Util:
 
 
     @staticmethod
-    def print_header(prefix:str, text:str, level='debug',line_above:bool=True, line_below:bool=True):
+    def print_header(prefix:str, text:str, level:str, line_above:bool=True, line_below:bool=True):
 
         indent_len = 1
         side_left  = "*** "

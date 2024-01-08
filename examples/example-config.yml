@@ -1,34 +1,32 @@
 ---
 flowId: exampleFlow
 
-#   E X T E N S I O N S
-#######################
-extensions:
-   #- extensions.print.PrintHelloInEachState
-   #- extensions.print.PrintGoodbyeInEachState
-   #- extensions.context.AddFileContext
-   #- extensions.print.PrintFrameworkEndState
-   #- getting_started.extensions.use_cases.GenerateException
-
-
-#   A C T I V I T Y   M O D U L E S
-###################################
+#--------------------   A C T I V I T Y   M O D U L E S   -----------------------#
 activityModules:
-  - activities
+  - example_activities
 
-#   H E L P E R S
-##################
-helpers:
-  oneHelper:
-    volume: 13
-  twoHelper:
-    frequency: 155
-  resourcerHelper:
-    allocationStatusPollSeconds: 30
-
-#   A C T I V I T Y   B L O C K S
-#################################
+#---------------------   A C T I V I T Y   B L O C K S   -----------------------#
 activityBlocks:
+  typeExample:
+    activities:
+      - type: type-1
+      - type: type-2
+
+
+  configExample:
+    activities:
+      - type: configurable-person
+        configuration:
+          name: Alice
+          age: 32
+          message: Hello from configuration!
+      - type: configurable-person
+        configuration:
+          name: Bob
+          age: 65
+
+
+
   exampleBlock:
     activities:
       - type: EXAMPLE
@@ -172,20 +170,9 @@ activityBlocks:
         configuration:
           myScore: 1111
 
-  config-example:
-    activities:
-      - type: CONFIGURABLE
-        configuration:
-          name: Alice
-          message: Hello!
-      - type: CONFIGURABLE
-        configuration:
-          name: Bob
 
-  type-example:
-    activities:
-      - type: TYPE 1
-      - type: TYPE 2
+
+
 
 
   calculateMax:

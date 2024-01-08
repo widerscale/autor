@@ -12,6 +12,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 """
-No imports. Helpers are added individually to the configuration file.
+Import all the modules under the project (see pyproject.toml) that contain example_activities that need to be made available.
 """
 
+import example_activities.activities1
+import example_activities.hello_world
+
+__version__ = "0.0.1"

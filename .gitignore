@@ -146,4 +146,5 @@ file_context.json
 tests/context/
 tests/skip_with_outputs/
 tests/test____old.py
+context
 

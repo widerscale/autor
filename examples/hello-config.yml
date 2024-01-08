@@ -3,12 +3,12 @@ flowId: exampleFlow
 
 #--------------------   A C T I V I T Y   M O D U L E S   -----------------------#
 activityModules:
-  - activities
+  - example_activities
 
 #---------------------   A C T I V I T Y   B L O C K S   -----------------------#
 activityBlocks:
-  quickExample:
+  helloWorldBlock:
     activities:
-      - type: HELLO_WORLD
-      - type: HELLO_WORLD
-      - type: HELLO_WORLD
+      - type: hello-world
+      - type: hello-world
+      - type: hello-world

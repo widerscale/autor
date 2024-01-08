@@ -412,7 +412,7 @@ class ActivityBlock(StateProducer):
             # ---------------------------------------------------------------#
             StateHandler.change_state(State.BEFORE_ACTIVITY_BLOCK)
             # ---------------------------------------------------------------#
-            if DebugConfig.print_activity_block_started_summary:
+            if DebugConfig.print_activity_block_started_inputs_summary:
                 self._print_activity_block_started()
             if DebugConfig.print_context_before_activities_are_run:
                 self._flow_context.print_context("Context before activities are run")
@@ -604,24 +604,53 @@ class ActivityBlock(StateProducer):
         self._activity_block_context = Context(activity_block=self._activity_block_id)
 
 
+    def _do_print(self, obj:object)->bool:
+        return obj or DebugConfig.print_also_uninitiated_inputs
+
+    def _print_attribute(self, attribute:object, name:str):
+        if attribute or DebugConfig.print_also_uninitiated_inputs:
+            logging.info(f'{DebugConfig.autor_info_prefix}{name}{attribute}')
+
 
 
     def _print_attributes(self, title):
         prefix = DebugConfig.autor_info_prefix
         Util.print_header(prefix, title, 'info')
-        logging.info(f'{prefix}mode:                  {self._mode}')
-        logging.info(f'{prefix}additional_extensions: {self._additional_extensions}')
-        logging.info(f'{prefix}additional_context:    {self._activity_block_context_addition}')
-        logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}')
-        logging.info(f'{prefix}activity_config:       {self._activity_config}')
-        logging.info(f'{prefix}activity_id_special:   {self._activity_id_special}')
-        logging.info(f'{prefix}activity_input:        {self._activity_input}')
-        logging.info(f'{prefix}activity_module:       {self._activity_module}')
-        logging.info(f'{prefix}activity_name_special: {self._activity_name_special}')
-        logging.info(f'{prefix}activity_type:         {self._activity_type}')
-        logging.info(f'{prefix}custom_data:           {self._custom_data}')
-        logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
-        logging.info(f'{prefix}flow_config_url:       {self._flow_config_url}')
+        attr = self._mode
+        self._print_attribute(attr, "mode:                  ")
+        attr = self._additional_extensions
+        self._print_attribute(attr, "additional_extensions: ")
+        attr = self._activity_block_context_addition
+        self._print_attribute(attr, "additional_context:    ")
+        attr = self._activity_block_id
+        self._print_attribute(attr, "activity_block_id:     ")
+        attr = self._activity_config
+        self._print_attribute(attr, "activity_config:       ")
+        attr = self._activity_id_special
+        self._print_attribute(attr, "activity_id_special:   ")
+        attr = self._activity_input
+        self._print_attribute(attr, "activity_input:        ")
+        attr = self._activity_module
+        self._print_attribute(attr, "activity_module:       ")
+        attr = self._activity_name_special
+        self._print_attribute(attr, "activity_name_special: ")
+        attr = self._activity_type
+        self._print_attribute(attr, "activity_type:         ")
+        attr = self._custom_data
+        self._print_attribute(attr, "custom_data:           ")
+        attr = self._flow_run_id
+        self._print_attribute(attr, "flow_run_id:           ")
+        attr = self._flow_config_url
+        self._print_attribute(attr, "flow_config_url:       ")
+
+        #logging.info(f'{prefix}activity_id_special:   {self._activity_id_special}')
+        #logging.info(f'{prefix}activity_input:        {self._activity_input}')
+        #logging.info(f'{prefix}activity_module:       {self._activity_module}')
+        #logging.info(f'{prefix}activity_name_special: {self._activity_name_special}')
+        #logging.info(f'{prefix}activity_type:         {self._activity_type}')
+        #logging.info(f'{prefix}custom_data:           {self._custom_data}')
+        #logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
+        #logging.info(f'{prefix}flow_config_url:       {self._flow_config_url}')G
         logging.info(f'{prefix}')
 
     def _print_input_args_before_bootstrap(self):
