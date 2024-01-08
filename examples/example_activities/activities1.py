@@ -95,9 +95,9 @@ class Configurable(Activity):
 @ActivityRegistry.activity(type="score-consumer")
 class InputActivity(Activity):
 
-    # region property: score @input(mandatory=False, type=int, defalut=-1)
+    # region property: score @input(mandatory=False, type=int, default=-1)
     @property
-    @input(mandatory=False, type=int, defalut=-1)
+    @input(mandatory=False, type=int, default=-1)
     def score(self) -> int:  # getter
         return self._score
 
@@ -107,14 +107,14 @@ class InputActivity(Activity):
     # endregion
 
     def run(self):
-        logging.info(f'Score: {self.score}')
+        logging.info(f'Input score: {self.score}')
 
 
 
 @ActivityRegistry.activity(type="score-producer")
 class OutputActivity(Activity):
 
-    # region property: score @input(mandatory=True, type=int)
+    # region property: score @output(mandatory=True, type=int)
     @property
     @output(mandatory=True, type=int)
     def score(self) -> int:  # getter
@@ -122,12 +122,12 @@ class OutputActivity(Activity):
 
     @score.setter
     def score(self, n) -> None:  # setter
-        self.__score = n
+        self._score = n
+    #endregion
 
     def run(self):
-        logging.info(f'Score is initially set to: {self.score}')
         self.score = 10
-        logging.info(f'Setting score to: {self.score}')
+        logging.info(f'Output score: {self.score}')
 
 
 

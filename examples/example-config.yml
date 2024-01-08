@@ -26,6 +26,16 @@ activityBlocks:
           age: 65
 
 
+  readOrWriteScore:
+    activities:
+      - type: score-consumer
+      - type: score-producer
+      - type: score-consumer
+
+
+
+
+
 
   exampleBlock:
     activities:
