@@ -296,6 +296,7 @@ class ActivityBlockRules:
         group = data.activity_group_type
         run_on_config = data.activity_config.run_on
 
+
         # Go through the configuration, validate it and add the default values
         # where no values are provided.
         run_on_config = self._add_run_on_defaults(run_on_config, group, data)

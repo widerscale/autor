@@ -7,10 +7,16 @@ activityModules:
 
 #---------------------   A C T I V I T Y   B L O C K S   -----------------------#
 activityBlocks:
+
   typeExample:
     activities:
       - type: type-1
       - type: type-2
+
+
+
+
+
 
 
   configExample:
@@ -26,11 +32,145 @@ activityBlocks:
           age: 65
 
 
+
+
+
+
+
+
   readOrWriteScore:
     activities:
       - type: score-consumer
       - type: score-producer
       - type: score-consumer
+
+
+
+
+
+
+
+  calculateHighestScore:
+    activities:
+      - type: score-producer-and-consumer
+        configuration:
+          myScore: 5
+      - type: score-producer-and-consumer
+        configuration:
+          myScore: 9
+      - type: score-producer-and-consumer
+        configuration:
+          myScore: 2
+      - type: score-producer-and-consumer
+        configuration:
+          myScore: 11
+
+
+
+
+
+  statusExample:
+    activities:
+      - type: skipped-activity
+      - type: successful-activity
+      - type: exception-activity
+      - type: skipped-activity
+      - type: successful-activity
+      - type: exception-activity
+
+
+
+
+  fullFlowExample:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: empty
+          name: BB1
+        - type: empty
+          name: BB2
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+        - type: empty
+          name: BA1
+        - type: empty
+          name: BA2
+
+    activities: # main activities
+      - type: empty
+        name: MA1
+      - type: empty
+        name: MA2
+      - type: empty
+        name: MA3
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: empty
+          name: AA1
+        - type: empty
+          name: AA2
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: empty
+          name: AB1
+        - type: empty
+          name: AB2
+
+
+
+
+
+
+
+
+  printProperties:
+    activities:
+      - type: print-properties
+      - type: print-properties
+      - type: print-properties
+
+
+
+
+
+
+  sequence:
+    activities:
+      - type: skipped-activity
+        name: first
+        continueOn:
+          - SUCCESS
+          - SKIPPED
+
+      - type: successful-activity
+        name: second
+        runOn:
+          activityStatus:
+            first:
+              - SUCCESS
+              - SKIPPED
+          continueOn:
+            - SUCCESS
+
+      - type: successful-activity
+        name: third
+        runOn:
+          activityStatus:
+            first:
+              - SUCCESS
+          continueOn:
+            - SUCCESS
+
+      - type: successful-activity
+        name: fourth
+        runOn:
+          activityStatus:
+            third:
+              - SUCCESS
+
+
 
 
 
@@ -56,83 +196,9 @@ activityBlocks:
       - type: EXAMPLE
       - type: EXAMPLE
 
-  print-properties-example:
-    activities:
-      - type: PRINT
-        configuration:
-          param1: Hello
-          param2: World
-      - type: PRINT
-        name: Second activity
-        configuration:
-          holidays:
-            - Saturday
-            - Sunday
-      - type: PRINT
-
-  full-flow-example:
-    beforeBlock:
-      activities: # activities in this list are run before running the main activity block
-        - type: EMPTY
-          name: BB1
-        - type: EMPTY
-          name: BB2
-
-    beforeActivity:
-      activities: # activities in this list are run before EACH main activity
-        - type: EMPTY
-          name: BA1
-        - type: EMPTY
-          name: BA2
-
-    activities: # main activities
-      - type: EMPTY
-        name: A1
-      - type: EMPTY
-        name: A2
-      - type: EMPTY
-        name: A3
-
-    afterActivity:
-      activities: # activities in this list are run after EACH main activity
-        - type: EMPTY
-          name: AA1
-        - type: EMPTY
-          name: AA2
-
-    afterBlock:
-      activities: # activities in this list are run after the main block has run
-        - type: EMPTY
-          name: AB1
-        - type: EMPTY
-          name: AB2
 
 
-  full-flow-example-without-names:
-    beforeBlock:
-      activities: # activities in this list are run before running the main activity block
-        - type: EMPTY
-        - type: EMPTY
 
-    beforeActivity:
-      activities: # activities in this list are run before EACH main activity
-        - type: EMPTY
-        - type: EMPTY
-
-    activities: # main activities
-      - type: EMPTY
-      - type: EMPTY
-      - type: EMPTY
-
-    afterActivity:
-      activities: # activities in this list are run after EACH main activity
-        - type: EMPTY
-        - type: EMPTY
-
-    afterBlock:
-      activities: # activities in this list are run after the main block has run
-        - type: EMPTY
-        - type: EMPTY
 
 
   callback-example:
@@ -147,122 +213,8 @@ activityBlocks:
         configuration:
           status: FAIL
 
-  status-example:
-    activities:
-      - type: SKIPPED
-      - type: SUCCESS
-      - type: ERROR
-
-  output-and-input-example:
-    activities:
-      - type: OUTPUT
-      - type: INPUT
-
-  output-and-input-example-with-names:
-    activities:
-      - type: OUTPUT
-        name: ScoreGenerator
-      - type: INPUT
-        name: ScoreReceiver
-
-  input-output-example:
-    activities:
-      - type: INPUT_OUTPUT
-        configuration:
-          myScore: 5
-      - type: INPUT_OUTPUT
-        configuration:
-          myScore: 9
-      - type: INPUT_OUTPUT
-        configuration:
-          myScore: 2
-      - type: INPUT_OUTPUT
-        configuration:
-          myScore: 1111
 
 
 
 
 
-
-  calculateMax:
-    activities:
-      - type: MAX
-        configuration:
-          val: 1
-      - type: MAX
-        configuration:
-          val: 7
-      - type: MAX
-        configuration:
-          val: 2
-      - type: MAX
-        configuration:
-          val: 9
-
-  #flow_id: example-flow
-
-  #activityBlocks:
-
-  example-blockdd:
-    activities:
-      - type: EXAMPLE
-        configuration:
-          greeting: Hello World!
-
-      - type: EXAMPLE
-        name: HEJ
-        configuration:
-          greeting: Good morning World!
-
-      - type: EXAMPLE
-        configuration:
-          greeting: Good night World!
-
-  example-blockJJJ:
-    beforeBlock:
-      activities:
-        - activityType: EXAMPLE
-        - activityType: EXAMPLE
-          name: Hõej
-        - activityType: EXAMPLE
-    beforeActivity:
-      activities:
-        - activityType: EXAMPLE
-        - activityType: EXAMPLE
-          name: Piret
-        - activityType: EXAMPLE
-
-    activities:
-      - activityType: EXAMPLE
-      - activityType: EXAMPLE
-        name: Jeerik
-      - activityType: EXAMPLE
-
-    afterActivity:
-      activities:
-        - activityType: EXAMPLE
-        - activityType: EXAMPLE
-          name: måstje
-        - activityType: EXAMPLE
-
-    afterBlock:
-      activities:
-        - activityType: EXAMPLE
-        - activityType: EXAMPLE
-          name: måstje intje
-        - activityType: EXAMPLE
-
-  example-block3:
-    activities:
-      - activityType: EXAMPLE
-        configuration:
-          greeting: Hello World!
-
-      - activityType: EXAMPLE
-        configuration:
-          greeting: Good morning World!
-
-      - activityType: EXAMPLE
-        configuration:
-          greeting: Good night World!

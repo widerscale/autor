@@ -29,18 +29,40 @@ config = ContextPropertiesRegistry.config
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 @ActivityRegistry.activity(type="type-1")
 class Type1(Activity):
     def run(self):
-        logging.info(f"type:  type-1")
+        logging.info(f"type:  {self.type}")
         logging.info(f"class: {self.__class__.__name__}")
+
 
 
 @ActivityRegistry.activity(type="type-2")
 class Type2(Activity):
     def run(self):
-        logging.info(f"type:  type-2")
+        logging.info(f"type:  {self.type}")
         logging.info(f"class: {self.__class__.__name__}")
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -92,6 +114,14 @@ class Configurable(Activity):
 
 
 
+
+
+
+
+
+
+
+
 @ActivityRegistry.activity(type="score-consumer")
 class InputActivity(Activity):
 
@@ -134,53 +164,79 @@ class OutputActivity(Activity):
 
 
 
+
+
+
+
 # Calculate the highest score in the flow.
-@ActivityRegistry.activity(type="INPUT_OUTPUT")
+@ActivityRegistry.activity(type="score-producer-and-consumer")
 class InputOutputActivity(Activity):
-    def __init__(self):
-        super().__init__()
-        # initial value that is used if no value has been provided by the flow
-        self.__highest_score: int = -1
 
-
+    #region property: my_score @config(mandatory=True, type=int)
     @property
-    @input(mandatory=False, type=int)  # load the value before run() is called
-    @output(mandatory=True, type=int)  # save the value after run() is finished
+    @config(mandatory=True, type=int)
+    def my_score(self) -> int:
+        return self._my_score
+
+    @my_score.setter
+    def my_score(self, n:int) -> None:
+        self._my_score = n
+    #endregion
+
+    # region property: highest_score @input/@output(mandatory=False/True, type=int, default=0)
+    @property
+    @input(mandatory=False, type=int, default=0)
+    @output(mandatory=True, type=int)
     def highest_score(self) -> int:  # getter
-        return self.__highest_score
+        return self._highest_score
 
     @highest_score.setter
     def highest_score(self, n) -> None:  # setter
-        self.__highest_score = n
+        self._highest_score = n
+    # endregion
 
     def run(self):
-        my_score = self.configuration["myScore"]  # Read my score from the Flow Configuration file
-        logging.info(f"Property:        'highest_score': {self.highest_score} (initial value)")
-        logging.info(f"Configuration:   'myScore:'       {my_score}")
+        logging.info(f"highest_score (input):          {self.highest_score}")
+        logging.info(f"my_score (config):              {self.my_score}")
 
-        self.highest_score = max(self.highest_score, my_score)  # Calculate the new highest score
-        logging.info(f"Property:        'highest_score': {self.highest_score} (final value)")
-
+        self.highest_score = max(self.highest_score, self.my_score)  # Calculate the new highest score
+        logging.info(f"updated highest_score (output): {self.highest_score}")
 
 
-@ActivityRegistry.activity(type="SKIPPED")
+
+
+
+
+
+
+
+
+
+# Activity Statuses
+# -------------------
+# SUCCESS
+# FAIL
+# ERROR
+# SKIPPED
+# ABORTED
+
+@ActivityRegistry.activity(type="skipped-activity")
 class StatusSkipped(Activity):
     def run(self):
         logging.info("Setting status to SKIPPED")
         self.status = Status.SKIPPED
 
 
-@ActivityRegistry.activity(type="SUCCESS")
+@ActivityRegistry.activity(type="successful-activity")
 class StatusSuccess(Activity):
     def run(self):
         logging.info("A successful run, expecting status SUCCESS")
 
 
-@ActivityRegistry.activity(type="ERROR")
+@ActivityRegistry.activity(type="exception-activity")
 class StatusError(Activity):
     def run(self):
         logging.info("Creating an exception, expecting status ERROR")
-        # pylint: disable-next=pointless-statement
         10 / 0  # Division by zero will lead to an exception
 
 
@@ -190,6 +246,20 @@ class StatusError(Activity):
 
 
 
+@ActivityRegistry.activity(type="empty")
+class Empty(Activity):
+    def run(self):
+        pass
+
+
+
+
+
+
+@ActivityRegistry.activity(type="print-properties")
+class Empty(Activity):
+    def run(self):
+        self.print()
 
 
 

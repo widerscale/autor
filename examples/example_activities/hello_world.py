@@ -19,6 +19,7 @@ import logging
 from autor import Activity
 from autor.framework.activity_registry import ActivityRegistry
 
+
 @ActivityRegistry.activity(type="hello-world")
 class HelloWorld(Activity):
     def run(self):

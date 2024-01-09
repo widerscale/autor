@@ -123,12 +123,11 @@ class Activity(abc.ABC):
         logging.info(f"   self.type:                       {str(self.type)}")
         logging.info(f"   self.class:                      {str(self.__class__.__name__)}")
         logging.info(f"   self.status:                     {str(self.status)}")
-        logging.info(f"   self.__action                    {str(self.__action)}")
         logging.info(f"   self.flow_id:                    {str(self.flow_id)}")
         logging.info(f"   self.flow_run_id:                {str(self.flow_run_id)}")
         logging.info(f"   self.activity_block_id:          {str(self.activity_block_id)}")
         logging.info(f"   self.activity_block_run_id:      {str(self.activity_block_run_id)}")
-        logging.info(f"   self.configuration:              {str(self.configuration)}")
+        #logging.info(f"   self.configuration:              {str(self.configuration)}")
         # fmt: on
         if len(self.activity_block_callbacks) == 0:
             logging.info("   self.activity_block_callbacks:  []")

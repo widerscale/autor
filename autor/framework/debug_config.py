@@ -28,7 +28,7 @@ class DebugConfig():
 
     print_final_input = True # Prints the input that Autor has after bootstrapping
     print_activity_block_started_inputs_summary = False # Gives an overview of the inputs before a run
-    print_also_uninitiated_inputs = False # Lists also uninitiated inputs in various inputs prints.
+    print_uninitiated_inputs = False # Lists also uninitiated inputs in various inputs prints.
 
 
     print_activity_block_finished_summary = True
@@ -71,6 +71,9 @@ class DebugConfig():
     trace_context = False # All context
     context_trace_prefix = "[ctx]: "
     print_context_on_finished = False
+
+
+
     print_context_before_activities_are_run = False
     print_context_before_state = False
     print_context_after_state = False

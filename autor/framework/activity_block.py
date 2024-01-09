@@ -605,10 +605,10 @@ class ActivityBlock(StateProducer):
 
 
     def _do_print(self, obj:object)->bool:
-        return obj or DebugConfig.print_also_uninitiated_inputs
+        return obj or DebugConfig.print_uninitiated_inputs
 
     def _print_attribute(self, attribute:object, name:str):
-        if attribute or DebugConfig.print_also_uninitiated_inputs:
+        if attribute or DebugConfig.print_uninitiated_inputs:
             logging.info(f'{DebugConfig.autor_info_prefix}{name}{attribute}')
 
 
@@ -979,7 +979,7 @@ class ActivityBlock(StateProducer):
             # ------------------------ AFTER-ACTIVITY ---------------------------#
             for act_conf_after in self._activity_block_configs_after_activity:
                 activity_id = (
-                    self._activity_block_name
+                    self._activity_block_id
                     + "-"
                     + main_name
                     + "-"
