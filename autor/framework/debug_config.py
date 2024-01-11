@@ -21,7 +21,7 @@ class DebugConfig():
 
     print_final_input = True # Prints the input that Autor has after bootstrapping
     print_activity_block_finished_summary = True
-    print_context_on_finished = False
+    print_context_on_finished = True
 
 
 

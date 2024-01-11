@@ -14,6 +14,8 @@
 import logging
 from typing import List
 
+import humps
+
 from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.check import Check
 from autor.framework.context import Context
@@ -100,31 +102,25 @@ class ContextPropertiesHandler:
 
         for prop in props:
             Check.is_instance_of(prop, ContextProperty)
-            #logging.info(f"{property_category} Prop name: {prop.name}")
-
 
             # Get the property value
-            if property_category == "config": # configurations are stored in config dict
-                prop_key = KeyHandler.convert_key(prop.name, from_format=prp.format, to_format=cfg.format)
-                prop_value = self._config.get(prop_key, None)
-            elif property_category == "input": # inputs are stored in context
-                prop_key = KeyHandler.convert_key(prop.name, from_format=prp.format, to_format=ctx.format)
-                prop_value = self._context.get(key=prop_key, default=None, search=True)
+            if property_category == "config":
+                prop_value = self._config.get(prop.name, None) # configurations are stored in config dict
+            elif property_category == "input":
+                prop_value = self._context.get(key=prop.name, default=None, search=True) # inputs are stored in context
             else:
-                raise AutorFrameworkException(
-                    f"Unhandled property category: {property_category}. Cannot load properties of that category.")
-
+                raise AutorFrameworkException(f"Unhandled property category: {property_category}. Cannot load properties of that category.")
 
 
             # Check that the mandatory properties have a value
             if check_mandatory_properties:
                 if prop.mandatory and (prop_value is None):
-                    raise ContextPropertiesHandlerValueException(f"Could not find mandatory {property_category} property '{prop_key}' value to load for activity: '{str(self._object.__class__.__name__)}'")
+                    raise ContextPropertiesHandlerValueException(f"Could not find mandatory {property_category} property '{prop.name}' value to load for activity: '{str(self._object.__class__.__name__)}'")
 
             # Check that the value type is correct and set all non-None properties
             if prop_value is not None:
                 if not isinstance(prop_value, prop.property_type):
-                    raise ContextPropertiesHandlerValueException(f"Type error in Object: {str(self._object.__class__.__name__)}. Expected {property_category} context property: {prop_key} of type: {str(prop.property_type)}, received type: {str(prop_value.__class__.__name__)}")
+                    raise ContextPropertiesHandlerValueException(f"Type error in Object: {str(self._object.__class__.__name__)}. Expected {property_category} context property: {prop.name} of type: {str(prop.property_type)}, received type: {str(prop_value.__class__.__name__)}")
                 setattr(self._object, prop.name, prop_value)
 
             # Check that non-mandatory
@@ -171,7 +167,7 @@ class ContextPropertiesHandler:
                     else:
                         setattr(self._object, prop.name, None) # if no default value is available, set None
                         logging.warning(f"{DebugConfig.autor_info_prefix}Warning while trying to set optional input property {self._object.__class__.__name__}.{prop.name}:")
-                        logging.warning(f"{DebugConfig.autor_info_prefix}No value found for key: '{prop_key}' -> setting property: {self._object.__class__.__name__}.{prop.name} = None")
+                        logging.warning(f"{DebugConfig.autor_info_prefix}No value found for key: '{prop.name}' -> setting property: {self._object.__class__.__name__}.{prop.name} = None")
 
 
 
@@ -277,10 +273,10 @@ class ContextPropertiesHandler:
                         )
                     )
                 # Set the property value to the context
-                ctx_key = KeyHandler.convert_key(
-                    prop.name, from_format=prp.format, to_format=ctx.format
-                )
-                self._context.set(ctx_key, prop_value)
+                #ctx_key = KeyHandler.convert_key(
+                   # prop.name, from_format=prp.format, to_format=ctx.format
+               # )
+                self._context.set(prop.name, prop_value)
 
 
         # Synchronize the context with the remote context (if it exists)

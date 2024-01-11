@@ -55,6 +55,7 @@ Examples:
 """
 import inspect
 from typing import Dict, List
+import humps
 
 from autor.framework.check import Check
 from autor.framework.context_property import ContextProperty
@@ -94,9 +95,7 @@ class ContextPropertiesRegistry:
         """
 
         def inp(func):
-            ContextPropertiesRegistry._add_property(
-                mandatory, type, default, ContextPropertiesRegistry.__inputs, func
-            )
+            ContextPropertiesRegistry._add_property(mandatory, type, default, ContextPropertiesRegistry.__inputs, func)
             return func
 
         return inp
@@ -119,9 +118,7 @@ class ContextPropertiesRegistry:
         def out(func):
             # logging.debug(f"OUTPUT :  {str(func.__qualname__)}")
             default = ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED # Default may not be defined for output
-            ContextPropertiesRegistry._add_property(
-                mandatory, type, default, ContextPropertiesRegistry.__outputs, func
-            )
+            ContextPropertiesRegistry._add_property(mandatory, type, default, ContextPropertiesRegistry.__outputs, func)
             return func
 
         return out
@@ -145,9 +142,7 @@ class ContextPropertiesRegistry:
         """
 
         def conf(func):
-            ContextPropertiesRegistry._add_property(
-                mandatory, type, default, ContextPropertiesRegistry.__configs, func
-            )
+            ContextPropertiesRegistry._add_property(mandatory, type, default, ContextPropertiesRegistry.__configs, func)
             return func
 
         return conf
@@ -226,6 +221,9 @@ class ContextPropertiesRegistry:
         # The name of the class where the property is defined
         class_name = func.__qualname__.split(".")[0]
         property_name = func.__name__
+
+        Check.is_true(humps.is_snakecase(property_name), f"Format error: Activity: {class_name} property '{property_name}' should have snake case format.")
+
         property_list[class_name + "_" + property_name] = ContextProperty(
             property_name, class_name, mandatory, type, default
         )

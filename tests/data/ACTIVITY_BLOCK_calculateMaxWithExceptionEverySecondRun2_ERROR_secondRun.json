@@ -8,7 +8,7 @@
                 "calculateMaxWithExceptionEverySecondRun2-activity1": {
                     "action": "RUN",
                     "status": "SUCCESS",
-                    "runNbr": 2
+                    "run_nbr": 2
                 },
                 "calculateMaxWithExceptionEverySecondRun2-activity2": {
                     "action": "RUN",
@@ -33,7 +33,7 @@
             },
             "action": "SKIP_BY_FRAMEWORK",
             "status": "SKIPPED",
-            "runNbr": 2,
+            "run_nbr": 2,
             "max": 5,
             "activityBlockStatus": "ERROR"
         }
@@ -44,7 +44,7 @@
     "flowConfigUrl": "test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
     "status": "SKIPPED",
-    "runNbr": 2,
+    "run_nbr": 2,
     "max": 5,
     "activityBlockStatus": "ERROR",
     "exceptions": [
