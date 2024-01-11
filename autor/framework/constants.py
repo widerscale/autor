@@ -105,12 +105,35 @@ class Mode(Constant):
 # Exception types in Autor context @TODO - do we need it?
 class ExceptionType(Constant):
     ACTIVITY_BLOCK_CALLBACK = "ACTIVITY_BLOCK_CALLBACK"
-    ACTIVITY = "ACTIVITY"
+    ACTIVITY_RUN = "ACTIVITY_RUN"
+    ACTIVITY_CONFIGURATION = "ACTIVITY_CONFIGURATION"
+    ACTIVITY_CREATION = "ACTIVITY_CREATION"
+    ACTIVITY_INPUT = "ACTIVITY_INPUT"
+    ACTIVITY_OUTPUT = "ACTIVITY_OUTPUT"
+    ACTIVITY_POSTPROCESS = "ACTIVITY_POSTPROCESS"
     EXTENSION = "EXTENSION"
     FLOW_CONFIGURATION = "FLOW_CONFIGURATION"
     SET_UP = "SET_UP"
     TEAR_DOWN = "TEAR_DOWN"
     ACTIVITY_BLOCK = "ACTIVITY_BLOCK"
+    UNKNOWN = "UNKNOWN"
+
+class ExceptionSource(Constant):
+    AUTOR_INTERNAL = "AUTOR_INTERNAL",
+
+    EXTENSION = "EXTENSION",
+    ARGUMENT = "ARGUMENT",
+    ACTIVITY = "ACTIVITY",
+    ACTIVITY_CHAINING = "ACTIVITY_CHAINING", # Expected inputs not found
+    FLOW_CONFIGURATION = "FLOW_CONFIGURATION",
+    ENVIRONMENT = "ENVIRONMENT"
+
+
+#domain - CI ENV
+#cat - Autor_Framework, Autor_Activity_Definition, Autor_Activity_Execution, Autor_Arguments,  Autor_Configuration, Autor_Extension
+#prob. cause
+#identifier
+
 
 
 # fmt: on

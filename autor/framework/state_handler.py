@@ -217,7 +217,7 @@ class StateHandler(StateProducer):
 
     @staticmethod
     def _register_listener_exception(e:Exception, state_name:str, listener:StateListener):
-        Util.register_exception(
+        ExceptionHandler.register_exception(
             ex=e,
             description=f'Extension exception in state: {state_name} in extension: {listener.__class__.__name__}',
             type=ExceptionType.EXTENSION,

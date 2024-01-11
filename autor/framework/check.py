@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 from autor.framework.autor_framework_exception import AutorFrameworkException
-from autor.framework.constants import Status
+from autor.framework.constants import Status, ExceptionType
 
 
 class Check:
@@ -106,3 +106,8 @@ class Check:
         status = Status()
         if not hasattr(status, value):
             raise AutorFrameworkException(description)
+
+  #  staticmethod
+  #  def _create_exception(message:str, ex_source):
+   #     if ex_type == ExceptionType.
+

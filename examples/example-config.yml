@@ -8,15 +8,11 @@ activityModules:
 #---------------------   A C T I V I T Y   B L O C K S   -----------------------#
 activityBlocks:
 
-  typeExample:
+  helloWorld:
     activities:
-      - type: type-1
-      - type: type-2
-
-
-
-
-
+      - type: hello
+      - type: hello
+      - type: hello
 
 
   configExample:
@@ -29,12 +25,6 @@ activityBlocks:
       - type: configurable-person
         configuration:
           name: Bob
-          age: 65
-
-
-
-
-
 
 
 
@@ -43,11 +33,6 @@ activityBlocks:
       - type: score-consumer
       - type: score-producer
       - type: score-consumer
-
-
-
-
-
 
 
   calculateHighestScore:
@@ -66,9 +51,6 @@ activityBlocks:
           myScore: 11
 
 
-
-
-
   statusExample:
     activities:
       - type: skipped-activity
@@ -79,6 +61,11 @@ activityBlocks:
       - type: exception-activity
 
 
+  printProperties:
+    activities:
+      - type: print-properties
+      - type: print-properties
+      - type: print-properties
 
 
   fullFlowExample:
@@ -118,24 +105,6 @@ activityBlocks:
         - type: empty
           name: AB2
 
-
-
-
-
-
-
-
-  printProperties:
-    activities:
-      - type: print-properties
-      - type: print-properties
-      - type: print-properties
-
-
-
-
-
-
   sequence:
     activities:
       - type: skipped-activity
@@ -151,8 +120,8 @@ activityBlocks:
             first:
               - SUCCESS
               - SKIPPED
-          continueOn:
-            - SUCCESS
+        continueOn:
+          - SUCCESS
 
       - type: successful-activity
         name: third
@@ -160,8 +129,8 @@ activityBlocks:
           activityStatus:
             first:
               - SUCCESS
-          continueOn:
-            - SUCCESS
+        continueOn:
+          - SUCCESS
 
       - type: successful-activity
         name: fourth
@@ -170,11 +139,10 @@ activityBlocks:
             third:
               - SUCCESS
 
-
-
-
-
-
+  typeExample:
+    activities:
+      - type: type-1
+      - type: type-2
 
 
   exampleBlock:
@@ -195,10 +163,6 @@ activityBlocks:
     activities:
       - type: EXAMPLE
       - type: EXAMPLE
-
-
-
-
 
 
   callback-example:

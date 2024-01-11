@@ -28,16 +28,10 @@ input = ContextPropertiesRegistry.input
 # my max (received through configuration)
 @ActivityRegistry.activity(type="MAX")
 class Max(Activity):
-    # region constructor
-    def __init__(self):
-        super().__init__()
-        # initial value that is used if no value has been provided by flow context
-        self.__max: int = None
-    # endregion
-    # region property: max:int
+
     @property
     @input(mandatory=False, type=int)  # load the value before run() is called
-    @output(mandatory=True, type=int)  # save the value after run() is finished
+    @output(mandatory=True, type=int)  # save the value after  run() is finished
     def max(self) -> int:  # getter
         return self.__max
 
@@ -77,7 +71,7 @@ class MaxWithExceptionEverySecondRun(Activity):
         self.__max: int = None
         self.__run_nbr: int = 0
     # endregion
-    # region property: max:int
+    # region property: max @input(mandatory=False, type=int
     @property
     @input(mandatory=False, type=int)  # load the value before run() is called
     @output(mandatory=True, type=int)  # save the value after run() is finished

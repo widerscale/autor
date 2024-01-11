@@ -53,6 +53,7 @@ from autor.framework.constants import (
 from autor.framework.context import Context
 from autor.framework.context_properties_handler import ContextPropertiesHandler
 from autor.framework.debug_config import DebugConfig
+from autor.framework.exception_handler import ExceptionHandler
 from autor.framework.file_context import FileContext
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
@@ -296,11 +297,11 @@ class ActivityBlock(StateProducer):
             self._tear_down()
 
         except Exception as e:
-            self._register_exception(e, "Unhandled exception in Autor")
+            self._register_exception(e, "Unhandled exception in Autor", ex_type=ExceptionType.UNKNOWN, abort_autor=True)
 
         finally:
             if self._autor_aborted:
-                e = Util.get_abort_exception()
+                e = ExceptionHandler.get_abort_exception()
 
                 logging.error("\n%s", Util.format_banner("A U T O R   A B O R T E D"))
                 logging.error(f"Reason:     {self._autor_aborted_reason}")
@@ -311,7 +312,7 @@ class ActivityBlock(StateProducer):
             logging.info(f'{DebugConfig.autor_info_prefix}Activity block status: {self._activity_block_status}')
 
             # Print all exceptions that occurred during the run
-            Util.print_all_exceptions()
+            ExceptionHandler.print_all_exceptions()
             LoggingConfig.activate_external_logging() # If any other calls are made to autor these logs should be distinguishable
 
 
@@ -374,9 +375,7 @@ class ActivityBlock(StateProducer):
 
 
         except Exception as e:
-            self._register_exception(
-                e, "Unhandled exception during Autor set up", ExceptionType.SET_UP
-            )
+            self._register_exception(e, "Unhandled exception during Autor set up", ex_type=ExceptionType.SET_UP)
 
     def _update_activity_block_state_from_context(self):
         #self._activity_block_interrupted = self._activity_block_context.get(ctx.ACTIVITY_BLOCK_INTERRUPTED, search=False, default=False)
@@ -419,11 +418,7 @@ class ActivityBlock(StateProducer):
             self._run_activity_block()
 
         except Exception as e:
-            self._register_exception(
-                e,
-                "Unhandled exception during activity block execution",
-                ExceptionType.ACTIVITY_BLOCK,
-            )
+            self._register_exception(e, "Unhandled exception during activity block execution", ex_type=ExceptionType.ACTIVITY_BLOCK)
 
         # Run callbacks
         try:
@@ -432,11 +427,7 @@ class ActivityBlock(StateProducer):
             # ---------------------------------------------------------------#
             self._run_activity_block_callbacks()
         except Exception as e:
-            self._register_exception(
-                e,
-                "Unhandled exception during activity block callbacks execution",
-                ExceptionType.ACTIVITY_BLOCK,
-            )
+            self._register_exception(e, "Unhandled exception during activity block callbacks execution", ex_type=ExceptionType.ACTIVITY_BLOCK)
 
         # Finalize activity block run
         try:
@@ -454,11 +445,7 @@ class ActivityBlock(StateProducer):
                 self._flow_context.print_context("Context at the end of the activity block run")
 
         except Exception as e:
-            self._register_exception(
-                e,
-                "Unhandled exception during activity block finalization",
-                ExceptionType.ACTIVITY_BLOCK,
-            )
+            self._register_exception(e,"Unhandled exception during activity block finalization", ex_type= ExceptionType.ACTIVITY_BLOCK)
 
         finally:
             if DebugConfig.create_skip_with_output_flow_config:
@@ -537,9 +524,7 @@ class ActivityBlock(StateProducer):
             # logging.info(f"FLOW ID: {self._flow_id}")
 
         except Exception as e:
-            self._register_exception(
-                e, "Unhandled exception during Autor tear down", ExceptionType.TEAR_DOWN
-            )
+            self._register_exception(e, "Unhandled exception during Autor tear down", ex_type=ExceptionType.TEAR_DOWN)
     '''
     def _initiate_autor_mode(self):
         # Set Autor mode.
@@ -677,22 +662,15 @@ class ActivityBlock(StateProducer):
 
 
     # pylint: disable-next=redefined-builtin
-    def _register_exception(self, e, description, type=None, abort_autor=True):
+    def _register_exception(self, e, description, ex_type, abort_autor=True):
         # Sanity check
         if self._autor_aborted:
-            Check.is_true(
-                self._activity_block_status == Status.ABORTED,
-                (
-                    "An activity block that has been aborted by the framework should always have"
-                    + f" status: {Status.ABORTED}."
-                    + f" Current block status: {self._activity_block_status}"
-                ),
-            )
+            Check.is_true(self._activity_block_status == Status.ABORTED,f"An activity block that has been aborted by the framework should always have status: {Status.ABORTED}. Current block status: {self._activity_block_status}")
 
         if abort_autor and not self._autor_aborted:
             self._abort_autor(str(description))
 
-        Util.register_exception(ex=e, description=description, type=type)
+        ExceptionHandler.register_exception(ex=e, description=description, ex_type=ex_type)
 
 
 
@@ -1068,19 +1046,9 @@ class ActivityBlock(StateProducer):
                     try:  # ------------------- RUN CALLBACK ----------------#
                         callback.run()
                     except Exception as exception:
-                        logging.error(
-                            "%s Callback exception during activity: %s. Exception: %s",
-                            prefix,
-                            activity.id,
-                            exception,
-                        )
-                        Util.register_exception(
-                            exception,
-                            description=(
-                                f"Callback exception during activity: {activity.id}."
-                                + " Exception: {exception}"
-                            ),
-                            type=ExceptionType.ACTIVITY_BLOCK_CALLBACK,
+                        logging.error("%s Callback exception during activity: %s. Exception: %s",prefix,activity.id,exception,)
+                        ExceptionHandler.register_exception(exception,description=f"Callback exception during activity: {activity.id}. Exception: {exception}",
+                            ex_type=ExceptionType.ACTIVITY_BLOCK_CALLBACK,
                             framework_error=False,
                         )
                         self._activity_block_callback_exceptions.append(

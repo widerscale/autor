@@ -19,19 +19,21 @@ class DebugConfig():
     # A class that helps to switch on/off functionality-specific debug prints in the framework.
     # Useful when debugging the framework.
 
-
+    print_final_input = True # Prints the input that Autor has after bootstrapping
+    print_activity_block_finished_summary = True
+    print_context_on_finished = False
 
 
 
     # Main flags
     trace_sequence_details = False # Activates all flags connected to sequence tracing.
 
-    print_final_input = True # Prints the input that Autor has after bootstrapping
+
     print_activity_block_started_inputs_summary = False # Gives an overview of the inputs before a run
     print_uninitiated_inputs = False # Lists also uninitiated inputs in various inputs prints.
 
 
-    print_activity_block_finished_summary = True
+
     create_skip_with_output_flow_config = False
     save_activity_block_context_locally = True # Creates files in context/ directory. These can be used for creating test cases.
 
@@ -67,10 +69,12 @@ class DebugConfig():
     print_state_names = False
     state_prefix = "[sta]: "
 
+
+
     # ------------  C O N T E X T  -----------------#
     trace_context = False # All context
     context_trace_prefix = "[ctx]: "
-    print_context_on_finished = False
+
 
 
 

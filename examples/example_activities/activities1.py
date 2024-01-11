@@ -11,18 +11,16 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-import inspect
+
 import logging
 
 from autor import Activity
-from autor.framework.activity_block_callback import ActivityBlockCallback
 from autor.framework.activity_registry import ActivityRegistry
 from autor.framework.constants import Status
 from autor.framework.context_properties_registry import ContextPropertiesRegistry
 
 
 output = ContextPropertiesRegistry.output
-# pylint: disable-next=redefined-builtin
 input = ContextPropertiesRegistry.input
 config = ContextPropertiesRegistry.config
 
@@ -30,29 +28,15 @@ config = ContextPropertiesRegistry.config
 
 
 
-
-
-
-
-
-
-
-
-
-
-@ActivityRegistry.activity(type="type-1")
-class Type1(Activity):
+@ActivityRegistry.activity(type="hello")
+class HelloWorld(Activity):
     def run(self):
-        logging.info(f"type:  {self.type}")
-        logging.info(f"class: {self.__class__.__name__}")
+        logging.info("Hello World!")
 
 
 
-@ActivityRegistry.activity(type="type-2")
-class Type2(Activity):
-    def run(self):
-        logging.info(f"type:  {self.type}")
-        logging.info(f"class: {self.__class__.__name__}")
+
+
 
 
 
@@ -141,6 +125,7 @@ class InputActivity(Activity):
 
 
 
+
 @ActivityRegistry.activity(type="score-producer")
 class OutputActivity(Activity):
 
@@ -158,6 +143,9 @@ class OutputActivity(Activity):
     def run(self):
         self.score = 10
         logging.info(f'Output score: {self.score}')
+
+
+
 
 
 
@@ -227,10 +215,12 @@ class StatusSkipped(Activity):
         self.status = Status.SKIPPED
 
 
+
 @ActivityRegistry.activity(type="successful-activity")
 class StatusSuccess(Activity):
     def run(self):
         logging.info("A successful run, expecting status SUCCESS")
+
 
 
 @ActivityRegistry.activity(type="exception-activity")
@@ -238,6 +228,35 @@ class StatusError(Activity):
     def run(self):
         logging.info("Creating an exception, expecting status ERROR")
         10 / 0  # Division by zero will lead to an exception
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@ActivityRegistry.activity(type="print-properties")
+class PrintProps(Activity):
+    def run(self):
+        self.print()
+
+
+
+
+
 
 
 
@@ -256,11 +275,24 @@ class Empty(Activity):
 
 
 
-@ActivityRegistry.activity(type="print-properties")
-class Empty(Activity):
-    def run(self):
-        self.print()
 
+
+
+
+
+@ActivityRegistry.activity(type="type-1")
+class Type1(Activity):
+    def run(self):
+        logging.info(f"type:  {self.type}")
+        logging.info(f"class: {self.__class__.__name__}")
+
+
+
+@ActivityRegistry.activity(type="type-2")
+class Type2(Activity):
+    def run(self):
+        logging.info(f"type:  {self.type}")
+        logging.info(f"class: {self.__class__.__name__}")
 
 
 
