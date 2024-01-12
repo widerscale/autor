@@ -106,7 +106,9 @@ class ExceptionHandler:
                 logging.info(f"EXCEPTION: {i+1}")
                 logging.info(f"UUID: {exception[ctx.UUID]} ")
                 logging.info(f"TYPE: {exception[ctx.TYPE]} ")
-                logging.info("", exc_info=exception[ctx.RAW])
+                logging.info(f"MESSAGE: {exception[ctx.RAW]}")
+                if DebugConfig.print_stack_trace_in_error_summary:
+                    logging.info("", exc_info=exception[ctx.RAW])
                 logging.info(f'')
                 logging.info(f'')
                 logging.info(f'')
@@ -114,7 +116,7 @@ class ExceptionHandler:
 
 
     @staticmethod
-    def register_exception(ex: Exception, context=None, description="", ex_type:ExceptionType= None, custom=None, framework_error=True):
+    def register_exception(ex: Exception, context=None, description="", ex_type:ExceptionType = None, custom=None, framework_error=True):
         # pylint: disable=redefined-builtin, too-many-branches
 
 

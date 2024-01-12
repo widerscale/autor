@@ -15,6 +15,7 @@
 import logging
 
 
+
 class DebugConfig():
     # A class that helps to switch on/off functionality-specific debug prints in the framework.
     # Useful when debugging the framework.
@@ -22,6 +23,8 @@ class DebugConfig():
     print_final_input = True # Prints the input that Autor has after bootstrapping
     print_activity_block_finished_summary = True
     print_context_on_finished = True
+
+    print_stack_trace_in_error_summary = False # After execution add stack trace to the list of errors.
 
 
 

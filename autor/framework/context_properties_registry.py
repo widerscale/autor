@@ -63,7 +63,7 @@ from autor.framework.context_property import ContextProperty
 _DEFAULT_PROPERTY_VALUE_NOT_DEFINED = "DEFAULT_PROPERTY_VALUE_NOT_DEFINED"
 class ContextPropertiesRegistry:
     """Class for keeping a registry of context properties.
-    The class provides decorators (see input() and output()) that can used for decorationg \
+    The class provides decorators (see input() and output()) that can used for decorating \
         properties to make them
     act as context properties.
     """

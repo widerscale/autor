@@ -25,6 +25,7 @@ activityBlocks:
       - type: configurable-person
         configuration:
           name: Bob
+          age: 65
 
 
 
@@ -39,16 +40,16 @@ activityBlocks:
     activities:
       - type: score-producer-and-consumer
         configuration:
-          myScore: 5
+          my_score: 5
       - type: score-producer-and-consumer
         configuration:
-          myScore: 9
+          my_score: 9
       - type: score-producer-and-consumer
         configuration:
-          myScore: 2
+          my_score: 2
       - type: score-producer-and-consumer
         configuration:
-          myScore: 11
+          my_score: 11
 
 
   statusExample:

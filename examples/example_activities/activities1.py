@@ -36,22 +36,6 @@ class HelloWorld(Activity):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @ActivityRegistry.activity(type="configurable-person")
 class Configurable(Activity):
 
@@ -93,16 +77,6 @@ class Configurable(Activity):
         logging.info(f"name:    {self.name}")
         logging.info(f"age:     {self.age}")
         logging.info(f"message: {self.message}")
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -148,14 +122,6 @@ class OutputActivity(Activity):
 
 
 
-
-
-
-
-
-
-
-
 # Calculate the highest score in the flow.
 @ActivityRegistry.activity(type="score-producer-and-consumer")
 class InputOutputActivity(Activity):
@@ -191,15 +157,6 @@ class InputOutputActivity(Activity):
         logging.info(f"updated highest_score (output): {self.highest_score}")
 
 
-
-
-
-
-
-
-
-
-
 # Activity Statuses
 # -------------------
 # SUCCESS
@@ -232,22 +189,6 @@ class StatusError(Activity):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @ActivityRegistry.activity(type="print-properties")
 class PrintProps(Activity):
     def run(self):
@@ -255,28 +196,10 @@ class PrintProps(Activity):
 
 
 
-
-
-
-
-
-
-
-
-
-
 @ActivityRegistry.activity(type="empty")
 class Empty(Activity):
     def run(self):
         pass
-
-
-
-
-
-
-
-
 
 
 
@@ -293,21 +216,6 @@ class Type2(Activity):
     def run(self):
         logging.info(f"type:  {self.type}")
         logging.info(f"class: {self.__class__.__name__}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

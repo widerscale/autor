@@ -11,6 +11,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import logging
+
+
 class ContextProperty:
     """A context property container class"""
 
@@ -20,6 +23,16 @@ class ContextProperty:
         self.__mandatory = mandatory
         self.__property_type = property_type
         self.__default = default
+
+    def print(self):
+       #default_value_def = ""
+       # if self.default != "DEFAULT_PROPERTY_VALUE_NOT_DEFINED":
+           # default_value_def = f",default={self.default}"
+        #logging.info(f"{self.class_name}.{self.name} @{self.property_type}(mandatory={self.mandatory},type={self.property_type}{default_value_def}")
+
+        logging.info(f"{self.name} {self.property_type} {self.mandatory} {self.default} {self.class_name}")
+
+
 
     @property
     def name(self) -> str:

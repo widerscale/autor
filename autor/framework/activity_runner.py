@@ -143,7 +143,7 @@ class ActivityRunner:
                 LoggingConfig.activate_framework_logging()
                 logging.warning(f"Exception caught during activity run: {e.__class__.__name__}: {str(e)}")
                 self._activity_run_exception_occurred = True
-                self._register_error(e,description=f"Exception caught during activity run: {e.__class__.__name__}: {str(e)}", ex_type=ExceptionType.ACTIVITY_RUN)
+                self._register_error(e, ExceptionType.ACTIVITY_RUN, description=f"Exception caught during activity run: {e.__class__.__name__}: {str(e)}")
             finally:
                 # ----------------------------------------------------------------#
                 StateHandler.change_state(State.AFTER_ACTIVITY_RUN)
@@ -171,7 +171,7 @@ class ActivityRunner:
 
 
         except Exception as e:
-            self._register_error(e, "Exception during activity post-processing", ex_type=ExceptionType.ACTIVITY_POSTPROCESS)
+            self._register_error(e, ExceptionType.ACTIVITY_POSTPROCESS, description="Exception during activity post-processing")
 
         finally:
             # ----------------------------------------------------------------#
@@ -203,7 +203,7 @@ class ActivityRunner:
             framework_error=framework_error,
         )
 
-    def _register_error(self, exception,ex_type: ExceptionType, description="", context=None):
+    def _register_error(self, exception, ex_type: ExceptionType, description="", context=None):
         framework_error = False
         if ex_type == ExceptionType.ACTIVITY_RUN:
             self._activity_run_exception_occurred = True
@@ -233,7 +233,7 @@ class ActivityRunner:
             self._data.activity = ActivityFactory.create(self._data.activity_type)
         except Exception as e:
             self._data.activity = ActivityFactory.create("EXCEPTION")
-            self._register_error(e, description="Failed to create activity", ex_type=ExceptionType.ACTIVITY_CREATION)  # Framework rules not followed by the activity
+            self._register_error(e, ExceptionType.ACTIVITY_CREATION, description="Failed to create activity")  # Framework rules not followed by the activity
             #self._register_error(e, description="Failed to create activity", activity_processing_error=True)  # Framework rules not followed by the activity
 
 
@@ -245,13 +245,13 @@ class ActivityRunner:
             #  no input parameter checks should be performed.
             handler.load_config_properties(check_mandatory_properties=self._ok_to_run())
         except Exception as e:
-            self._register_error(e, "Exception loading activity configuration properties.", ex_type=ExceptionType.ACTIVITY_CONFIGURATION)
+            self._register_error(e, ExceptionType.ACTIVITY_CONFIGURATION, description="Exception loading activity configuration properties.")
 
         # Ok to continue after failing with configuration in the previous step -> gives us more information in case there are problems.
         try:
             handler.load_input_properties(check_mandatory_properties=self._ok_to_run())
         except Exception as e:
-            self._register_error(e, "Exception loading activity input properties.", ex_type=ExceptionType.ACTIVITY_INPUT)
+            self._register_error(e, ExceptionType.ACTIVITY_INPUT, description="Exception loading activity input properties.")
 
     def _save_activity_properties(self):
         status = self._data.activity.status
@@ -262,7 +262,7 @@ class ActivityRunner:
             #  SUCCESS.
             self._data.output_context_properties_handler.save_output_properties(mandatory_outputs_check=(status == Status.SUCCESS))
         except Exception as e:
-            self._register_error(e, "Could not save activity output properties", ex_type=ExceptionType.ACTIVITY_OUTPUT)
+            self._register_error(e, ExceptionType.ACTIVITY_OUTPUT, description="Could not save activity output properties")
 
     def _update_activity_context(self):
         activity = self._data.activity
