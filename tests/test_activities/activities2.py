@@ -26,7 +26,7 @@ input = ContextPropertiesRegistry.input
 
 # Calculate return the maximum value of the current max (received through property) and
 # my max (received through configuration)
-@ActivityRegistry.activity(type="MAX2")
+@ActivityRegistry.activity(type="max2")
 class Max(Activity):
     # region constructor
     def __init__(self):

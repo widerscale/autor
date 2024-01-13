@@ -11,9 +11,15 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import inspect
+import logging
+
 from autor.framework.autor_framework_exception import (
     AutorFrameworkValueException,
 )
+from autor.framework.check import Check
+from autor.framework.debug_config import DebugConfig
+from autor.framework.util import Util
 
 
 class ActivityRegistry:
@@ -58,7 +64,7 @@ class ActivityRegistry:
 
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def activity(type):
+    def activity(type:str="activity-type-not-set-in-the-activity"):
 
         """
         A class decorator for registering a class as an activity of a certain type.
@@ -70,25 +76,54 @@ class ActivityRegistry:
 
         def act(cls):
             # pylint: disable=no-else-raise
-            if type is None:
-                raise AutorFrameworkValueException(
-                    "Mandatory parameter: 'type' missing in the decorator: 'activity'"
-                )
-            else:
-                # pylint: disable-next=consider-iterating-dictionary, no-else-return
-                if type not in ActivityRegistry.activities.keys():
-                    ActivityRegistry.activities[type] = cls
-                    return cls
-                else:
-                    existing_activity = ActivityRegistry.activities[type]
-                    raise AutorFrameworkValueException(
-                        (
-                            f"An attempt to register an activity:{cls.__name__} with type:{type}"
-                            + " while the type already exists in the registry"
-                            + f" for activity: {existing_activity.__name__}."
-                        )
-                    )
+            #path:str =
+            #Check.true(type is not None, ValueError, f"Missing mandatory 'type' in decorator: @ActivityRegistry.activity decorator in class: {cls.__name__}.")
+            #Check.true(Util.is_lower_case_dashed(type), ValueError, f"@ActivityRegistry.activity decorator expects 'type' to have format: 'lower-case-separated-with-dash'. Actual format: {type}. \nclass: {cls.__name__}\nfile: {inspect.getfile(cls)}")
 
+            ok_to_register = True
+
+            if type == "activity-type-not-set-in-the-activity":
+                logging.warning(f"{DebugConfig.autor_info_prefix}Missing mandatory 'type' in decorator: @ActivityRegistry.activity decorator.")
+                logging.warning(f"{DebugConfig.autor_info_prefix}This activity will not be made available for execution:")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  class: {cls.__name__}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  file:  {inspect.getfile(cls)}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}")
+                ok_to_register = False
+
+            if type is None:
+                logging.warning(f"{DebugConfig.autor_info_prefix}Value error: None. @ActivityRegistry.activity decorator may not have a type value 'None'.")
+                logging.warning(f"{DebugConfig.autor_info_prefix}This activity will not be made available for execution:")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  class: {cls.__name__}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  file:  {inspect.getfile(cls)}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}")
+                ok_to_register = False
+
+            elif not Util.is_lower_case_dashed(type):
+                logging.warning(f"{DebugConfig.autor_info_prefix}@ActivityRegistry.activity decorator expects 'type' to have format: 'lower-case-separated-with-dash'. Actual format: {type}.")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  class: {cls.__name__}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  file:  {inspect.getfile(cls)}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}")
+
+            elif type in ActivityRegistry.activities.keys():
+                existing_activity = ActivityRegistry.activities[type]
+                logging.warning(f"{DebugConfig.autor_info_prefix}An attempt to register an activity with type '{type}' while the type is already used by another activity.")
+                logging.warning(f"{DebugConfig.autor_info_prefix}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}Activity that is trying to register:")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  class: {cls.__name__}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  file:  {inspect.getfile(cls)}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}Already registered activity with type '{type}':")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  class: {existing_activity.__name__}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}  file:  {inspect.getfile(existing_activity)}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}")
+                logging.warning(f"{DebugConfig.autor_info_prefix}Select another type name for one of the activities.")
+                logging.warning(f"{DebugConfig.autor_info_prefix}")
+                ok_to_register = False
+
+            if ok_to_register:
+                ActivityRegistry.activities[type] = cls
+
+            return cls
         return act
 
     @staticmethod
@@ -108,10 +143,9 @@ class ActivityRegistry:
         if type not in ActivityRegistry.activities:
             raise AutorFrameworkValueException(
                 (
-                    f"No activity with the type: '{str(type)}' registered. Check if the activity"
-                    + " uses the necessary decorators and is bootstrapped."
-                    + "To bootstrap an activity it has to be imported BEFORE it is created by"
-                    + " the activity factory."
+                    f"No activity with the type: '{str(type)}' registered. \n"
+                    f"          - Check the spelling of the 'type' int the activity decorator. \n"
+                    f"          - Make sure the activity module has been added to the Flow Configuration (if it is used) or provided as a parameter to Autor."
                 )
             )
 

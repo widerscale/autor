@@ -43,7 +43,7 @@
     "max": 7,
     "exceptions": [
         {
-            "message": "No activity with the type: 'MY_TYPE_IS_UNKNOWN' registered. Check if the activity uses the necessary decorators and is bootstrapped.To bootstrap an activity it has to be imported BEFORE it is created by the activity factory.",
+            "message": "No activity with the type: 'my-type-is-unknown' registered. Check if the activity uses the necessary decorators and is bootstrapped.To bootstrap an activity it has to be imported BEFORE it is created by the activity factory.",
             "class": "AutorFrameworkValueException",
             "description": "Failed to create activity",
             "type": "ACTIVITY",

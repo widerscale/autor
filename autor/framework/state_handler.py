@@ -24,6 +24,7 @@ from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.constants import ExceptionType
 from autor.framework.context import Context
 from autor.framework.debug_config import DebugConfig
+from autor.framework.exception_handler import ExceptionHandler
 from autor.framework.keys import StateKeys as sta
 from autor.framework.key_handler import KeyConverter
 from autor.framework.logging_config import LoggingConfig
@@ -220,7 +221,7 @@ class StateHandler(StateProducer):
         ExceptionHandler.register_exception(
             ex=e,
             description=f'Extension exception in state: {state_name} in extension: {listener.__class__.__name__}',
-            type=ExceptionType.EXTENSION,
+            ex_type=ExceptionType.EXTENSION,
             framework_error=False,
         )
 

@@ -26,11 +26,11 @@ input = ContextPropertiesRegistry.input
 
 # Calculate return the maximum value of the current max (received through property) and
 # my max (received through configuration)
-@ActivityRegistry.activity(type="MAX")
+@ActivityRegistry.activity(type="max")
 class Max(Activity):
-
+    # region property: max @input/output(mandatory=False/True, type=int)
     @property
-    @input(mandatory=False, type=int)  # load the value before run() is called
+    @input(mandatory=False, type=int, default=0)  # load the value before run() is called
     @output(mandatory=True, type=int)  # save the value after  run() is finished
     def max(self) -> int:  # getter
         return self.__max
@@ -62,7 +62,7 @@ class Max(Activity):
 # my max (received through configuration). Every second run the activity casts an exception.
 # Use this activity to simulate a failure that will be fixed when re-run.
 # The first run will fail, the second will succeed.
-@ActivityRegistry.activity(type="MAX_WITH_EXCEPTION_EVERY_SECOND_RUN")
+@ActivityRegistry.activity(type="max-with-exception-every-second-run")
 class MaxWithExceptionEverySecondRun(Activity):
     # region constructor
     def __init__(self):
@@ -117,7 +117,7 @@ class MaxWithExceptionEverySecondRun(Activity):
 
 
 # Increase 'runNbr' in context each time the activity is run.
-@ActivityRegistry.activity(type="RUN_NBR")
+@ActivityRegistry.activity(type="run-nbr")
 class CountRuns(Activity):
     # region constructor
     def __init__(self):

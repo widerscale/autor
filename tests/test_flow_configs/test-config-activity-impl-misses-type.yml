@@ -1,0 +1,35 @@
+---
+flowId: example-flow
+
+#   E X T E N S I O N S
+#######################
+extensions:
+   #- examples.extensions.context.AddFileContext
+
+
+#   A C T I V I T Y   M O D U L E S
+###################################
+activityModules:
+  - test_activities.activities
+  - test_activities.activity_without_type # problematic activity is here
+
+
+
+#   A C T I V I T Y   B L O C K S
+#################################
+activityBlocks:
+
+  calculateMax:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4

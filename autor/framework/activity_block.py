@@ -14,7 +14,7 @@
 import datetime
 # The entry point to Autor
 # Call run() to run Autor.
-
+import humps
 import importlib
 import json
 import logging
@@ -323,6 +323,7 @@ class ActivityBlock(StateProducer):
             # the static data needs to be reset. Can be a case during testing Autor.
             ActivityBlockRules.reset_static_data()
             Context.reset_static_data()
+            ExceptionHandler.debug_reset()
 
             Context.remote_context = FileContext()  # Default is to use file DB locally. Can be overriden in extensions.
 
@@ -845,9 +846,9 @@ class ActivityBlock(StateProducer):
 
 
         if self._activity_data.action == Action.REUSE:
-            self._activity_data.activity_type = "REUSE"
+            self._activity_data.activity_type = "reuse"
         elif self._activity_data.action == Action.SKIP_WITH_OUTPUT_VALUES:
-            self._activity_data.activity_type = "SKIP_WITH_OUTPUT_VALUES"
+            self._activity_data.activity_type = "skip-with-output-values"
         # elif self._activity_data.action == Action.SKIP_BY_FRAMEWORK or self._activity_data.action == Action.SKIP_BY_CONFIGURATION:
         #     self._activity_data.activity_type = "SKIP"
         # elif self._activity_data.action == Action.RUN:
@@ -1355,5 +1356,11 @@ class ActivityBlock(StateProducer):
     def get_mode(self)->str:
         return self._mode
 
-    def skip_with_outputs_flow_configuration_url(self):
+    def get_skip_with_outputs_flow_configuration_url(self)->str:
         return self._skip_with_outputs_flow_configuration_url
+
+    def get_exception(self)->Exception:
+        return ExceptionHandler.get_first_exception()
+
+    def get_status(self)->str:
+        return self._activity_block_status

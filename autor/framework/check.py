@@ -43,10 +43,28 @@ class Check:
             raise AutorFrameworkException(description)
 
     @staticmethod
+    def not_none(val, msg: str = ""):
+        description = f'\n\n____________________ CHECK FAIL _____________________\n<<< Value may not be None >>>\n{msg}'
+        if val is None:
+            raise AutorFrameworkException(description)
+
+
+
+    @staticmethod
     def is_true(value, msg: str = ""):
         description = str(msg) + " ([Check]: Expected True, received: " + str(value) + ")"
         if value is False:
             raise AutorFrameworkException(description)
+
+    @staticmethod
+    def true(value,  exception:type, msg:str="",):
+        if value is False:
+            #ex_type = type(exception)
+            #raise ex_type(msg)
+            raise exception(msg)
+
+
+
 
     @staticmethod
     def is_non_empty_string(value: str, msg: str = ""):
@@ -56,11 +74,7 @@ class Check:
         if (str is None) or (not isinstance(value, str)) or len(value) <= 0:
             raise AutorFrameworkException(description)
 
-    @staticmethod
-    def not_none(value, msg: str = ""):
-        description = str(msg) + " ([Check]: Expected not None, received: " + str(value) + ")"
-        if value is None:
-            raise AutorFrameworkException(description)
+
 
     @staticmethod
     def is_none(value, msg: str = ""):

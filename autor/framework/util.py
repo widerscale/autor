@@ -26,6 +26,8 @@ import pprint
 import traceback
 import uuid
 
+import humps
+
 from autor.framework.constants import ExceptionType
 from autor.framework.debug_config import DebugConfig
 from autor.framework.extension_exception import AutorExtensionException
@@ -38,6 +40,11 @@ class Util:
     @staticmethod
     def is_camel_case(string:str):
         return string.isalnum() and not string.istitle()
+
+
+    @staticmethod
+    def is_lower_case_dashed(string:str):
+        return humps.is_kebabcase(string) and string.islower()
 
 
 

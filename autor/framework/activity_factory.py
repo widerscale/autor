@@ -14,6 +14,8 @@
 from autor.framework.activity_registry import ActivityRegistry
 from autor import Activity
 
+
+
 class ActivityFactory:
     """
     A class for creating activities using the class type as an identifier \

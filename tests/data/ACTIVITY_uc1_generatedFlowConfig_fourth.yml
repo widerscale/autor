@@ -5,15 +5,15 @@ activityModules:
 activityBlocks:
   generatedActivityBlock:
     activities:
-    - type: MAX
+    - type: max
       configuration:
         val: 3
-    - type: MAX2
+    - type: max2
       configuration:
         val: 1
-    - type: MAX
+    - type: max
       configuration:
         val: 5
-    - type: MAX
+    - type: max
       configuration:
         val: 4

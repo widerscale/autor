@@ -12,11 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import logging
+import humps
 
 from autor.activity import Activity
+import autor.framework.autor_framework_activities
 from autor.framework.activity_data import ActivityData
 from autor.framework.activity_factory import ActivityFactory
-from autor.framework.autor_framework_activities import ReuseActivity, DummyActivity
 from autor.framework.check import Check
 from autor.framework.constants import Action, ExceptionType, Status
 from autor.framework.context_properties_handler import ContextPropertiesHandler
@@ -196,7 +197,7 @@ class ActivityRunner:
 
         ExceptionHandler.register_exception(
             ex=exception,
-            type=ExceptionType.ACTIVITY_RUN,
+            ex_type=ExceptionType.ACTIVITY_RUN,
             description=description,
             context=context,
             custom=custom,
@@ -232,7 +233,7 @@ class ActivityRunner:
         try:
             self._data.activity = ActivityFactory.create(self._data.activity_type)
         except Exception as e:
-            self._data.activity = ActivityFactory.create("EXCEPTION")
+            self._data.activity = ActivityFactory.create("exception")
             self._register_error(e, ExceptionType.ACTIVITY_CREATION, description="Failed to create activity")  # Framework rules not followed by the activity
             #self._register_error(e, description="Failed to create activity", activity_processing_error=True)  # Framework rules not followed by the activity
 

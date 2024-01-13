@@ -46,7 +46,6 @@ class AutorTester():
 
     @staticmethod
     def run(
-            expectation: str,
             additional_context: dict = {},
             additional_extensions: List[str] = None,
             activity_block_id: str = None,
@@ -57,9 +56,12 @@ class AutorTester():
             activity_name: str = None,
             activity_type: str = None,
             custom_data: dict = {},
+            expectation: str = None,
+            err_msg: str = None,
             flow_run_id: str = None,
-            flow_config_url: str = "test-config.yml",
-            mode: str = None
+            flow_config_url: str = "test_flow_configs/test-config.yml",
+            mode: str = None, # mandatory if 'expectation' is not provided,
+            status: str = None, # mandatory if 'expectation' is not provided
     )->ActivityBlock:
 
 
@@ -69,7 +71,11 @@ class AutorTester():
 
 
         #mode, activity_block_id = AutorTester._parse_expectation(expectation)
-        mode,_ = AutorTester._parse_expectation(expectation)
+
+        if expectation is not None:
+            mode,_ = AutorTester._parse_expectation(expectation)
+        else:
+            Check.not_none(mode, "Test framework value error: 'mode' must be provided if 'expectation' is not provided.")
 
         AutorTester._create_commands(
             additional_context=additional_context,
@@ -108,11 +114,28 @@ class AutorTester():
         activity_block.run()
         # --------------- RUN AUTOR --------------#
 
-        AutorTester._validate_context(expectation)
+        if expectation is not None:
+            AutorTester._validate_context(expectation)
+        else:
+            AutorTester._validate(activity_block, expected_status=status, expected_err_msg=err_msg)
+
 
         return activity_block
 
+    @staticmethod
+    def _validate(activity_block:ActivityBlock, expected_status:str, expected_err_msg:str=None):
+        Check.not_none(expected_status, "'expected_status' is mandatory - was not provided")
+        actual_status = activity_block.get_activity_block_status()
+        Check.expected(expected_status, actual_status, "Activity block did not have expected status")
+        if expected_err_msg is not None:
+            ex:Exception = activity_block.get_exception()
+            Check.not_none(ex, f"No exception provided by ActivityBlock. Expected exception with message: {expected_err_msg}")
+            actual_err_msg = str(ex)
+            Check.expected(expected_err_msg, actual_err_msg, "Exception error message was not as expected.")
 
+
+
+    @staticmethod
     def _validate_context(file_name:str)->bool:
 
         if not '.json' in file_name:

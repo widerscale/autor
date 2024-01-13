@@ -31,7 +31,7 @@ input = ContextPropertiesRegistry.input
 ''' An activity without functionality that is used by Autor
 when an unexpected error occurs and a user activity cannot
 be created at all. These activities can be used as placeholders.'''
-@ActivityRegistry.activity(type="EXCEPTION")
+@ActivityRegistry.activity(type="exception")
 class ExceptionActivity(Activity):
     def run(self):
         pass
@@ -40,7 +40,7 @@ class ExceptionActivity(Activity):
 #---------------------------- SKIP ---------------------------------#
 ''' An activity without functionality that is used by Autor
 to skipe activities. These activities can be used as placeholders.'''
-@ActivityRegistry.activity(type="SKIP")
+@ActivityRegistry.activity(type="skip")
 class SkipActivity(Activity):
     def run(self):
         logging.info("Skipping activity...")
@@ -52,7 +52,7 @@ class SkipActivity(Activity):
 ''' An activity without functionality that is used by Autor
 when an unexpected error occurs and a user activity cannot
 be created at all. These activities can be used as placeholders.'''
-@ActivityRegistry.activity(type="DUMMY")
+@ActivityRegistry.activity(type="dummy")
 class DummyActivity(Activity):
     def run(self):
         pass
@@ -60,7 +60,7 @@ class DummyActivity(Activity):
 
 #---------------------------- REUSE ---------------------------------#
 ''' An activity that provides the same output it reads from its context. '''
-@ActivityRegistry.activity(type="REUSE")
+@ActivityRegistry.activity(type="reuse")
 class ReuseActivity(Activity):
 
     def __init__(self):
@@ -87,7 +87,7 @@ class ReuseActivity(Activity):
 
 #---------------------------- SKIP_WITH_OUTPUT_VALUES ---------------------------------#
 ''' An activit that provides the output read from skipWithOutputs configuration. '''
-@ActivityRegistry.activity(type="SKIP_WITH_OUTPUT_VALUES")
+@ActivityRegistry.activity(type="skip-with-output-values")
 class SkipReuseActivity(Activity):
 
     def __init__(self):

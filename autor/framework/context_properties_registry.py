@@ -57,6 +57,7 @@ import inspect
 from typing import Dict, List
 import humps
 
+from autor.framework.autor_framework_exception import AutorFrameworkValueException
 from autor.framework.check import Check
 from autor.framework.context_property import ContextProperty
 

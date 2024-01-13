@@ -124,6 +124,7 @@ class ExceptionHandler:
 
         if ex_type is None:
             logging.error("Exception type not provided!!!!!!!!!!!")
+            #@TODO: remove this if statement and make ex_type mandatory
             exit(8888888888)
 
 

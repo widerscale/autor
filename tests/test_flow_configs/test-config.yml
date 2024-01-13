@@ -20,49 +20,49 @@ activityBlocks:
 
   calculateMax:
     activities:
-      - type: MAX
+      - type: max
         configuration:
           val: 3
-      - type: MAX
+      - type: max
         configuration:
           val: 1
-      - type: MAX
+      - type: max
         configuration:
           val: 5
-      - type: MAX
+      - type: max
         configuration:
           val: 4
 
   calculateMax2:
     activities:
-      - type: MAX
+      - type: max
         configuration:
           val: 2
-      - type: MAX
+      - type: max
         configuration:
           val: 6
-      - type: MAX
+      - type: max
         configuration:
           val: 9
-      - type: MAX
+      - type: max
         configuration:
           val: 8
 
   calculateMaxWithNames:
     activities:
-      - type: MAX
+      - type: max
         name: first
         configuration:
           val: 3
-      - type: MAX
+      - type: max
         name: second
         configuration:
           val: 1
-      - type: MAX
+      - type: max
         name: third
         configuration:
           val: 5
-      - type: MAX
+      - type: max
         name: fourth
         configuration:
           val: 4
@@ -71,20 +71,20 @@ activityBlocks:
 
   calculateMaxFailSecond:
     activities:
-      - type: MAX
+      - type: max
         name: first
         configuration:
           val: 3
-      - type: MAX
+      - type: max
         name: second
         configuration:
           val: 1
           status: ERROR
-      - type: MAX
+      - type: max
         name: third
         configuration:
           val: 5
-      - type: MAX
+      - type: max
         name: fourth
         configuration:
           val: 4
@@ -93,35 +93,35 @@ activityBlocks:
 
   calculateMaxWithExceptionEverySecondRun1:
     activities:
-      - type: RUN_NBR
-      - type: MAX
+      - type: run-nbr
+      - type: max
         configuration:
           val: 3
-      - type: MAX
+      - type: max
         configuration:
           val: 1
-      - type: MAX_WITH_EXCEPTION_EVERY_SECOND_RUN
+      - type: max-with-exception-every-second-run
         name: exceptionEverySecondRun
         configuration:
           val: 5
-      - type: MAX
+      - type: max
         configuration:
           val: 4
 
   calculateMaxWithExceptionEverySecondRun2:
     activities:
-      - type: RUN_NBR
-      - type: MAX
+      - type: run-nbr
+      - type: max
         configuration:
           val: 3
-      - type: MAX
+      - type: max
         configuration:
           val: 1
-      - type: MAX_WITH_EXCEPTION_EVERY_SECOND_RUN
+      - type: max-with-exception-every-second-run
         name: exceptionEverySecondRun
         configuration:
           val: 5
-      - type: MAX
+      - type: max
         configuration:
           val: 4
 
@@ -130,19 +130,33 @@ activityBlocks:
 
   unknownActivityType:
     activities:
-      - type: MAX
+      - type: max
         configuration:
           val: 1
-      - type: MAX
+      - type: max
         configuration:
           val: 7
-      - type: MY_TYPE_IS_UNKNOWN
+      - type: my-type-is-unknown
         configuration:
           val: 99
-      - type: MAX
+      - type: max
         configuration:
           val: 2
-      - type: MAX
+      - type: max
         configuration:
           val: 9
 
+  activityTypeMisspelled:
+    activities:
+      - type: max-misspelled
+        configuration:
+          val: 3
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
