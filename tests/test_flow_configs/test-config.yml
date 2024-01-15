@@ -160,3 +160,51 @@ activityBlocks:
       - type: max
         configuration:
           val: 4
+
+
+  decoratorRuleBreaking1:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+      - type: max-problem-1
+        configuration:
+          val: 1
+      - type: max-problem-2
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+
+  decoratorRuleBreaking2:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+      - type: max-problem-1
+        configuration:
+          val: 1
+      - type: max-problem-2
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+  decoratorRuleBreaking3:
+    activities:
+      - type: max-problem-2
+        configuration:
+          val: 3
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+

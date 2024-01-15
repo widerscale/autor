@@ -485,8 +485,19 @@ class ActivityBlock(StateProducer):
 
         activity_blocks:dict = context['_activityBlocks']
 
-        for ab_id, ab in activity_blocks.items():
-            del ab[ctx.ACTIVITY_BLOCK_RUN_ID]
+
+        current_ab = activity_blocks[self._activity_block_id]
+        del context['_activityBlocks']
+
+        context['_activityBlocks'] = {}
+        context['_activityBlocks'][self._activity_block_id] = current_ab
+        del current_ab[ctx.ACTIVITY_BLOCK_RUN_ID]
+
+
+
+        #for ab_id, ab in activity_blocks.items():
+            #del ab[ctx.ACTIVITY_BLOCK_RUN_ID]
+
 
         #ab = context['_activityBlocks'][self._activity_block_id]
         #del ab[ctx.ACTIVITY_BLOCK_RUN_ID]

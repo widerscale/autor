@@ -1,8 +1,16 @@
 {
+    "mode": "ACTIVITY_IN_BLOCK",
+    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "SKIPPED",
+    "max": 5,
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "ERROR",
+    "activityBlockInterrupted": true,
     "_activityBlocks": {
         "calculateMaxFailSecond": {
             "mode": "ACTIVITY_IN_BLOCK",
-            "flowConfigUrl": "test-config.yml",
+            "flowConfigUrl": "test_flow_configs/test-config.yml",
             "_activities": {
                 "calculateMaxFailSecond-first": {
                     "action": "KEEP_AS_IS",
@@ -21,8 +29,7 @@
                 },
                 "calculateMaxFailSecond-fourth": {
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED",
-                    "max": 5
+                    "status": "SKIPPED"
                 }
             },
             "action": "SKIP_BY_FRAMEWORK",
@@ -31,12 +38,5 @@
             "activityBlockStatus": "ERROR",
             "activityBlockInterrupted": true
         }
-    },
-    "mode": "ACTIVITY_IN_BLOCK",
-    "flowConfigUrl": "test-config.yml",
-    "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
-    "max": 5,
-    "activityBlockStatus": "ERROR",
-    "activityBlockInterrupted": true
+    }
 }

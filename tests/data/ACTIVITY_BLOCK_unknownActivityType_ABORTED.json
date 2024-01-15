@@ -1,8 +1,17 @@
 {
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "SKIPPED",
+    "max": 7,
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "ERROR",
+    "activityBlockInterrupted": true,
     "_activityBlocks": {
         "unknownActivityType": {
             "mode": "ACTIVITY_BLOCK",
-            "flowConfigUrl": "test-config.yml",
+            "activityBlockRunId": "2e165047-7b20-448e-a601-5ef630ad849c",
+            "flowConfigUrl": "test_flow_configs/test-config.yml",
             "_activities": {
                 "unknownActivityType-activity1": {
                     "action": "RUN",
@@ -20,51 +29,18 @@
                 },
                 "unknownActivityType-activity4": {
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED",
-                    "max": 7
+                    "status": "SKIPPED"
                 },
                 "unknownActivityType-activity5": {
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED",
-                    "max": 7
+                    "status": "SKIPPED"
                 }
             },
             "action": "SKIP_BY_FRAMEWORK",
             "status": "SKIPPED",
             "max": 7,
-            "abortType": "ABORTED_BY_FRAMEWORK",
-            "activityBlockStatus": "ABORTED"
+            "activityBlockStatus": "ERROR",
+            "activityBlockInterrupted": true
         }
-    },
-    "mode": "ACTIVITY_BLOCK",
-    "flowConfigUrl": "test-config.yml",
-    "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
-    "max": 7,
-    "exceptions": [
-        {
-            "message": "No activity with the type: 'my-type-is-unknown' registered. Check if the activity uses the necessary decorators and is bootstrapped.To bootstrap an activity it has to be imported BEFORE it is created by the activity factory.",
-            "class": "AutorFrameworkValueException",
-            "description": "Failed to create activity",
-            "type": "ACTIVITY",
-            "state": "BEFORE_ACTIVITY_PREPROCESS",
-            "stackTrace": [
-                "Traceback (most recent call last):",
-                "  File \"C:\\github\\widerscale\\autor\\autor\\framework\\activity_runner.py\", line 198, in _create_activity",
-                "    self._data.activity = ActivityFactory.create(self._data.activity_type)",
-                "  File \"C:\\github\\widerscale\\autor\\autor\\framework\\activity_factory.py\", line 36, in create",
-                "    return ActivityRegistry.get_class(type)()",
-                "  File \"C:\\github\\widerscale\\autor\\autor\\framework\\activity_registry.py\", line 109, in get_class",
-                "    raise AutorFrameworkValueException(",
-                "autor.framework.autor_framework_exception.AutorFrameworkValueException: No activity with the type: 'MY_TYPE_IS_UNKNOWN' registered. Check if the activity uses the necessary decorators and is bootstrapped.To bootstrap an activity it has to be imported BEFORE it is created by the activity factory."
-            ],
-            "custom": {
-                "activityId": "unknownActivityType-activity3",
-                "activityStatus": "ERROR"
-            }
-        }
-    ],
-    "abortType": "ABORTED_BY_FRAMEWORK",
-    "skipType": "SKIPPED_BY_FRAMEWORK",
-    "activityBlockStatus": "ABORTED"
+    }
 }

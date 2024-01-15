@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import inspect
 import logging
 from typing import List
 
@@ -93,8 +94,10 @@ class ContextPropertiesHandler:
         # Get a list of input properties for the object.
         props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
         if property_category == "config":
+            property_source = "configuration"
             props: List[ContextProperty] = ContextPropertiesRegistry.get_config_properties(self._object)
         elif property_category == "input":
+            property_source = "context"
             props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
         else:
             raise AutorFrameworkException(f"Unhandled property category: {property_category}. Cannot load properties of that category.")
@@ -111,6 +114,8 @@ class ContextPropertiesHandler:
             else:
                 raise AutorFrameworkException(f"Unhandled property category: {property_category}. Cannot load properties of that category.")
 
+            self._check_input_properties_rules(prop, prop_value, property_category, property_source,
+                                               check_mandatory_properties)
 
             # Check that the mandatory properties have a value
             if check_mandatory_properties:
@@ -145,7 +150,7 @@ class ContextPropertiesHandler:
                 # attribute defined at all.
 
 
-                if self._object_has_defined_property_value(self._object, prop.name):
+                if self._default_value_in_constructor(self._object, prop.name):
 
                     if prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED: # both object and property have defined a default property value
                         def_val = getattr(self._object, prop.name)
@@ -175,52 +180,97 @@ class ContextPropertiesHandler:
 
 
 
-    def _check_input_properties_rules(self, prop:ContextProperty, prop_value, resource_name:str, resource_key:str, check_if_mandatory_values_provided:bool):
-
+    def _check_input_properties_rules(self, prop:ContextProperty, prop_value, prop_category:str, resource_name:str, check_if_mandatory_values_provided:bool):
+        cls = self._object.__class__
         # Rules
         # ___________________________________________________________
+
         # Mandatory inputs must not have default values in decorators
+        if prop.mandatory and self._default_value_in_decorator(prop):
+            logging.warning(
+                f"{DebugConfig.autor_info_prefix}Mandatory Activity inputs should not have default values defined in decorator.")
+            logging.warning(
+                f"{DebugConfig.autor_info_prefix}The provided default value will be ignored during the execution.")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   class:    {cls.__name__}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   property: {prop.name}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   type:     {prop.property_type}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   default:  {prop.default}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   file:     {inspect.getfile(cls)}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}")
+
         # Mandatory inputs must not have default values in constructor
+        if prop.mandatory and self._default_value_in_constructor(self._object, prop.name):
+            logging.warning(
+                f"{DebugConfig.autor_info_prefix}Mandatory Activity inputs properties should not have default values defined in constructor.")
+            logging.warning(
+                f"{DebugConfig.autor_info_prefix}The provided default value will be ignored during the execution.")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   class:             {cls.__name__}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   property:          {prop.name}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   type:              {prop.property_type}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   default (constr):  {getattr(self._object, prop.name)}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}   file:              {inspect.getfile(cls)}")
+            logging.warning(f"{DebugConfig.autor_info_prefix}")
+
+
+
+
+
+
+
+
+
+
+
 
         # Non-mandatory inputs must not have default values defined BOTH in constructor and decorator
         # Non-mandatory inputs are set to None if no default value is found in constructor nor decorator
-        # Outputs may not have default values
+        # Outputs may not have default values (<- will be handled by python)
 
         # Provided default values must have correct type (both in constructor and in decorator)
-        object_name = str(self._object.__class__.__name__)
-        if self._object_has_defined_property_value(self._object, prop.name):
+
+        if self._default_value_in_constructor(self._object, prop.name):
             object_constructor_val = getattr(self._object, prop.name)
             if (object_constructor_val is not None) and (not isinstance(object_constructor_val, prop.property_type)):
                 raise ContextPropertiesHandlerValueException(
-                     f"Property default value type error in Object: {object_name} constructor. Expected {prop.property_type} property '{prop.name}' default value of type: {str(prop.property_type)}, found in constructor type: {str(object_constructor_val.__class__.__name__)}")
+                     f"Property default value type error in class: {cls} constructor. Expected {prop.property_type} property '{prop.name}' default value of type: {str(prop.property_type)}, found in constructor type: {str(object_constructor_val.__class__.__name__)}")
 
 
         # Provided property values (context/config) values must have correct type
         if prop_value is not None:
             if not isinstance(prop_value, prop.property_type):
                 raise ContextPropertiesHandlerValueException(
-                    f"Property type error in Object: {object_name}. Expected {prop.property_type} property '{prop.name}' of type: {str(prop.property_type)}, received type: {str(prop_value.__class__.__name__)}")
+                    f"Property type error in class: {cls}. Expected {prop.property_type} property '{prop.name}' of type: {str(prop.property_type)}, received type: {str(prop_value.__class__.__name__)}")
 
 
 
         # Mandatory inputs must have a value in context/configuration
         if check_if_mandatory_values_provided:
             if prop.mandatory and (prop_value is None):
-                raise ContextPropertiesHandlerValueException(
-                    f"Could not find mandatory {prop.property_type} property '{prop.name}' value for Object '{object_name}' " +
-                    f"Expected to find key '{resource_key}' in '{resource_name}'")
+
+                msg = f"Could not find mandatory property value in {resource_name}:" \
+                      f"\nException details:" \
+                      f"\nclass:    {cls.__name__}" \
+                      f"\nproperty: {prop.name}" \
+                      f"\ntype:     {prop.property_type}" \
+                      f"\nfile:     {inspect.getfile(cls)}"
+
+                raise ContextPropertiesHandlerValueException(msg)
 
 
 
 
 
 
-    def _get_type_name(self, t:type)->str:
-        str_type = str(t)
+
+
+    def _default_value_in_decorator(self, prop:ContextProperty):
+        return prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED
+
+    def _get_type_name(self, str_type:str)->str:
         str_name = str_type.split("'")[1]
         return str_name
 
-    def _object_has_defined_property_value(self, o:object, prop_name:str)->bool:
+    def _default_value_in_constructor(self, o:object, prop_name:str)->bool:
         try:
             getattr(o, prop_name)
             return True
@@ -228,7 +278,7 @@ class ContextPropertiesHandler:
             return False
 
 
-    def save_output_properties(self, mandatory_outputs_check: bool = True):
+    def save_output_properties(self, mandatory_outputs_check: bool = True, save_status_only = False):
         """Save the output properties values to the context and synchronize the \
             context with the remote context.
         Args:
@@ -244,39 +294,42 @@ class ContextPropertiesHandler:
         props: List[ContextProperty] = ContextPropertiesRegistry.get_output_properties(self._object)
 
         for prop in props:
-            Check.is_instance_of(prop, ContextProperty)
 
-            # Get the property value from the object
-            prop_value = None
-            try:
-                prop_value = getattr(self._object, prop.name)
-            except Exception as e:
-                raise ContextPropertiesHandlerValueException(str(e)).with_traceback(
-                    e.__traceback__
-                )  # Getter implementation error.
+            if (save_status_only and prop.name == "status") or (not save_status_only):
 
-            # Check that the mandatory property values are provided
-            if mandatory_outputs_check:
-                if prop.mandatory and (prop_value is None):
-                    raise ContextPropertiesHandlerValueException(f"Mandatory output context property: '{prop.name}' not set in activity: '{str(self._object.__class__.__name__)}'")
+                Check.is_instance_of(prop, ContextProperty)
 
-            # Check that the provided property values have correct type
-            if prop_value is not None:
-                if not isinstance(prop_value, prop.property_type):
-                    raise ContextPropertiesHandlerValueException(
-                        (
-                            "Unexpected property type in Object:"
-                            + f" {self._object.__class__.__name__}."
-                            + " Expected output context property with name:"
-                            + f" {prop.name} and of type: {str(prop.property_type)},"
-                            + f" actual type: {prop_value.__class__.__name__}"
+                # Get the property value from the object
+                prop_value = None
+                try:
+                    prop_value = getattr(self._object, prop.name)
+                except Exception as e:
+                    raise ContextPropertiesHandlerValueException(str(e)).with_traceback(
+                        e.__traceback__
+                    )  # Getter implementation error.
+
+                # Check that the mandatory property values are provided
+                if mandatory_outputs_check:
+                    if prop.mandatory and (prop_value is None):
+                        raise ContextPropertiesHandlerValueException(f"Mandatory output context property: '{prop.name}' not set in activity: '{str(self._object.__class__.__name__)}'")
+
+                # Check that the provided property values have correct type
+                if prop_value is not None:
+                    if not isinstance(prop_value, prop.property_type):
+                        raise ContextPropertiesHandlerValueException(
+                            (
+                                "Unexpected property type in Object:"
+                                + f" {self._object.__class__.__name__}."
+                                + " Expected output context property with name:"
+                                + f" {prop.name} and of type: {str(prop.property_type)},"
+                                + f" actual type: {prop_value.__class__.__name__}"
+                            )
                         )
-                    )
-                # Set the property value to the context
-                #ctx_key = KeyHandler.convert_key(
-                   # prop.name, from_format=prp.format, to_format=ctx.format
-               # )
-                self._context.set(prop.name, prop_value)
+                    # Set the property value to the context
+                    #ctx_key = KeyHandler.convert_key(
+                       # prop.name, from_format=prp.format, to_format=ctx.format
+                   # )
+                    self._context.set(prop.name, prop_value)
 
 
         # Synchronize the context with the remote context (if it exists)

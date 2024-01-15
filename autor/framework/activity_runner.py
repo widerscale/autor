@@ -61,6 +61,7 @@ class ActivityRunner:
         ok = (
             not self._framework_error_occurred
             and not self._activity_processing_error_occurred
+            and not self._activity_run_exception_occurred
             and (self._data.action != Action.SKIP_BY_FRAMEWORK)
             and (self._data.action != Action.SKIP_BY_CONFIGURATION)
             and (self._data.action != Action.KEEP_AS_IS)
@@ -168,7 +169,7 @@ class ActivityRunner:
 
             # Save activity output properties
             if self._data.action != Action.KEEP_AS_IS:
-                self._save_activity_properties()
+                self._save_activity_properties(status_only = not self._ok_to_run()) # if something is wrong, we should only save status
 
 
         except Exception as e:
@@ -179,30 +180,6 @@ class ActivityRunner:
             StateHandler.change_state(State.AFTER_ACTIVITY_POSTPROCESS)
             # ----------------------------------------------------------------#
 
-
-    def ______register_error(self, exception, description="", context=None, framework_error=False, activity_run_error=False, activity_processing_error=False):
-        if framework_error:
-            self._framework_error_occurred = True
-        if activity_processing_error:
-            self._activity_processing_error_occurred = True
-        if activity_run_error:
-            self._activity_run_exception_occurred = True
-
-        # Crete custom data to save with the error.
-        custom = {}
-        custom[ctx.ACTIVITY_ID] = self._data.activity_id
-        if self._data.activity is not None:
-            self._data.activity.status = Status.ERROR
-            custom[ctx.ACTIVITY_STATUS] = Status.ERROR
-
-        ExceptionHandler.register_exception(
-            ex=exception,
-            ex_type=ExceptionType.ACTIVITY_RUN,
-            description=description,
-            context=context,
-            custom=custom,
-            framework_error=framework_error,
-        )
 
     def _register_error(self, exception, ex_type: ExceptionType, description="", context=None):
         framework_error = False
@@ -215,8 +192,7 @@ class ActivityRunner:
             framework_error = True
 
         # Crete custom data to save with the error.
-        custom = {}
-        custom[ctx.ACTIVITY_ID] = self._data.activity_id
+        custom = {ctx.ACTIVITY_ID: self._data.activity_id}
         if self._data.activity is not None:
             self._data.activity.status = Status.ERROR
             custom[ctx.ACTIVITY_STATUS] = Status.ERROR
@@ -235,7 +211,6 @@ class ActivityRunner:
         except Exception as e:
             self._data.activity = ActivityFactory.create("exception")
             self._register_error(e, ExceptionType.ACTIVITY_CREATION, description="Failed to create activity")  # Framework rules not followed by the activity
-            #self._register_error(e, description="Failed to create activity", activity_processing_error=True)  # Framework rules not followed by the activity
 
 
     def _load_activity_properties(self):
@@ -254,14 +229,14 @@ class ActivityRunner:
         except Exception as e:
             self._register_error(e, ExceptionType.ACTIVITY_INPUT, description="Exception loading activity input properties.")
 
-    def _save_activity_properties(self):
+    def _save_activity_properties(self, status_only:bool):
         status = self._data.activity.status
 
         try:
             # Save activity output properties to context and push the context to remote.
             # Mandatory output properties are required only from the activities with the status
             #  SUCCESS.
-            self._data.output_context_properties_handler.save_output_properties(mandatory_outputs_check=(status == Status.SUCCESS))
+            self._data.output_context_properties_handler.save_output_properties(mandatory_outputs_check=(status == Status.SUCCESS), save_status_only=status_only)
         except Exception as e:
             self._register_error(e, ExceptionType.ACTIVITY_OUTPUT, description="Could not save activity output properties")
 

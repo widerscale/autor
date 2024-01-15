@@ -144,6 +144,93 @@ class CountRuns(Activity):
 
 
 
+
+
+
+
+
+# Problematic activity - mandatory input may not have default value.
+@ActivityRegistry.activity(type="max-problem-1")
+class MaxProblem1(Activity):
+    # region property: max @input/output(mandatory=True/True, type=int)
+    @property
+    @input(mandatory=True, type=int, default=99)
+    @output(mandatory=True, type=int)
+    def max(self) -> int:
+        return self._max
+
+    @max.setter
+    def max(self, n) -> None:  # setter
+        self._max = n
+    # endregion
+
+    def run(self):
+        # ---------------- Prepare inputs -------------------#
+        my_val = self.configuration["val"]  # Read my max from Flow Configuration file
+        logging.info(f"Property:        'max': {self.max} (initial value read from context)")
+        logging.info(f"Configuration:   'val': {my_val} (value provided through configuration)")
+
+        # ----------------- Call helper ----------------------#
+        new_max = Helper.max(val1=my_val, val2=self.max)
+        logging.info(f"Property:        'max': {new_max} (final value written to context)")
+
+        # --------------- Prepare outputs --------------------#
+        self.max = new_max
+
+        # ------------------ Set status ----------------------#
+        if "status" in self.configuration:
+            self.status = self.configuration["status"]
+
+
+
+
+
+# Problematic activity - mandatory input may not have default value.
+@ActivityRegistry.activity(type="max-problem-2")
+class MaxProblem2(Activity):
+
+    def __init__(self):
+        super().__init__()
+        # initial values that is used if no value has been provided by flow context
+        self._max: int = 88
+
+
+    # region property: max @input/output(mandatory=True/True, type=int)
+    @property
+    @input(mandatory=True, type=int)
+    @output(mandatory=True, type=int)
+    def max(self) -> int:
+        return self._max
+
+    @max.setter
+    def max(self, n) -> None:  # setter
+        self._max = n
+    # endregion
+
+    def run(self):
+        # ---------------- Prepare inputs -------------------#
+        my_val = self.configuration["val"]  # Read my max from Flow Configuration file
+        logging.info(f"Property:        'max': {self.max} (initial value read from context)")
+        logging.info(f"Configuration:   'val': {my_val} (value provided through configuration)")
+
+        # ----------------- Call helper ----------------------#
+        new_max = Helper.max(val1=my_val, val2=self.max)
+        logging.info(f"Property:        'max': {new_max} (final value written to context)")
+
+        # --------------- Prepare outputs --------------------#
+        self.max = new_max
+
+        # ------------------ Set status ----------------------#
+        if "status" in self.configuration:
+            self.status = self.configuration["status"]
+
+
+
+
+
+
+
+
 class Helper:
 
     @staticmethod
