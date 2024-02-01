@@ -33,6 +33,40 @@ activityBlocks:
         configuration:
           val: 4
 
+
+  calculateMaxWithException:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+
+      - type: divide-by-zero
+
+      - type: max
+        configuration:
+          val: 1
+
+      - type: max
+        configuration:
+          val: 4
+
+
+  calculateMaxWithExceptionAllowError:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+      - type: divide-by-zero
+        continueOn:
+          ALL
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 4
+
+
   calculateMax2:
     activities:
       - type: max
@@ -208,3 +242,83 @@ activityBlocks:
         configuration:
           val: 4
 
+
+  missingMandatoryMax:
+    activities:
+      - type: mandatory-max
+
+
+  statusFlow:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: fail-every-second-run
+        name: second
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+
+
+  statusFlowFail:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: second
+        configuration:
+          status_to_set: FAIL
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+
+
+  statusFlowSkip:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: second
+        configuration:
+          status_to_set: SKIPPED
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+
+  statusFlowSuccess:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: second
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+
+  statusFlowAborted:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: second
+        configuration:
+          status_to_set: ABORTED
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS

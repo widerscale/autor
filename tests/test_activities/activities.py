@@ -17,11 +17,13 @@ import logging
 
 from autor import Activity
 from autor.framework.activity_registry import ActivityRegistry
+from autor.framework.constants import Status
 from autor.framework.context_properties_registry import ContextPropertiesRegistry
 
 output = ContextPropertiesRegistry.output
 # pylint: disable-next=redefined-builtin
 input = ContextPropertiesRegistry.input
+config = ContextPropertiesRegistry.config
 
 
 # Calculate return the maximum value of the current max (received through property) and
@@ -40,14 +42,31 @@ class Max(Activity):
         self.__max = n
     # endregion
 
+    # region property: val @config(mandatory=True, type=int)
+    @property
+    @config(mandatory=True, type=int)
+    def val(self) -> int:
+        return self._val
+
+    @val.setter
+    def val(self, value: int) -> None:
+        self._val = value
+    # endregion
+
+
+
+
+
+
+
     def run(self):
         # ---------------- Prepare inputs -------------------#
-        my_val = self.configuration["val"]  # Read my max from Flow Configuration file
+        #my_val = self.configuration["val"]  # Read my max from Flow Configuration file
         logging.info(f"Property:        'max': {self.max} (initial value read from context)")
-        logging.info(f"Configuration:   'val': {my_val} (value provided through configuration)")
+        logging.info(f"Configuration:   'val': {self.val} (value provided through configuration)")
 
         # ----------------- Call helper ----------------------#
-        new_max = Helper.max(val1=my_val, val2=self.max)
+        new_max = Helper.max(val1=self.val, val2=self.max)
         logging.info(f"Property:        'max': {new_max} (final value written to context)")
 
         # --------------- Prepare outputs --------------------#
@@ -116,6 +135,9 @@ class MaxWithExceptionEverySecondRun(Activity):
 
 
 
+
+
+
 # Increase 'runNbr' in context each time the activity is run.
 @ActivityRegistry.activity(type="run-nbr")
 class CountRuns(Activity):
@@ -141,7 +163,6 @@ class CountRuns(Activity):
     def run(self):
         self.run_nbr = self.run_nbr + 1
         logging.info(f"Setting run_nbr: {self.run_nbr}")
-
 
 
 
@@ -185,6 +206,54 @@ class MaxProblem1(Activity):
 
 
 
+@ActivityRegistry.activity(type="configurable-status")
+class ConfigurableStatus(Activity):
+
+    # region property: status_to_set @config(mandatory=True, type=str)
+    @property
+    @config(mandatory=True, type=str)
+    def status_to_set(self) -> str:
+        return self._status_to_set
+
+    @status_to_set.setter
+    def status_to_set(self, value: str) -> None:
+        self._status_to_set = value
+    # endregion
+
+    def run(self):
+        logging.info(f"Setting status from configuration to: {self.status_to_set}")
+        self.status = self.status_to_set
+
+@ActivityRegistry.activity(type="fail-every-second-run")
+class FailEverySecondRun(Activity):
+    
+    # region property: nbr_runs @input/@output(mandatory=False, type=int, default=0)
+    @property
+    @input(mandatory=False, type=int, default=0)
+    @output(mandatory=True, type=int)
+    def nbr_runs(self) -> int:
+        return self._nbr_runs
+    
+    @nbr_runs.setter
+    def nbr_runs(self, value: int) -> None:
+        self._nbr_runs = value
+    # endregion
+
+    def run(self):
+        logging.info(type(self.nbr_runs))
+        logging.info(f"nbr_runs: {self.nbr_runs}")
+        self.nbr_runs = self.nbr_runs + 1
+        if self.nbr_runs % 2 != 0:
+            self.status = Status.FAIL
+        else:
+            self.status = Status.SUCCESS
+
+
+
+
+
+
+
 # Problematic activity - mandatory input may not have default value.
 @ActivityRegistry.activity(type="max-problem-2")
 class MaxProblem2(Activity):
@@ -223,6 +292,40 @@ class MaxProblem2(Activity):
         # ------------------ Set status ----------------------#
         if "status" in self.configuration:
             self.status = self.configuration["status"]
+
+
+
+
+
+# Problematic activity - mandatory input may not have default value.
+@ActivityRegistry.activity(type="mandatory-max")
+class MandatoryMax(Activity):
+
+    # region property: max @input(mandatory=True, type=int)
+    @property
+    @input(mandatory=True, type=int)
+    def max(self) -> int:
+        return self._max
+
+    @max.setter
+    def max(self, value: int) -> None:
+        self._max = value
+    # endregion
+
+
+    def run(self):
+        logging.info(f"Expected mandatory input: {self.max}")
+
+
+@ActivityRegistry.activity(type="divide-by-zero")
+class DivideByZero(Activity):
+
+    def run(self):
+        logging.info("Creating trouble on purpose and dividing with zero to create an exception.")
+        x = 15/0
+
+
+
 
 
 

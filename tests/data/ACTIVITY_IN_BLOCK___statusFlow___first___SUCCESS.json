@@ -1,0 +1,31 @@
+{
+    "mode": "ACTIVITY_IN_BLOCK",
+    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "action": "KEEP_AS_IS",
+    "status": "SUCCESS",
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false,
+    "_activityBlocks": {
+        "statusFlow": {
+            "mode": "ACTIVITY_IN_BLOCK",
+            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "statusFlow-first": {
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "statusFlow-second": {
+                    "action": "KEEP_AS_IS"
+                },
+                "statusFlow-third": {
+                    "action": "KEEP_AS_IS"
+                }
+            },
+            "action": "KEEP_AS_IS",
+            "status": "SUCCESS",
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false
+        }
+    }
+}

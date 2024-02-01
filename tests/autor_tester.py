@@ -45,17 +45,37 @@ class AutorTester():
 
 
     @staticmethod
+    def _parse_expectation2(expectation:str)->(str,str):
+
+        if expectation.startswith(Mode.ACTIVITY_BLOCK_RERUN):
+            mode = key.ACTIVITY_BLOCK_RERUN
+        elif expectation.startswith(Mode.ACTIVITY_IN_BLOCK):
+            mode = key.ACTIVITY_IN_BLOCK
+        elif expectation.startswith(Mode.ACTIVITY_BLOCK):
+            mode = key.ACTIVITY_BLOCK
+        elif expectation.startswith(Mode.ACTIVITY):
+            mode = key.ACTIVITY
+        else:
+            raise ValueError(f"The file name for the expected result should begin with Autor mode name (ex: ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity4.json). Received: {expectation}")
+
+        activity_block_id = expectation.split('___')[1]
+
+        return mode, activity_block_id
+
+
+    @staticmethod
     def run(
-            additional_context: dict = {},
+            additional_context: dict = None,
             additional_extensions: List[str] = None,
+            #additional_config: dict = {},
             activity_block_id: str = None,
-            activity_config: dict = {},
+            activity_config: dict = None,
             activity_id: str = None,
-            activity_input: dict = {},
+            activity_input: dict = None,
             activity_module: str = None,
             activity_name: str = None,
             activity_type: str = None,
-            custom_data: dict = {},
+            custom_data: dict = None,
             expectation: str = None,
             err_msg: str = None,
             flow_run_id: str = None,
@@ -65,12 +85,10 @@ class AutorTester():
     )->ActivityBlock:
 
 
-        #parent_directory = Path(__file__).parent
-        #flow_config_url = str(parent_directory/flow_config_url)
-
-
-
-        #mode, activity_block_id = AutorTester._parse_expectation(expectation)
+        if additional_context is None: additional_context = {}
+        if activity_config is None: activity_config = {}
+        if activity_input is None: activity_input = {}
+        if custom_data is None: custom_data = {}
 
         if expectation is not None:
             mode,_ = AutorTester._parse_expectation(expectation)
@@ -79,6 +97,7 @@ class AutorTester():
 
         AutorTester._create_commands(
             additional_context=additional_context,
+            #additional_config=additional_config,
             additional_extensions=additional_extensions,
             activity_block_id=activity_block_id,
             activity_config=activity_config,
@@ -97,6 +116,95 @@ class AutorTester():
         activity_block = ActivityBlock(
             mode = KeyConverter.LCD_to_UCU(mode),  # mandatory
             additional_context = additional_context,
+            #additional_config = additional_config,
+            additional_extensions = additional_extensions,
+            activity_block_id = activity_block_id,
+            activity_config = activity_config,
+            activity_id = activity_id,
+            activity_input = activity_input,
+            activity_module = activity_module,
+            activity_name = activity_name,
+            activity_type = activity_type,
+            custom_data = custom_data,
+            flow_run_id = flow_run_id,
+            flow_config_url = flow_config_url
+        )
+
+        # --------------- RUN AUTOR --------------#
+        activity_block.run()
+        # --------------- RUN AUTOR --------------#
+
+        if expectation is not None:
+            AutorTester._validate_context(expectation)
+        else:
+            AutorTester._validate(activity_block, expected_status=status, expected_err_msg=err_msg)
+
+
+        return activity_block
+
+    @staticmethod
+    def run2(
+            additional_context: dict = None,
+            additional_extensions: List[str] = None,
+            activity_block_id: str = None,
+            activity_config: dict = None,
+            activity_id: str = None,
+            activity_input: dict = None,
+            activity_module: str = None,
+            activity_name: str = None,
+            activity_type: str = None,
+            custom_data: dict = None,
+            expectation: str = None,
+            err_msg: str = None,
+            flow_run_id: str = None,
+            flow_config_url: str = "test_flow_configs/test-config.yml",
+            mode: str = None, # mandatory if 'expectation' is not provided,
+            status: str = None, # mandatory if 'expectation' is not provided
+    )->ActivityBlock:
+
+        if additional_context is None: additional_context = {}
+        if activity_config is None: activity_config = {}
+        if activity_input is None: activity_input = {}
+        if custom_data is None: custom_data = {}
+
+        #parent_directory = Path(__file__).parent
+        #flow_config_url = str(parent_directory/flow_config_url)
+
+
+        if expectation is not None:
+            p_mode,p_activity_block_id = AutorTester._parse_expectation2(expectation)
+            if p_activity_block_id == "generatedActivityBlock":
+                p_activity_block_id = None
+
+            if mode is None:
+                mode = p_mode
+            if activity_block_id is None:
+                activity_block_id = p_activity_block_id
+        else:
+            Check.not_none(mode, "Test framework value error: 'mode' must be provided if 'expectation' is not provided.")
+
+        AutorTester._create_commands(
+            additional_context=additional_context,
+            #additional_config=additional_config,
+            additional_extensions=additional_extensions,
+            activity_block_id=activity_block_id,
+            activity_config=activity_config,
+            activity_id=activity_id,
+            activity_input=activity_input,
+            activity_module=activity_module,
+            activity_name=activity_name,
+            activity_type=activity_type,
+            custom_data=custom_data,
+            flow_run_id=flow_run_id,
+            flow_config_url=flow_config_url,
+            mode=mode
+        )
+
+
+        activity_block = ActivityBlock(
+            mode = KeyConverter.LCD_to_UCU(mode),  # mandatory
+            additional_context = additional_context,
+            #additional_config = additional_config,
             additional_extensions = additional_extensions,
             activity_block_id = activity_block_id,
             activity_config = activity_config,
@@ -186,20 +294,26 @@ class AutorTester():
 
     @staticmethod
     def _create_commands(
-            additional_context: dict = {},
+            additional_context: dict = None,
+            #additional_config: dict = None,
             additional_extensions: list = None,
             activity_block_id: str = None,
-            activity_config: dict = {},
+            activity_config: dict = None,
             activity_id: str = None,
-            activity_input: dict = {},
+            activity_input: dict = None,
             activity_module: str = None,
             activity_name: str = None,
             activity_type: str = None,
-            custom_data: dict = {},
+            custom_data: dict = None,
             flow_run_id: str = None,
             flow_config_url: str = None,
             mode: str = None
     ):
+        if additional_context is None: additional_context = {}
+        if activity_config is None: activity_config = {}
+        if activity_input is None: activity_input = {}
+        if custom_data is None: custom_data = {}
+
 
         # Create a commandline command for debugging purposes
         command = "python -m autor "

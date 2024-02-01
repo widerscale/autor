@@ -21,8 +21,7 @@
                 },
                 "calculateMaxFailSecond-fourth": {
                     "action": "KEEP_AS_IS",
-                    "status": "SKIPPED",
-                    "max": 5
+                    "status": "SKIPPED"
                 }
             },
             "action": "KEEP_AS_IS",

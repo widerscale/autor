@@ -1,0 +1,57 @@
+{
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "SKIPPED",
+    "abortType": "ABORTED_BY_FRAMEWORK",
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "ABORTED",
+    "activityBlockInterrupted": true,
+    "_activityBlocks": {
+        "activityTypeMisspelled": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "activityTypeMisspelled-activity1": {
+                    "__props": {
+                        "out_status": "ERROR"
+                    },
+                    "action": "RUN",
+                    "status": "ERROR"
+                },
+                "activityTypeMisspelled-activity2": {
+                    "__props": {
+                        "cfg_val": 1,
+                        "inp_max": 0,
+                        "out_status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
+                },
+                "activityTypeMisspelled-activity3": {
+                    "__props": {
+                        "cfg_val": 5,
+                        "inp_max": 0,
+                        "out_status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
+                },
+                "activityTypeMisspelled-activity4": {
+                    "__props": {
+                        "cfg_val": 4,
+                        "inp_max": 0,
+                        "out_status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
+                }
+            },
+            "action": "SKIP_BY_FRAMEWORK",
+            "status": "SKIPPED",
+            "abortType": "ABORTED_BY_FRAMEWORK",
+            "activityBlockStatus": "ABORTED",
+            "activityBlockInterrupted": true
+        }
+    }
+}

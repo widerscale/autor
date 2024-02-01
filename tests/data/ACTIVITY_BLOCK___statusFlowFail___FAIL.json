@@ -1,0 +1,45 @@
+{
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "SKIPPED",
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "FAIL",
+    "activityBlockInterrupted": true,
+    "_activityBlocks": {
+        "statusFlowFail": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "statusFlowFail-first": {
+                    "__props": {
+                        "cfg_status_to_set": "SUCCESS",
+                        "out_status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "statusFlowFail-second": {
+                    "__props": {
+                        "cfg_status_to_set": "FAIL",
+                        "out_status": "FAIL"
+                    },
+                    "action": "RUN",
+                    "status": "FAIL"
+                },
+                "statusFlowFail-third": {
+                    "__props": {
+                        "cfg_status_to_set": "SUCCESS",
+                        "out_status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
+                }
+            },
+            "action": "SKIP_BY_FRAMEWORK",
+            "status": "SKIPPED",
+            "activityBlockStatus": "FAIL",
+            "activityBlockInterrupted": true
+        }
+    }
+}

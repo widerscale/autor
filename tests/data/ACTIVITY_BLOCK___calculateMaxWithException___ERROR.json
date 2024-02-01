@@ -1,0 +1,59 @@
+{
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "SKIPPED",
+    "max": 3,
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "ERROR",
+    "activityBlockInterrupted": true,
+    "_activityBlocks": {
+        "calculateMaxWithException": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "calculateMaxWithException-activity1": {
+                    "__props": {
+                        "cfg_val": 3,
+                        "inp_max": 0,
+                        "out_status": "SUCCESS",
+                        "out_max": 3
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithException-activity2": {
+                    "__props": {
+                        "out_status": "ERROR"
+                    },
+                    "action": "RUN",
+                    "status": "ERROR"
+                },
+                "calculateMaxWithException-activity3": {
+                    "__props": {
+                        "cfg_val": 1,
+                        "inp_max": 3,
+                        "out_status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
+                },
+                "calculateMaxWithException-activity4": {
+                    "__props": {
+                        "cfg_val": 4,
+                        "inp_max": 3,
+                        "out_status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
+                }
+            },
+            "action": "SKIP_BY_FRAMEWORK",
+            "status": "SKIPPED",
+            "max": 3,
+            "activityBlockStatus": "ERROR",
+            "activityBlockInterrupted": true
+        }
+    }
+}

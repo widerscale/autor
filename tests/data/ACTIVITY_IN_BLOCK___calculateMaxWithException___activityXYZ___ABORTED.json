@@ -1,0 +1,46 @@
+{
+    "mode": "ACTIVITY_IN_BLOCK",
+    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "action": "KEEP_AS_IS",
+    "abortType": "ABORTED_BY_FRAMEWORK",
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "ABORTED",
+    "activityBlockInterrupted": false,
+    "_activityBlocks": {
+        "calculateMaxWithException": {
+            "mode": "ACTIVITY_IN_BLOCK",
+            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "calculateMaxWithException-activity1": {
+                    "__props": {
+                        "cfg_val": 3,
+                        "inp_max": 0
+                    },
+                    "action": "KEEP_AS_IS"
+                },
+                "calculateMaxWithException-activity2": {
+                    "__props": {},
+                    "action": "KEEP_AS_IS"
+                },
+                "calculateMaxWithException-activity3": {
+                    "__props": {
+                        "cfg_val": 1,
+                        "inp_max": 0
+                    },
+                    "action": "KEEP_AS_IS"
+                },
+                "calculateMaxWithException-activity4": {
+                    "__props": {
+                        "cfg_val": 4,
+                        "inp_max": 0
+                    },
+                    "action": "KEEP_AS_IS"
+                }
+            },
+            "action": "KEEP_AS_IS",
+            "abortType": "ABORTED_BY_FRAMEWORK",
+            "activityBlockStatus": "ABORTED",
+            "activityBlockInterrupted": false
+        }
+    }
+}

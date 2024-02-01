@@ -1,0 +1,63 @@
+{
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "max": 4,
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "ERROR",
+    "activityBlockInterrupted": false,
+    "_activityBlocks": {
+        "calculateMaxWithExceptionAllowError": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "calculateMaxWithExceptionAllowError-activity1": {
+                    "__props": {
+                        "cfg_val": 3,
+                        "inp_max": 0,
+                        "out_status": "SUCCESS",
+                        "out_max": 3
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithExceptionAllowError-activity2": {
+                    "__props": {
+                        "out_status": "ERROR"
+                    },
+                    "action": "RUN",
+                    "status": "ERROR"
+                },
+                "calculateMaxWithExceptionAllowError-activity3": {
+                    "__props": {
+                        "cfg_val": 1,
+                        "inp_max": 3,
+                        "out_status": "SUCCESS",
+                        "out_max": 3
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithExceptionAllowError-activity4": {
+                    "__props": {
+                        "cfg_val": 4,
+                        "inp_max": 3,
+                        "out_status": "SUCCESS",
+                        "out_max": 4
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 4
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "max": 4,
+            "activityBlockStatus": "ERROR",
+            "activityBlockInterrupted": false
+        }
+    }
+}
