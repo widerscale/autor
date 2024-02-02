@@ -11,7 +11,7 @@ extensions:
 ###################################
 activityModules:
   - test_activities.activities
-
+  - test_activities.activities2
 
 
 #   A C T I V I T Y   B L O C K S
