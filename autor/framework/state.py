@@ -170,8 +170,8 @@ class Bootstrap(State):
         return deepcopy(self._dict[sta.ACTIVITY_CONFIG])
 
     @property
-    def activity_input(self) -> dict:  # getter
-        return deepcopy(self._dict[sta.ACTIVITY_INPUT])
+    def input(self) -> dict:  # getter
+        return deepcopy(self._dict[sta.INPUT])
 
 
 class Context(State):

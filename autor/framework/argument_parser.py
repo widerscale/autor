@@ -262,16 +262,6 @@ Autor can be run in three modes:
             )
         )
 
-        parser.add_argument(
-            # pylint: disable-next=no-member
-            "--" + cln.ADDITIONAL_CONTEXT,
-            required=False,
-            action="store",
-            type=json_string_or_simple_format,
-            help=(
-                "Context that will be added to the existing context. Format: JSON string or simple format: 'key1=1,key2=2,..,keyN=N'."
-            )
-        )
 
 
         parser.add_argument(
@@ -302,21 +292,13 @@ Autor can be run in three modes:
 
         parser.add_argument(
             # pylint: disable-next=no-member
-            "--" + cln.ACTIVITY_INPUT,
+            "--" + cln.INPUT,
             required=False,
             action="store",
             type=json_string_or_simple_format,
-            help="Values for activity's input properties."
+            help="Values that become available for Activities as inputs. To remove an existing value set the value to null."
         )
 
-        parser.add_argument(
-            # pylint: disable-next=no-member
-            "--" + cln.ACTIVITY_BLOCK_CONTEXT_ADDITION,
-            required=False,
-            action="store",
-            type=json_string_or_simple_format,
-            help="The defined values will be added to the activity block context. To 'remove' and existing value set the value to null"
-        )
 
         return parser
 

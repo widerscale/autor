@@ -83,12 +83,11 @@ class ActivityBlock(StateProducer):
     def __init__(
         self,
         mode,
-        additional_context: dict = None,  # mode: ACTIVITY_BLOCK_RERUN
         additional_extensions: list = None,
         activity_block_id: str = None,
         activity_config: dict = None,  # mode: ACTIVITY
         activity_id: str = None,
-        activity_input: dict = None,  # mode: ACTIVITY
+        input: dict = None,  # mode: ACTIVITY
         activity_module: str = None,   # mode: ACTIVITY
         activity_name: str = None,
         activity_type: str = None,     # mode: ACTIVITY
@@ -156,14 +155,12 @@ class ActivityBlock(StateProducer):
         logging.info(f'{DebugConfig.autor_info_prefix}{string}')
 
         # Make sure no None values exist for collections.
-        if additional_context is None:
-            additional_context = {}
         if additional_extensions is None:
             additional_extensions = []
         if activity_config is None:
             activity_config = {}
-        if activity_input is None:
-            activity_input = {}
+        if input is None:
+            input = {}
         if custom_data is None:
             custom_data = {}
 
@@ -178,7 +175,7 @@ class ActivityBlock(StateProducer):
         #------------------------- mode: ACTIVITY ------------------------------#
         self._activity_module: str = activity_module   # mode: ACTIVITY
         self._activity_type: str = activity_type     # mode: ACTIVITY
-        self._activity_input: dict = activity_input     # mode: ACTIVITY
+        self._input: dict = input                   # mode: ACTIVITY
         self._activity_config: dict = activity_config     # mode: ACTIVITY
         # ------------------------- mode: ACTIVITY ------------------------------#
 
@@ -191,7 +188,6 @@ class ActivityBlock(StateProducer):
         # through flow configuration.
         self._additional_extensions:list = additional_extensions
 
-        self._activity_block_context_addition = additional_context
 
         # After each run Autor adds 'skip-with-outputs' configuration to the flow
         # configuration. The attribute holds the URL to the updated configuration.
@@ -431,10 +427,7 @@ class ActivityBlock(StateProducer):
             self._activity_id_special = f"{self._activity_block_id}-{self._activity_name_special}"
 
     def _add_additional_context(self):
-        for key,val in self._activity_block_context_addition.items():
-            self._activity_block_context.set(key,val)
-
-        for key,val in self._activity_input.items():
+        for key,val in self._input.items():
             self._activity_block_context.set(key, val)
 
 
@@ -750,16 +743,14 @@ class ActivityBlock(StateProducer):
         self._print_attribute(attr, "mode:                  ")
         attr = self._additional_extensions
         self._print_attribute(attr, "additional_extensions: ")
-        attr = self._activity_block_context_addition
-        self._print_attribute(attr, "additional_context:    ")
         attr = self._activity_block_id
         self._print_attribute(attr, "activity_block_id:     ")
         attr = self._activity_config
         self._print_attribute(attr, "activity_config:       ")
         attr = self._activity_id_special
         self._print_attribute(attr, "activity_id_special:   ")
-        attr = self._activity_input
-        self._print_attribute(attr, "activity_input:        ")
+        attr = self._input
+        self._print_attribute(attr, "input:                 ")
         attr = self._activity_module
         self._print_attribute(attr, "activity_module:       ")
         attr = self._activity_name_special
@@ -773,14 +764,7 @@ class ActivityBlock(StateProducer):
         attr = self._flow_config_url
         self._print_attribute(attr, "flow_config_url:       ")
 
-        #logging.info(f'{prefix}activity_id_special:   {self._activity_id_special}')
-        #logging.info(f'{prefix}activity_input:        {self._activity_input}')
-        #logging.info(f'{prefix}activity_module:       {self._activity_module}')
-        #logging.info(f'{prefix}activity_name_special: {self._activity_name_special}')
-        #logging.info(f'{prefix}activity_type:         {self._activity_type}')
-        #logging.info(f'{prefix}custom_data:           {self._custom_data}')
-        #logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
-        #logging.info(f'{prefix}flow_config_url:       {self._flow_config_url}')G
+
         logging.info(f'{prefix}')
 
     def _print_input_args_before_bootstrap(self):
@@ -1362,7 +1346,6 @@ class ActivityBlock(StateProducer):
         state_data[sta.ADDITIONAL_EXTENSIONS]           = self._additional_extensions
         state_data[sta.CUSTOM_DATA]                     = self._custom_data
         state_data[sta.MODE]                            = self._mode
-        state_data[sta.ACTIVITY_BLOCK_CONTEXT_ADDITION] = self._activity_block_context_addition
 
         # Flow
         state_data[sta.FLOW_ID]                     = self._flow_id
@@ -1396,7 +1379,7 @@ class ActivityBlock(StateProducer):
         state_data[sta.ACTIVITY_MODULE] = self._activity_module
         state_data[sta.ACTIVITY_TYPE] = self._activity_type
         state_data[sta.ACTIVITY_CONFIG] = self._activity_config
-        state_data[sta.ACTIVITY_INPUT] = self._activity_input
+        state_data[sta.INPUT] = self._input
 
         # Mode: ACTIVITY-IN-Block
         state_data[sta.ACTIVITY_NAME_SPECIAL] = self._activity_name_special
@@ -1428,7 +1411,6 @@ class ActivityBlock(StateProducer):
         self._additional_extensions             = state_data[sta.ADDITIONAL_EXTENSIONS]
         self._custom_data                       = state_data[sta.CUSTOM_DATA]
         self._mode                              = state_data[sta.MODE]
-        self._activity_block_context_addition   = state_data[sta.ACTIVITY_BLOCK_CONTEXT_ADDITION]
 
         # Flow
         self._flow_id                   = state_data[sta.FLOW_ID]
@@ -1459,7 +1441,7 @@ class ActivityBlock(StateProducer):
         self._activity_module   = state_data[sta.ACTIVITY_MODULE]
         self._activity_type     = state_data[sta.ACTIVITY_TYPE]
         self._activity_config   = state_data[sta.ACTIVITY_CONFIG]
-        self._activity_input    = state_data[sta.ACTIVITY_INPUT]
+        self._input    = state_data[sta.INPUT]
 
         # Mode: ACTIVITY-IN-BLOCK
         self._activity_name_special     = state_data[sta.ACTIVITY_NAME_SPECIAL]

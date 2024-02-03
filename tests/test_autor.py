@@ -19,13 +19,13 @@ def test_ACTIVITY_BLOCK_RERUN():
     ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity2')
     ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity4')
     ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_missingContext')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_withContext', additional_context={'max':None})
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_withContext', input={'max':None})
 
     ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
     ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity2')
     ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity4')
     ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_missingContext')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_withContext', additional_context={'max':None})
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_withContext', input={'max':None})
 
     ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
 
@@ -86,8 +86,8 @@ def test_ACTIVITY_IN_BLOCK_running_activities_backwards():
 
 def test_ACTIVITY_IN_BLOCK_skipping_some_activities_with_extra_context_inputs():
     # Run activities 2 and 4 in a row filling the gaps with context inputs.
-    ab = test.run(activity_block_id='calculateMaxWithNames', activity_name='second', activity_input={'max':3}, expectation='ACTIVITY_IN_BLOCK_calculateMaxWithNames_SUCCESS_uc4_second.json')
-    ab = test.run(activity_block_id='calculateMaxWithNames', activity_name='fourth', activity_input={'max':5}, expectation='ACTIVITY_IN_BLOCK_calculateMaxWithNames_SUCCESS_uc4_fourth.json', flow_run_id=ab.get_flow_run_id())
+    ab = test.run(activity_block_id='calculateMaxWithNames', activity_name='second', input={'max':3}, expectation='ACTIVITY_IN_BLOCK_calculateMaxWithNames_SUCCESS_uc4_second.json')
+    ab = test.run(activity_block_id='calculateMaxWithNames', activity_name='fourth', input={'max':5}, expectation='ACTIVITY_IN_BLOCK_calculateMaxWithNames_SUCCESS_uc4_fourth.json', flow_run_id=ab.get_flow_run_id())
 
 
 def test_ACTIVITY_IN_BLOCK_skipping_some_activities_without_extra_context_inputs():

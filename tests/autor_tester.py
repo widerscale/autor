@@ -65,13 +65,12 @@ class AutorTester():
 
     @staticmethod
     def run(
-            additional_context: dict = None,
             additional_extensions: List[str] = None,
-            #additional_config: dict = {},
+
             activity_block_id: str = None,
             activity_config: dict = None,
             activity_id: str = None,
-            activity_input: dict = None,
+            input: dict = None,
             activity_module: str = None,
             activity_name: str = None,
             activity_type: str = None,
@@ -84,10 +83,8 @@ class AutorTester():
             status: str = None, # mandatory if 'expectation' is not provided
     )->ActivityBlock:
 
-
-        if additional_context is None: additional_context = {}
         if activity_config is None: activity_config = {}
-        if activity_input is None: activity_input = {}
+        if input is None: input = {}
         if custom_data is None: custom_data = {}
 
         if expectation is not None:
@@ -96,13 +93,11 @@ class AutorTester():
             Check.not_none(mode, "Test framework value error: 'mode' must be provided if 'expectation' is not provided.")
 
         AutorTester._create_commands(
-            additional_context=additional_context,
-            #additional_config=additional_config,
             additional_extensions=additional_extensions,
             activity_block_id=activity_block_id,
             activity_config=activity_config,
             activity_id=activity_id,
-            activity_input=activity_input,
+            input=input,
             activity_module=activity_module,
             activity_name=activity_name,
             activity_type=activity_type,
@@ -115,13 +110,11 @@ class AutorTester():
 
         activity_block = ActivityBlock(
             mode = KeyConverter.LCD_to_UCU(mode),  # mandatory
-            additional_context = additional_context,
-            #additional_config = additional_config,
             additional_extensions = additional_extensions,
             activity_block_id = activity_block_id,
             activity_config = activity_config,
             activity_id = activity_id,
-            activity_input = activity_input,
+            input= input,
             activity_module = activity_module,
             activity_name = activity_name,
             activity_type = activity_type,
@@ -144,12 +137,11 @@ class AutorTester():
 
     @staticmethod
     def run2(
-            additional_context: dict = None,
             additional_extensions: List[str] = None,
             activity_block_id: str = None,
             activity_config: dict = None,
             activity_id: str = None,
-            activity_input: dict = None,
+            input: dict = None,
             activity_module: str = None,
             activity_name: str = None,
             activity_type: str = None,
@@ -162,9 +154,8 @@ class AutorTester():
             status: str = None, # mandatory if 'expectation' is not provided
     )->ActivityBlock:
 
-        if additional_context is None: additional_context = {}
         if activity_config is None: activity_config = {}
-        if activity_input is None: activity_input = {}
+        if input is None: input = {}
         if custom_data is None: custom_data = {}
 
         #parent_directory = Path(__file__).parent
@@ -184,13 +175,11 @@ class AutorTester():
             Check.not_none(mode, "Test framework value error: 'mode' must be provided if 'expectation' is not provided.")
 
         AutorTester._create_commands(
-            additional_context=additional_context,
-            #additional_config=additional_config,
             additional_extensions=additional_extensions,
             activity_block_id=activity_block_id,
             activity_config=activity_config,
             activity_id=activity_id,
-            activity_input=activity_input,
+            input=input,
             activity_module=activity_module,
             activity_name=activity_name,
             activity_type=activity_type,
@@ -203,13 +192,11 @@ class AutorTester():
 
         activity_block = ActivityBlock(
             mode = KeyConverter.LCD_to_UCU(mode),  # mandatory
-            additional_context = additional_context,
-            #additional_config = additional_config,
             additional_extensions = additional_extensions,
             activity_block_id = activity_block_id,
             activity_config = activity_config,
             activity_id = activity_id,
-            activity_input = activity_input,
+            input= input,
             activity_module = activity_module,
             activity_name = activity_name,
             activity_type = activity_type,
@@ -294,13 +281,11 @@ class AutorTester():
 
     @staticmethod
     def _create_commands(
-            additional_context: dict = None,
-            #additional_config: dict = None,
             additional_extensions: list = None,
             activity_block_id: str = None,
             activity_config: dict = None,
             activity_id: str = None,
-            activity_input: dict = None,
+            input: dict = None,
             activity_module: str = None,
             activity_name: str = None,
             activity_type: str = None,
@@ -309,21 +294,19 @@ class AutorTester():
             flow_config_url: str = None,
             mode: str = None
     ):
-        if additional_context is None: additional_context = {}
         if activity_config is None: activity_config = {}
-        if activity_input is None: activity_input = {}
+        if input is None: input = {}
         if custom_data is None: custom_data = {}
 
 
         # Create a commandline command for debugging purposes
         command = "python -m autor "
         command = AutorTester._add_to_command(mode, "mode", command)
-        command = AutorTester._add_dict_to_command(additional_context, "additional-context", command)
         command = AutorTester._add_list_to_command(additional_extensions, "additional-extensions", command)
         command = AutorTester._add_to_command(activity_block_id, "activity-block-id", command)
         command = AutorTester._add_dict_to_command(activity_config, "activity-config", command)
         command = AutorTester._add_to_command(activity_id, "activity-id", command)
-        command = AutorTester._add_dict_to_command(activity_input, "activity-input", command)
+        command = AutorTester._add_dict_to_command(input, "input", command)
         command = AutorTester._add_to_command(activity_module, "activity-module", command)
         command = AutorTester._add_to_command(activity_name, "activity-name", command)
         command = AutorTester._add_to_command(activity_type, "activity-type", command)
