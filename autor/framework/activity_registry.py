@@ -63,6 +63,10 @@ class ActivityRegistry:
     activities = {}
 
     @staticmethod
+    def reset_static_data():
+        ActivityRegistry.activities = {}
+
+    @staticmethod
     # pylint: disable-next=redefined-builtin
     def activity(type:str="activity-type-not-set-in-the-activity"):
 

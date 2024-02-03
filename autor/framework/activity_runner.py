@@ -42,10 +42,12 @@ class ActivityRunner:
 
     def __init__(self):
         self._data:ActivityData = None
-        self._framework_error_occurred = False  # An exception related to an error in Autor framework.
+        self._need_to_abort = False  # If Autor cannot be run in a meaningful way after an exception, set this to True
+        self._need_to_abort_reason = ""
         self._activity_processing_error_occurred = False # An exception outside Activity.run() due to problem with activity.
         self._activity_run_exception_occurred = False  # An exception inside Activity.run()
         self._data:ActivityData = None
+        self._context_properties_handler = None
 
     def run_activity(self, data: ActivityData):
         self._data = data
@@ -53,13 +55,13 @@ class ActivityRunner:
         self._run()
         self._postprocess()
 
-        return self._framework_error_occurred
+        return self._need_to_abort, self._need_to_abort_reason
 
     def _ok_to_run(self):
         # An activity will be run only if it is allowed by the framework and by the configuration
         #  AND no error has occurred.
         ok = (
-            not self._framework_error_occurred
+            not self._need_to_abort
             and not self._activity_processing_error_occurred
             and not self._activity_run_exception_occurred
             and (self._data.action != Action.SKIP_BY_FRAMEWORK)
@@ -83,10 +85,19 @@ class ActivityRunner:
             self._create_activity()  # Can set activity status to ERROR
 
             # Create ContextPropertiesHandler (can also be used by Activity)
-            self._data.output_context_properties_handler = ContextPropertiesHandler(self._data.activity, context=self._data.output_context)
+            self._context_properties_handler = ContextPropertiesHandler(
+                self._data.activity,
+                input_context=self._data.input_context,
+                output_context=self._data.output_context,
+                config = self._data.activity_config.configuration)
+            self._data.output_context_properties_handler = self._context_properties_handler
 
             # Load activity properties.
             self._load_activity_properties()
+
+            # Save the loaded properties for reference int the data object. Used for report creation.
+            self._data.inputs  = self._context_properties_handler.get_input_properties_values()
+            self._data.configs = self._context_properties_handler.get_config_properties_values()
 
             # Set activity arguments
             self._data.activity.set_arguments(self._data)
@@ -101,7 +112,7 @@ class ActivityRunner:
             elif self._activity_processing_error_occurred:
                 self._data.activity.status = Status.ERROR
                 self._print("Not calling activitu run() due to problems creating the activity or loading inputs/configurations for the activity...")
-            elif self._framework_error_occurred:
+            elif self._need_to_abort:
                 self._data.activity.status = Status.ERROR
                 self._print("skipping activity due to an error (likely Autor framework error)...")
 
@@ -170,6 +181,8 @@ class ActivityRunner:
             # Save activity output properties
             if self._data.action != Action.KEEP_AS_IS:
                 self._save_activity_properties(status_only = not self._ok_to_run()) # if something is wrong, we should only save status
+                # Store the activity values in the data object.
+                self._data.outputs = self._context_properties_handler.get_output_properties_values(status_only = not self._ok_to_run())
 
 
         except Exception as e:
@@ -181,15 +194,16 @@ class ActivityRunner:
             # ----------------------------------------------------------------#
 
 
-    def _register_error(self, exception, ex_type: ExceptionType, description="", context=None):
-        framework_error = False
+    def _register_error(self, exception, ex_type: ExceptionType, description: str, context=None):
+
         if ex_type == ExceptionType.ACTIVITY_RUN:
             self._activity_run_exception_occurred = True
         elif ex_type == ExceptionType.ACTIVITY_CONFIGURATION or ex_type == ExceptionType.ACTIVITY_INPUT or ex_type == ExceptionType.ACTIVITY_OUTPUT:
-            self._activity_processing_error_occurred
+            self._activity_processing_error_occurred = True
         else:
-            self._framework_error_occurred
-            framework_error = True
+            if self._need_to_abort is not True:
+                self._need_to_abort = True
+                self._need_to_abort_reason = description
 
         # Crete custom data to save with the error.
         custom = {ctx.ACTIVITY_ID: self._data.activity_id}
@@ -199,33 +213,34 @@ class ActivityRunner:
 
         ExceptionHandler.register_exception(
             ex=exception,
-            ex_type=ExceptionType.ACTIVITY_RUN,
+            ex_type=ex_type,
             description=description,
             context=context,
-            custom=custom,
-            framework_error=framework_error)
+            custom=custom)
 
     def _create_activity(self):
         try:
             self._data.activity = ActivityFactory.create(self._data.activity_type)
         except Exception as e:
-            self._data.activity = ActivityFactory.create("exception")
-            self._register_error(e, ExceptionType.ACTIVITY_CREATION, description="Failed to create activity")  # Framework rules not followed by the activity
-
+            self._register_error(e, ExceptionType.ACTIVITY_CREATION,description=f"Failed to create activity of type: {self._data.activity_type}")
+            try:
+                self._data.activity = ActivityFactory.create("exception")
+            except Exception as e:
+                self._register_error(e, ExceptionType.INTERNAL, description="Could not create a special 'exception' activity to handle a previous exception.")
 
     def _load_activity_properties(self):
-        handler = ContextPropertiesHandler(self._data.activity, context=self._data.input_context, config=self._data.activity_config.configuration)
+        #handler = ContextPropertiesHandler(self._data.activity, context=self._data.input_context, config=self._data.activity_config.configuration)
 
         try:
             # If the framework has decided that the activity status is ERROR,
             #  no input parameter checks should be performed.
-            handler.load_config_properties(check_mandatory_properties=self._ok_to_run())
+            self._context_properties_handler.load_config_properties(check_mandatory_properties=self._ok_to_run())
         except Exception as e:
             self._register_error(e, ExceptionType.ACTIVITY_CONFIGURATION, description="Exception loading activity configuration properties.")
 
         # Ok to continue after failing with configuration in the previous step -> gives us more information in case there are problems.
         try:
-            handler.load_input_properties(check_mandatory_properties=self._ok_to_run())
+            self._context_properties_handler.load_input_properties(check_mandatory_properties=self._ok_to_run())
         except Exception as e:
             self._register_error(e, ExceptionType.ACTIVITY_INPUT, description="Exception loading activity input properties.")
 
@@ -236,9 +251,13 @@ class ActivityRunner:
             # Save activity output properties to context and push the context to remote.
             # Mandatory output properties are required only from the activities with the status
             #  SUCCESS.
-            self._data.output_context_properties_handler.save_output_properties(mandatory_outputs_check=(status == Status.SUCCESS), save_status_only=status_only)
+            self._context_properties_handler.save_output_properties(mandatory_outputs_check=(status == Status.SUCCESS), save_status_only=status_only)
         except Exception as e:
             self._register_error(e, ExceptionType.ACTIVITY_OUTPUT, description="Could not save activity output properties")
+
+
+
+
 
     def _update_activity_context(self):
         activity = self._data.activity

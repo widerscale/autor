@@ -19,6 +19,7 @@ import humps
 
 from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.check import Check
+from autor.framework.constants import ContextPropertyPrefix
 from autor.framework.context import Context
 from autor.framework.context_properties_registry import (
     ContextPropertiesRegistry,
@@ -50,7 +51,7 @@ class ContextPropertiesHandler:
     """
 
     # pylint: disable-next=redefined-builtin
-    def __init__(self, object: object, context: Context = None, config: dict = None):
+    def __init__(self, object: object, input_context: Context, output_context:Context, config: dict = None):
         """Creates and initiates the ContextPropertiesHandler instance for the 'object'
         that uses 'context' for storing its properties and/or 'configuration' for reading
         configuration properties from.
@@ -64,21 +65,27 @@ class ContextPropertiesHandler:
         Check.not_none(object, "Mandatory parameter None - An object whose properties need to be read/written may not be None.")
         self._object = object
 
-        if context is not None:
-            Check.is_instance_of(context, Context)
-            self._context = context
+        if input_context is not None:
+            Check.is_instance_of(input_context, Context)
+            self._input_context = input_context
+        if output_context is not None:
+            Check.is_instance_of(output_context, Context)
+            self._output_context = output_context
 
         if config is not None:
             Check.is_instance_of(config, dict)
             self._config = config
 
+        self._props = {}
+        self._output_context.set(ContextPropertyPrefix.props, self._props, propagate_value=False)
+
 
 
     def load_config_properties(self, check_mandatory_properties: bool = True):
-        self._load_properties(check_mandatory_properties, property_category="config")
+        self._load_properties(check_mandatory_properties, property_category="CONFIG")
 
     def load_input_properties(self, check_mandatory_properties: bool = True):
-        self._load_properties(check_mandatory_properties, property_category="input")
+        self._load_properties(check_mandatory_properties, property_category="INPUT")
 
     def _load_properties(self, check_mandatory_properties:bool, property_category:str):
         """Load the input properties values from the context.
@@ -93,11 +100,13 @@ class ContextPropertiesHandler:
 
         # Get a list of input properties for the object.
         props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
-        if property_category == "config":
+        if property_category == "CONFIG":
             property_source = "configuration"
+            property_prefix = ContextPropertyPrefix.config
             props: List[ContextProperty] = ContextPropertiesRegistry.get_config_properties(self._object)
-        elif property_category == "input":
+        elif property_category == "INPUT":
             property_source = "context"
+            property_prefix = ContextPropertyPrefix.input
             props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
         else:
             raise AutorFrameworkException(f"Unhandled property category: {property_category}. Cannot load properties of that category.")
@@ -107,15 +116,14 @@ class ContextPropertiesHandler:
             Check.is_instance_of(prop, ContextProperty)
 
             # Get the property value
-            if property_category == "config":
+            if property_category == "CONFIG":
                 prop_value = self._config.get(prop.name, None) # configurations are stored in config dict
-            elif property_category == "input":
-                prop_value = self._context.get(key=prop.name, default=None, search=True) # inputs are stored in context
+            elif property_category == "INPUT":
+                prop_value = self._input_context.get(key=prop.name, default=None, search=True) # inputs are stored in context
             else:
                 raise AutorFrameworkException(f"Unhandled property category: {property_category}. Cannot load properties of that category.")
 
-            self._check_input_properties_rules(prop, prop_value, property_category, property_source,
-                                               check_mandatory_properties)
+            self._check_input_properties_rules(prop, prop_value, property_category, property_source, check_mandatory_properties)
 
             # Check that the mandatory properties have a value
             if check_mandatory_properties:
@@ -125,8 +133,12 @@ class ContextPropertiesHandler:
             # Check that the value type is correct and set all non-None properties
             if prop_value is not None:
                 if not isinstance(prop_value, prop.property_type):
-                    raise ContextPropertiesHandlerValueException(f"Type error in Object: {str(self._object.__class__.__name__)}. Expected {property_category} context property: {prop.name} of type: {str(prop.property_type)}, received type: {str(prop_value.__class__.__name__)}")
+                    raise ContextPropertiesHandlerValueException(f"Type error in Object: {str(self._object.__class__.__name__)}. Expected {property_category} property: {prop.name} of type: {str(prop.property_type)}, received type: {str(prop_value.__class__.__name__)}")
                 setattr(self._object, prop.name, prop_value)
+                #self._output_context.set(f"{property_category}_{prop.name}", prop_value, propagate_value=False)
+                self._props[f"{property_prefix}{prop.name}"] = prop_value
+
+
 
             # Check that non-mandatory
 
@@ -168,11 +180,22 @@ class ContextPropertiesHandler:
 
                 else: # property not defined by object
                     if prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED:
+                        if not isinstance(prop.default, prop.property_type):
+                            raise ContextPropertiesHandlerValueException(
+                                f"Type error in Object: {str(self._object.__class__.__name__)}. Expected default value of type: {str(prop.property_type)}, received type: {str(prop.default.__class__.__name__)} for {property_category} property: {prop.name}")
+
                         setattr(self._object, prop.name, prop.default) # if default value was defined in the decorator @input -> set the decorator default value
+                        #self._output_context.set(f"{property_category}_{prop.name}", prop.default, propagate_value=False)
+                        self._props[f"{property_prefix}{prop.name}"] = prop.default
                     else:
                         setattr(self._object, prop.name, None) # if no default value is available, set None
+                        #self._output_context.set(f"{property_category}_{prop.name}", None, propagate_value=False)
+                        self._props[f"{property_prefix}{prop.name}"] = None
+
                         logging.warning(f"{DebugConfig.autor_info_prefix}Warning while trying to set optional input property {self._object.__class__.__name__}.{prop.name}:")
                         logging.warning(f"{DebugConfig.autor_info_prefix}No value found for key: '{prop.name}' -> setting property: {self._object.__class__.__name__}.{prop.name} = None")
+
+
 
 
 
@@ -278,6 +301,47 @@ class ContextPropertiesHandler:
             return False
 
 
+
+
+    def get_output_properties_values(self, status_only:bool = False):
+        # Get a list of output properties for the object
+        props: List[ContextProperty] = ContextPropertiesRegistry.get_output_properties(self._object)
+        vals: dict = {}
+        for prop in props:
+            if (status_only and prop.name == "status") or (not status_only):
+                try:
+                    prop_value = getattr(self._object, prop.name)
+                    vals[prop.name] = prop_value
+                except Exception as e:
+                    logging.warning(f"Could not fetch attribute: {prop.name}") # ok, with just a print.
+        return vals
+
+    def get_input_properties_values(self):
+        # Get a list of output properties for the object
+        props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
+        vals: dict = {}
+        for prop in props:
+            try:
+                prop_value = getattr(self._object, prop.name)
+                vals[prop.name] = prop_value
+            except Exception as e:
+                logging.warning(f"Could not fetch attribute: {prop.name}") # ok, with just a print.
+        return vals
+
+    def get_config_properties_values(self):
+        # Get a list of output properties for the object
+        props: List[ContextProperty] = ContextPropertiesRegistry.get_config_properties(self._object)
+        vals: dict = {}
+        for prop in props:
+            try:
+                prop_value = getattr(self._object, prop.name)
+                vals[prop.name] = prop_value
+            except Exception as e:
+                logging.warning(f"Could not fetch attribute: {prop.name}") # ok, with just a print.
+        return vals
+
+
+
     def save_output_properties(self, mandatory_outputs_check: bool = True, save_status_only = False):
         """Save the output properties values to the context and synchronize the \
             context with the remote context.
@@ -329,8 +393,10 @@ class ContextPropertiesHandler:
                     #ctx_key = KeyHandler.convert_key(
                        # prop.name, from_format=prp.format, to_format=ctx.format
                    # )
-                    self._context.set(prop.name, prop_value)
+                    self._output_context.set(prop.name, prop_value)
+                    #self._output_context.set(f"OUTPUT_{prop.name}", prop_value, propagate_value=False)
+                    self._props[f"{ContextPropertyPrefix.output}{prop.name}"] = prop_value
 
 
         # Synchronize the context with the remote context (if it exists)
-        self._context.sync_remote()
+        self._output_context.sync_remote()

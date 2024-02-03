@@ -35,4 +35,5 @@ class ActivityFactory:
             Activity: The created activity instance
         """
 
+
         return ActivityRegistry.get_class(type)()

@@ -49,6 +49,11 @@ class ActivityData:
         self.output_context:Context = None # To write output props to (Activity level)
         self.output_context_properties_handler:ContextPropertiesHandler = None
 
+
+        self.inputs: dict = None # Set when activity is created
+        self.configs: dict = None # Set when activity is created
+        self.outputs: dict = None # Set AFTER activity has run, skipped etc.
+
         self.activities = []
         self.activities_by_name = {}
 
@@ -103,6 +108,8 @@ class ActivityData:
         self._print(f"after_activities_configurations: {self.after_activities_configurations}")
         self._print(f"after_block_activities_configurations: {self.after_block_activities_configurations}")
         self._print(f"next_main_activity_data: {self.next_main_activity_data}")
+
+
 
     def get_activities(self, activity_group_type):
         # pylint: disable-next=no-else-return

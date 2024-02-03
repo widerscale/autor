@@ -31,6 +31,7 @@ def run():
     activity_block = ActivityBlock(
         mode                    = KeyConverter.LCD_to_UCU(params.get(argp.MODE)),  # mandatory
         additional_context      = params.get(argp.ADDITIONAL_CONTEXT, None),
+        #additional_config       = params.get(argp.ADDITIONAL_CONFIG, None),
         additional_extensions   = params.get(argp.ADDITIONAL_EXTENSIONS, None),
         activity_block_id       = params.get(argp.ACTIVITY_BLOCK_ID, None),
         activity_config         = params.get(argp.ACTIVITY_CONFIG, None),

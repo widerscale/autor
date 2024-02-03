@@ -60,7 +60,7 @@ class FlowConfiguration:
 
     def activity_block(self, name: str) -> ActivityBlockConfiguration:
         if name not in self.__flow_configuration_dictionary["activityBlocks"]:
-            raise ValueError(f"No activity block named '{name}' was found")
+            raise ValueError(f"No activity block named '{name}' was found.")
 
         configuration = self.__flow_configuration_dictionary["activityBlocks"][name]
         return ActivityBlockConfiguration(

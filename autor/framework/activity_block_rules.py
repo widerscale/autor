@@ -160,18 +160,7 @@ class ActivityBlockRules:
     def get_action(self, data:ActivityData, mode: Mode, ignore_unrun=False, activity_id_special:str=None):
         # pylint: disable=no-else-raise
 
-        '''
-        # Only run the activity that should be run. Skip the rest.
-        elif self._mode == Mode.ACTIVITY_IN_BLOCK:
-            if activity_name == self._activity_name:
-                self._activity_data.action = Action.RUN
-            else:
-                self._activity_data.action = Action.SKIP_BY_FRAMEWORK
-        else:
-            raise AutorFrameworkException(
-                f"Autor mode: {self._mode} not supported in _run_activity()"
-            )
-        '''
+
         skip_with_outputs = data.activity_config.skip_with_outputs
 
 
@@ -182,18 +171,13 @@ class ActivityBlockRules:
                 Check.is_false(self._special_activity_detected, "_special_activity_detected should not be activated twice")
                 ActivityBlockRules._special_activity_detected = True
 
-
                 if skip_with_outputs:
                     return Action.SKIP_WITH_OUTPUT_VALUES
                 else:
                     return self._get_action(data, ignore_unrun=ignore_unrun)
             else:
-                #if ActivityBlockRules._special_activity_detected:
-                    #return Action.SKIP_BY_FRAMEWORK # Activities that follow after the special activity
-                #else:
                 return Action.KEEP_AS_IS # Activities before the special activity should not have any impact on the flow.
-                #return Action.SKIP_BY_FRAMEWORK
-                #return Action.REUSE
+
 
 
         # ______________________________ ACTIVITY_BLOCK_RERUN _________________________________#

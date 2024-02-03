@@ -218,12 +218,8 @@ class StateHandler(StateProducer):
 
     @staticmethod
     def _register_listener_exception(e:Exception, state_name:str, listener:StateListener):
-        ExceptionHandler.register_exception(
-            ex=e,
-            description=f'Extension exception in state: {state_name} in extension: {listener.__class__.__name__}',
-            ex_type=ExceptionType.EXTENSION,
-            framework_error=False,
-        )
+        descr = f'Extension exception in state: {state_name} in extension: {listener.__class__.__name__}'
+        ExceptionHandler.register_exception(ex=e, description=descr, ex_type=ExceptionType.EXTENSION)
 
 
     # ____________________ PRINT METHODS ________________________#

@@ -52,7 +52,7 @@ class Check:
 
     @staticmethod
     def is_true(value, msg: str = ""):
-        description = str(msg) + " ([Check]: Expected True, received: " + str(value) + ")"
+        description = str(msg)
         if value is False:
             raise AutorFrameworkException(description)
 
@@ -84,7 +84,7 @@ class Check:
 
     @staticmethod
     def is_true(value, msg: str = ""):
-        description = str(msg) + " ([Check]: Expected True, received: " + str(value) + ")"
+        description = str(msg)
         if value is False:
             raise AutorFrameworkException(description)
 

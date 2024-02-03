@@ -54,6 +54,8 @@ Examples:
 
 """
 import inspect
+import logging
+import traceback
 from typing import Dict, List
 import humps
 
@@ -78,6 +80,28 @@ class ContextPropertiesRegistry:
 
     DEFAULT_PROPERTY_VALUE_NOT_DEFINED = _DEFAULT_PROPERTY_VALUE_NOT_DEFINED
 
+    @staticmethod
+    def reset_static_data():
+        ContextPropertiesRegistry.__inputs = {}
+        ContextPropertiesRegistry.__outputs = {}
+        ContextPropertiesRegistry.__configs = {}
+
+    @staticmethod
+    def print():
+        logging.info("INPUTS:")
+        for k,v in ContextPropertiesRegistry.__inputs.items():
+            #logging.info(f"{k}")
+            v.print()
+        # logging.info("CONFIGS:")
+        # for k,v in ContextPropertiesRegistry.__configs.items():
+        #     logging.info(f"{k}")
+        #     v.print()
+        # logging.info("OUTPUTS:")
+        # for k,v in ContextPropertiesRegistry.__outputs.items():
+        #     logging.info(f"{k}")
+        #     v.print()
+
+
     #  -------------------------------------- D E C O R A T O R S ---------------------------------#
     @staticmethod
     # pylint: disable-next=redefined-builtin
@@ -95,8 +119,24 @@ class ContextPropertiesRegistry:
             function
         """
 
+
+
         def inp(func):
-            ContextPropertiesRegistry._add_property(mandatory, type, default, ContextPropertiesRegistry.__inputs, func)
+            class_name = func.__qualname__.split(".")[0]
+            property_name = func.__name__
+
+            # #traceback.print_stack()
+            #
+            # stacktrace = ''.join(traceback.format_stack()[-2:-1])
+            # module = stacktrace.split('"')[1]
+            # logging.info(f"MODULE: {module}")
+            #
+            # logging.info("STACKTRACE: ")
+            # logging.info(stacktrace)
+            #
+            # logging.info(f"QUALNAME: {func.__qualname__}")
+            # # logging.info(f"{func}")
+            ContextPropertiesRegistry._add_property("inp", mandatory, type, default, ContextPropertiesRegistry.__inputs, func)
             return func
 
         return inp
@@ -119,7 +159,7 @@ class ContextPropertiesRegistry:
         def out(func):
             # logging.debug(f"OUTPUT :  {str(func.__qualname__)}")
             default = ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED # Default may not be defined for output
-            ContextPropertiesRegistry._add_property(mandatory, type, default, ContextPropertiesRegistry.__outputs, func)
+            ContextPropertiesRegistry._add_property("out", mandatory, type, default, ContextPropertiesRegistry.__outputs, func)
             return func
 
         return out
@@ -143,7 +183,7 @@ class ContextPropertiesRegistry:
         """
 
         def conf(func):
-            ContextPropertiesRegistry._add_property(mandatory, type, default, ContextPropertiesRegistry.__configs, func)
+            ContextPropertiesRegistry._add_property("cfg", mandatory, type, default, ContextPropertiesRegistry.__configs, func)
             return func
 
         return conf
@@ -158,9 +198,7 @@ class ContextPropertiesRegistry:
 
         Arguments:  instance {object} - The instance whose @input parameters should be returned.
         Returns:    {[Property]} - The list of @input parameters for the instance."""
-        return ContextPropertiesRegistry.__get_properties(
-            instance, ContextPropertiesRegistry.__inputs
-        )
+        return ContextPropertiesRegistry.__get_properties(instance, ContextPropertiesRegistry.__inputs)
 
     @staticmethod
     def get_output_properties(instance: object):
@@ -171,9 +209,7 @@ class ContextPropertiesRegistry:
 
         Arguments:  instance {object} - The instance whose @output parameters should be returned.
         Returns:    {[Property]} - The list of @output parameters for the instance."""
-        return ContextPropertiesRegistry.__get_properties(
-            instance, ContextPropertiesRegistry.__outputs
-        )
+        return ContextPropertiesRegistry.__get_properties(instance, ContextPropertiesRegistry.__outputs)
 
 
     @staticmethod
@@ -185,46 +221,63 @@ class ContextPropertiesRegistry:
 
         Arguments:  instance {object} - The instance whose @output parameters should be returned.
         Returns:    {[Property]} - The list of @output parameters for the instance."""
-        return ContextPropertiesRegistry.__get_properties(
-            instance, ContextPropertiesRegistry.__configs
-        )
+        return ContextPropertiesRegistry.__get_properties(instance, ContextPropertiesRegistry.__configs)
 
     # --------------------------- P R I V A T E   M E T H O D S ---------------------------------#
     @staticmethod
     def __get_properties(instance, properties: Dict[str, ContextProperty]) -> List[ContextProperty]:
         """Return a list of properties for the given instance."""
 
-        class_names = ContextPropertiesRegistry.__get_instance_class_names(instance)
+        # module path + class name
+        full_class_names = ContextPropertiesRegistry.__get_full_class_names(instance)
 
-        # Create a list of all properties that are declared by the classes of the instance.
+        # Create a list of all properties that are declared by the classes (including inheritance) of the instance.
         instance_properties = []
         # pylint: disable-next=redefined-builtin
         for id in properties:
-            if properties[id].class_name in class_names:
+            module_and_class_name = f"{properties[id].module_name}_{properties[id].class_name}"
+            if module_and_class_name in full_class_names:
                 instance_properties.append(properties[id])
         return instance_properties
 
     @staticmethod
-    def __get_instance_class_names(instance: object) -> List[str]:
+    def __get_full_class_names(instance: object) -> List[str]:
         Check.not_none(instance, "The object to inspect for properties is None")
         classes = inspect.getmro(instance.__class__)
+
+
 
         # The class name and the inherited class names for the instance.
         class_names = []
         for cl in classes:
-            class_names.append(cl.__name__)
+            try:
+                module_name = inspect.getfile(cl)
+                #logging.info(f"GET: {module_name}_{cl.__name__}")
+                class_names.append(f"{module_name}_{cl.__name__}")
+            except:
+                pass
+                # Thrown in inspect.getfile() for built-in classes.
+                # This is not a problem as we don't have any properties
+                # in these classes.
+
         return class_names
 
     @staticmethod
     # pylint: disable-next=redefined-builtin
-    def _add_property(mandatory, type, default, property_list, func):
+    def _add_property(category:str, mandatory, type, default, properties:dict, func):
 
         # The name of the class where the property is defined
         class_name = func.__qualname__.split(".")[0]
         property_name = func.__name__
 
-        Check.is_true(humps.is_snakecase(property_name), f"Format error: Activity: {class_name} property '{property_name}' should have snake case format.")
+        if not humps.is_snakecase(property_name):
+            logging.warning(f"Format warning: Activity: {class_name} property '{property_name}' should have snake case format.")
 
-        property_list[class_name + "_" + property_name] = ContextProperty(
-            property_name, class_name, mandatory, type, default
-        )
+        # Create module name to be used as part of the unique property key.
+        stacktrace = ''.join(traceback.format_stack()[-3])
+        module_name = stacktrace.split('"')[1]
+
+        context_prop = ContextProperty(property_name, module_name, class_name, mandatory, type, default)
+        #logging.info(f"MODULE: {module_name} -> {category} {func.__qualname__} {mandatory} {type} {default}")
+
+        properties[f"{module_name}_{class_name}_{property_name}"] = context_prop

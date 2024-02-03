@@ -46,6 +46,12 @@ class Constants(Constant):
     AUTOR_ENVIRONMENT_VARIABLE_PREFIX = "AUTOR_ARGUMENT_"
     DEBUG_LINE_LENGTH = 50
 
+class ContextPropertyPrefix(Constant):
+    input = "inp_"
+    output = "out_"
+    config = "cfg_"
+    props = "__props"
+
 
 class ActivityGroupType(Constant):
     BEFORE_BLOCK = "BEFORE_BLOCK"                   # BBA
@@ -69,8 +75,8 @@ class Action(Constant):
     RUN = 'RUN'
     SKIP_BY_FRAMEWORK = "SKIP_BY_FRAMEWORK"
     SKIP_BY_CONFIGURATION = "SKIP_BY_CONFIGURATION"
-    REUSE = 'REUSE'
-    SKIP_WITH_OUTPUT_VALUES = 'SKIP_WITH_OUTPUT_VALUES'
+    REUSE = 'REUSE' # Reuse the values from context provided by previous run.
+    SKIP_WITH_OUTPUT_VALUES = 'SKIP_WITH_OUTPUT_VALUES' # Option in Flow Config -> use outputs provided in Flow Config.
     KEEP_AS_IS = 'KEEP_AS_IS'
 
 
@@ -117,6 +123,8 @@ class ExceptionType(Constant):
     TEAR_DOWN = "TEAR_DOWN"
     ACTIVITY_BLOCK = "ACTIVITY_BLOCK"
     UNKNOWN = "UNKNOWN"
+    AUTOR_INPUT_PARAMETERS = "AUTOR_INPUT_PARAMETERS"
+    INTERNAL = "INTERNAL"
 
 class ExceptionSource(Constant):
     AUTOR_INTERNAL = "AUTOR_INTERNAL",

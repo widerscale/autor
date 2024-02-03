@@ -38,8 +38,8 @@ from autor.framework.util import Util
 
 class ExceptionHandler:
 
-    _first_exception = None
-    _abort_exception = None
+    _first_exception:Exception = None
+    _abort_exception:Exception = None
 
     @staticmethod
     def get_first_exception_message():
@@ -61,8 +61,8 @@ class ExceptionHandler:
     def get_abort_exception():
         return ExceptionHandler._abort_exception
 
-    _framework_exceptions = []
-    _other_exceptions = []
+   # _framework_exceptions = []
+   # _other_exceptions = []
     _raw_exceptions = []
 
     @staticmethod
@@ -77,29 +77,17 @@ class ExceptionHandler:
     @staticmethod
     def print_all_exceptions():
 
-        nbr_fwk_exceptions = len(ExceptionHandler._framework_exceptions)
-        nbr_other_exceptions = len(ExceptionHandler._other_exceptions)
-
-        if nbr_fwk_exceptions == 0 and nbr_other_exceptions == 0:
+        if len(ExceptionHandler._raw_exceptions) == 0:
             logging.info(f"{DebugConfig.autor_info_prefix}No registered exceptions")
             return
 
-
-        if nbr_other_exceptions + nbr_fwk_exceptions >= 1:
+        else:
             logging.info(f'')
             logging.info(f'')
             logging.info(f'')
             Util.print_header("","List of registered exceptions",'info')
             logging.info('Use <UUID> to find the exception in the log.')
             logging.info(f'')
-            '''
-            for ex in ExceptionHandler._framework_exceptions:
-                logging.info(f"{DebugConfig.autor_info_prefix} Framework exception: {str(ex)}")
-
-            if len(ExceptionHandler._other_exceptions) > 0:
-                for ex in ExceptionHandler._other_exceptions:
-                    logging.info(f"{DebugConfig.autor_info_prefix} Non-framework exception: {str(ex)}")
-            '''
 
 
             for i,exception in enumerate(ExceptionHandler._raw_exceptions):
@@ -107,6 +95,9 @@ class ExceptionHandler:
                 logging.info(f"UUID: {exception[ctx.UUID]} ")
                 logging.info(f"TYPE: {exception[ctx.TYPE]} ")
                 logging.info(f"MESSAGE: {exception[ctx.RAW]}")
+
+                if exception.get(ctx.DESCRIPTION, None) is not None:
+                    logging.info(f"DESCRIPTION: {exception[ctx.DESCRIPTION]}")
                 if DebugConfig.print_stack_trace_in_error_summary:
                     logging.info("", exc_info=exception[ctx.RAW])
                 logging.info(f'')
@@ -116,37 +107,14 @@ class ExceptionHandler:
 
 
     @staticmethod
-    def register_exception(ex: Exception, context=None, description="", ex_type:ExceptionType = None, custom=None, framework_error=True):
+    def register_exception(ex: Exception, ex_type: ExceptionType, context=None, description="", custom=None):
         # pylint: disable=redefined-builtin, too-many-branches
-
-
-        #assert ex_type is None, "Exception type not provided!!!!!!!!!!!"
-
-        if ex_type is None:
-            logging.error("Exception type not provided!!!!!!!!!!!")
-            #@TODO: remove this if statement and make ex_type mandatory
-            exit(8888888888)
-
-
-
-
-        if framework_error:
-            ExceptionHandler._framework_exceptions.append(ex)
-        else:
-            ExceptionHandler._other_exceptions.append(ex)
         # pylint: disable=import-outside-toplevel
         from autor.framework.context import Context
 
-        if context is None:
-            context = Context()
-        exceptions = context.get(ctx.EXCEPTIONS, [])
         exception = {}
-
         if ExceptionHandler._first_exception is None:
             ExceptionHandler._first_exception = ex
-
-        if ExceptionHandler._abort_exception is None and framework_error:
-            ExceptionHandler._abort_exception = ex
 
         exception[ctx.UUID] = str(uuid.uuid4())
         exception[ctx.CUSTOM] = custom
@@ -193,6 +161,8 @@ class ExceptionHandler:
         ExceptionHandler._print("UUID:                    " + exception[ctx.UUID], 'info')
         if exception.get(ctx.CUSTOM, None) is not None:
             ExceptionHandler._print("CUSTOM:                  " + str(exception[ctx.CUSTOM]), 'info')
+        if exception.get(ctx.MESSAGE, None) is not None:
+            ExceptionHandler._print("MESSAGE:                 " + exception[ctx.MESSAGE], 'info')
         if exception.get(ctx.DESCRIPTION, None) is not None:
             ExceptionHandler._print("DESCRIPTION:             " + exception[ctx.DESCRIPTION], 'info')
         if exception.get(ctx.CLASS, None) is not None:
@@ -201,21 +171,26 @@ class ExceptionHandler:
             ExceptionHandler._print("TYPE:                    " + exception[ctx.TYPE], 'info')
         if exception.get(ctx.STATE, None) is not None:
             ExceptionHandler._print("LATEST EVENT:            " + exception[ctx.STATE], 'info')
-        if exception.get(ctx.MESSAGE, None) is not None:
-            ExceptionHandler._print("MESSAGE:                 " + exception[ctx.MESSAGE], 'info')
+
 
         ExceptionHandler._print("", "info")
         ExceptionHandler._print("", "info")
 
-        exceptions.append(exception)
+
 
         raw_ex = {}
         raw_ex[ctx.RAW] = ex
         raw_ex[ctx.UUID] = exception[ctx.UUID]
         raw_ex[ctx.TYPE] = exception[ctx.TYPE]
+        if exception.get(ctx.DESCRIPTION, None) is not None:
+            raw_ex[ctx.DESCRIPTION] = exception[ctx.DESCRIPTION]
         ExceptionHandler._raw_exceptions.append(raw_ex)
 
         if DebugConfig.save_exceptions_in_context:
+            if context is None:
+                context = Context()
+            exceptions = context.get(ctx.EXCEPTIONS, [])
+            exceptions.append(exception)
             context.set(ctx.EXCEPTIONS, exceptions)
 
         return exception

@@ -11,18 +11,21 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-import datetime
+
+import inspect
+
 # The entry point to Autor
 # Call run() to run Autor.
-import humps
+
 import importlib
 import json
 import logging
 import os.path
 import shutil
 import uuid
+from datetime import datetime
 from typing import List
-from urllib.request import url2pathname
+
 
 import yaml
 
@@ -48,17 +51,15 @@ from autor.framework.constants import (
     ActivityGroupType,
     ExceptionType,
     Mode,
-    Status,
+    Status, ContextPropertyPrefix,
 )
 from autor.framework.context import Context
-from autor.framework.context_properties_handler import ContextPropertiesHandler
 from autor.framework.debug_config import DebugConfig
 from autor.framework.exception_handler import ExceptionHandler
 from autor.framework.file_context import FileContext
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
 from autor.framework.keys import StateKeys as sta
-from autor.framework.keys import ArgParserKeys as arg
 from autor.framework.logging_config import LoggingConfig
 from autor.framework.state import State
 from autor.framework.state_handler import StateHandler
@@ -72,22 +73,51 @@ class ActivityBlock(StateProducer):
 
     # pylint: disable=no-member
 
+
+
+
+
+
+
+
     def __init__(
         self,
         mode,
-        additional_context: dict = {},  # mode: ACTIVITY_BLOCK_RERUN
+        additional_context: dict = None,  # mode: ACTIVITY_BLOCK_RERUN
         additional_extensions: list = None,
         activity_block_id: str = None,
-        activity_config: dict = {},  # mode: ACTIVITY
+        activity_config: dict = None,  # mode: ACTIVITY
         activity_id: str = None,
-        activity_input: dict = {},  # mode: ACTIVITY
+        activity_input: dict = None,  # mode: ACTIVITY
         activity_module: str = None,   # mode: ACTIVITY
         activity_name: str = None,
         activity_type: str = None,     # mode: ACTIVITY
-        custom_data: dict = {},
+        custom_data: dict = None,
         flow_run_id: str = None,
         flow_config_url: str = None
     ):
+
+        # region -------------- Debug functionality region --------------
+        # -------------------------- debug START -----------------------------------#
+        try:
+            # Build inputs string that is used for creating a file name where the context is saved for the purpose of
+            # creating test cases for Autor Framework. This is not used for Autor functionality.
+            # Note that MODE will not be a part of this string.
+            self._debug_input_str:str = ""
+            self._debug_separator:str = "___"
+
+            frame = inspect.currentframe()
+            args, _, _, values = inspect.getargvalues(frame)
+            self._create_debug_input_string(args, values)
+
+        except Exception as ex:
+            # Store the problem information, but don't interrupt Autor.
+            descr = "Could not create a debug string used for test case creation support. This error can be ignored."
+            ExceptionHandler.register_exception(ex=ex, description=descr, ex_type=ExceptionType.INTERNAL)
+        # -------------------------- debug END -----------------------------------#
+        # endregion
+
+
         """
         Autor constructor lists all autor attributes and initiates
         the ones that con be initiated.
@@ -178,13 +208,25 @@ class ActivityBlock(StateProducer):
 
         # The name of the activity that should be treated in a special manner.
         # How it should be treated depends on Autor mode.
-        self._activity_name_special = activity_name # Can be overriden by extensions in state BOOTSTRAP
+        # Note that self._activity_name_special is never used for decision-making. For
+        # decisions the name is first converted into self._activity_id_special to make
+        # sure that we have a unique activity occurrence within the activity block (as an activity
+        # can be a before/after activity etc).
+        self._activity_name_special = activity_name  # Can be overriden by extensions in state BOOTSTRAP
 
         # The id of the activity that should be treated in a special manner.
         # How it should be treated depends on Autor mode.
-        self._activity_id_special = activity_id # Can be overriden by extensions in state BOOTSTRAP
+        self._activity_id_special = activity_id  # Can be overriden by extensions in state BOOTSTRAP
 
+        # Data that is collected about the special activity. Added to Autor output file in modes
+        # ACTIVITY and ACTIVITY_IN_BLOCK
+        self._activity_data_special:ActivityData = None
 
+        # Only for mode ACTIVITY_IN_BLOCK.
+        # Is set to true once the special activity has been found in configuration.
+        # Purpose: helps to detect situations when the provided special activity identification
+        # data is not correct and the activity is not found in the configuration file.
+        self._activity_found_special:bool = False
 
 
         # Autor mode - Initiated after state BOOTSTRAP
@@ -209,7 +251,7 @@ class ActivityBlock(StateProducer):
         # Attributes that may be OVERRIDEN in state BOOTSTRAP
         self._flow_run_id = flow_run_id
         self._flow_config_url = flow_config_url
-        self._flow_run_id_generated = False # Will be set to true if Autor will generate the flow_run_id
+        self._flow_run_id_generated = False  # Will be set to true if Autor will generate the flow_run_id
 
 
 
@@ -224,10 +266,12 @@ class ActivityBlock(StateProducer):
         # ------------------------------  A C T I V I T Y   B L O C K   D A T A   -----------------#
 
         self._activity_block_run_id = None
-        self._activity_block_activities:List[Activity] = [] # A list of activities that is created as the activities are run.
-        self._activity_block_callback_exceptions = [] # [dict{str:str}] Exceptions in activity block callbacks.
-        self._activity_block_status = Status.UNKNOWN # Current status of the activity block. Updated as the activities are run or from context
-        self._activity_block_latest_activity = None # The latest activity that has been run (or skipped) in the activity block.
+        self._activity_block_activities:List[Activity] = []  # A list of activities that is created as the activities are run.
+        self._activity_block_activities_data: List[ActivityData] = []  # A list of activity data that is created as the activities are run.
+        self._activity_block_activities_id: List[str] = []  # A list of activity ids that is created as the activities are run.
+        self._activity_block_callback_exceptions = []  # [dict{str:str}] Exceptions in activity block callbacks.
+        self._activity_block_status = Status.UNKNOWN  # Current status of the activity block. Updated as the activities are run or from context
+        self._activity_block_latest_activity = None  # The latest activity that has been run (or skipped) in the activity block.
         # Set to true when the activity-block is considered to be interrupted
         #  (== before or main activities interrupted)
         self._activity_block_interrupted = False
@@ -240,7 +284,7 @@ class ActivityBlock(StateProducer):
         self._activity_block_configs_after_activity  = None
 
         self._before_block_activities = []
-        self._before_activities = [] # Reset for each main-loop iteration
+        self._before_activities = []  # Reset for each main-loop iteration
         self._main_activities = []
         self._after_activities = []
         self._after_block_activities = []
@@ -255,7 +299,7 @@ class ActivityBlock(StateProducer):
         self._activity_block_id = activity_block_id
 
         # Attributes that are INITIATED after state BOOTSTRAP
-        self._activity_block_context:Context = None # Empty context focused on the activity block level
+        self._activity_block_context:Context = None  # Empty context focused on the activity block level
 
         # List of strings where each line is a summary of an outcome of one activity run.
         # Used only for logging purposes.
@@ -275,7 +319,7 @@ class ActivityBlock(StateProducer):
 
 
         # ---------------------------------  A C T I V I T Y   D A T A   --------------------------#
-        self._activity_data:ActivityData = None # Contains activity data and the activity instance
+        self._activity_data:ActivityData = None  # Contains activity data and the activity instance
 
 
 
@@ -284,36 +328,30 @@ class ActivityBlock(StateProducer):
         # Key: DBG_EXTENSION_TEST_STR
         self._dbg_extension_test_str = ""
 
-
-
-
         # fmt: on
-
     def run(self) -> dict:
+
         try:
             LoggingConfig.activate_framework_logging()
             self._set_up()
             self._run()
+            #ActivityRegistry.reset_static_data()
+            #ContextPropertiesRegistry.reset_static_data()
             self._tear_down()
 
         except Exception as e:
-            self._register_exception(e, "Unhandled exception in Autor", ex_type=ExceptionType.UNKNOWN, abort_autor=True)
+            self._abort_and_register_exception(e, "Unhandled exception in Autor", ex_type=ExceptionType.UNKNOWN)
 
         finally:
             if self._autor_aborted:
-                e = ExceptionHandler.get_abort_exception()
-
                 logging.error("\n%s", Util.format_banner("A U T O R   A B O R T E D"))
-                logging.error(f"Reason:     {self._autor_aborted_reason}")
-                logging.error(f"Exception:  {str(e)}")
-                logging.error("Stacktrace:", exc_info=e)
-                logging.error("\n%s", "-" * 100)
+                logging.error(f"Reason: {self._autor_aborted_reason}")
 
             logging.info(f'{DebugConfig.autor_info_prefix}Activity block status: {self._activity_block_status}')
 
             # Print all exceptions that occurred during the run
             ExceptionHandler.print_all_exceptions()
-            LoggingConfig.activate_external_logging() # If any other calls are made to autor these logs should be distinguishable
+            LoggingConfig.activate_external_logging()  # If any other calls are made to autor these logs should be distinguishable
 
 
 
@@ -323,6 +361,7 @@ class ActivityBlock(StateProducer):
             # the static data needs to be reset. Can be a case during testing Autor.
             ActivityBlockRules.reset_static_data()
             Context.reset_static_data()
+
             ExceptionHandler.debug_reset()
 
             Context.remote_context = FileContext()  # Default is to use file DB locally. Can be overriden in extensions.
@@ -376,7 +415,7 @@ class ActivityBlock(StateProducer):
 
 
         except Exception as e:
-            self._register_exception(e, "Unhandled exception during Autor set up", ex_type=ExceptionType.SET_UP)
+            self._abort_and_register_exception(e, "Unhandled exception during Autor set up", ex_type=ExceptionType.SET_UP)
 
     def _update_activity_block_state_from_context(self):
         #self._activity_block_interrupted = self._activity_block_context.get(ctx.ACTIVITY_BLOCK_INTERRUPTED, search=False, default=False)
@@ -396,10 +435,8 @@ class ActivityBlock(StateProducer):
             self._activity_block_context.set(key,val)
 
         for key,val in self._activity_input.items():
-            if Util.is_camel_case(key):
-                self._activity_block_context.set(key, val)
-            else:
-                raise AutorFrameworkValueException(f"Activity input context keys must be in camelCase. Found: {key}")
+            self._activity_block_context.set(key, val)
+
 
 
     def _run(self):
@@ -416,10 +453,12 @@ class ActivityBlock(StateProducer):
                 self._print_activity_block_started()
             if DebugConfig.print_context_before_activities_are_run:
                 self._flow_context.print_context("Context before activities are run")
+
             self._run_activity_block()
 
+
         except Exception as e:
-            self._register_exception(e, "Unhandled exception during activity block execution", ex_type=ExceptionType.ACTIVITY_BLOCK)
+            self._abort_and_register_exception(e, "Unhandled exception during activity block execution", ex_type=ExceptionType.ACTIVITY_BLOCK)
 
         # Run callbacks
         try:
@@ -428,7 +467,7 @@ class ActivityBlock(StateProducer):
             # ---------------------------------------------------------------#
             self._run_activity_block_callbacks()
         except Exception as e:
-            self._register_exception(e, "Unhandled exception during activity block callbacks execution", ex_type=ExceptionType.ACTIVITY_BLOCK)
+            self._abort_and_register_exception(e, "Unhandled exception during activity block callbacks execution", ex_type=ExceptionType.ACTIVITY_BLOCK)
 
         # Finalize activity block run
         try:
@@ -446,18 +485,96 @@ class ActivityBlock(StateProducer):
                 self._flow_context.print_context("Context at the end of the activity block run")
 
         except Exception as e:
-            self._register_exception(e,"Unhandled exception during activity block finalization", ex_type= ExceptionType.ACTIVITY_BLOCK)
+            self._abort_and_register_exception(e, "Unhandled exception during activity block finalization", ex_type=ExceptionType.ACTIVITY_BLOCK)
+        file_name = "<filename not assigned>"
+        try:
+            # Print output from Activity Block
+            self._print_output_to_file("autor-output") # prints json and yml
+        except Exception as e:
+            self._abort_and_register_exception(e, f"Unhandled exception when trying to write activity block output to file:{file_name}.", ex_type=ExceptionType.ACTIVITY_BLOCK)
+
 
         finally:
             if DebugConfig.create_skip_with_output_flow_config:
-                self._dbg_save_skip_with_outputs_flow_config() # creates a flow config with skip configuration with results from the current run.
+                self._dbg_save_skip_with_outputs_flow_config()  # creates a flow config with skip configuration with results from the current run.
             if DebugConfig.print_activity_block_finished_summary:
                 self._dbg_print_activity_block_finished()
                 Util.print_header(DebugConfig.autor_info_prefix, 'A C T I V I T Y   B L O C K   R U N   S U M M A R Y', level='info', line_below=False)
                 logging.info(DebugConfig.autor_info_prefix)
                 ActivityBlockRules.get_transition_summary().print(DebugConfig.autor_info_prefix)
-            if DebugConfig.save_activity_block_context_locally: # can be used for test cases
+            if DebugConfig.save_activity_block_context_locally:  # can be used for test cases
                 self._dbg_save_context()
+
+
+
+
+    def _print_output_to_file(self, file_name):
+        output: dict = {}
+        output["mode"] = self._mode
+        output["flow_run_id"] = self._flow_run_id
+        output["activity_block_id"] = self._activity_block_id
+        output["activity_block_status"] = self._activity_block_status
+
+
+        # If we have a special activity run and Autor has not aborted, add the
+        # special activity data to the output.
+        if not self._autor_aborted:
+            # if self._mode == Mode.ACTIVITY or self._mode == Mode.ACTIVITY_IN_BLOCK:
+            #     data = self._activity_data_special
+            #     output["activity_id"] = data.activity_id
+            #     output["activity_name"] = data.activity_name
+            #     output["activity_outputs"] = {}
+            #
+            #     properties:dict = data.activity_context.get(ContextPropertyPrefix.props)
+            #
+            #     for (key,val) in properties.items():
+            #         if key.startswith(ContextPropertyPrefix.output):
+            #             prop_name = key[4:]
+            #             output["activity_outputs"][prop_name] = val
+            #
+            # else:
+                activities:List = []
+                output["activities"] = activities
+
+                for data in self._activity_block_activities_data:
+                    activity = {}
+                    activities.append(activity)
+                    activity["activity_id"] = data.activity_id
+                    activity["activity_name"] = data.activity_name
+                    activity["activity_outputs"] = {}
+
+                    properties: dict = data.activity_context.get(ContextPropertyPrefix.props)
+
+                    for (key, val) in properties.items():
+                        if key.startswith(ContextPropertyPrefix.output):
+                            prop_name = key[4:]
+                            activity["activity_outputs"][prop_name] = val
+
+
+
+        # datetime object containing current date and time
+        now = str(datetime.now())
+        now = now.replace(' ', '_')
+        now = now.replace('.', '_')
+        now = now.replace(':', '_')
+
+
+
+        #shutil.rmtree('output', ignore_errors=True)
+        dir_name = 'output'
+        if not os.path.exists(dir_name):
+            os.mkdir(dir_name)
+
+        file_path_json = os.path.join(dir_name, f"{file_name}_{now}.json")
+        file_path_yaml = os.path.join(dir_name, f"{file_name}_{now}.yml")
+
+
+        #Util.json_to_file(output, f"{file_name}_{now}.json")
+        Util.json_to_file(output, file_path_json)
+
+        #with open( f"{file_name}_{now}.yml", 'w') as outfile:
+        with open(file_path_yaml, 'w') as outfile:
+            yaml.dump(output, outfile, default_flow_style=False, sort_keys=False)
 
 
 
@@ -467,13 +584,26 @@ class ActivityBlock(StateProducer):
         context:dict = Context.get_context_dict()
 
         filename_unmodified = f'{self._mode}_{self._activity_block_id}_{self._activity_block_status}_unmodified.json'
-        filename_generic_ab = f'{self._mode}_{self._activity_block_id}_{self._activity_block_status}_uc.json'
+        filename_generic_ab1 = f'{self._mode}_{self._activity_block_id}_{self._activity_block_status}_uc.json'
+        filename_generic_ab = f'{self._debug_input_str}{self._debug_separator}{self._activity_block_status}.json'
+        filename_generic_ab = filename_generic_ab.replace('/','.')
+        filename_generic_ab = filename_generic_ab.replace('\\', '.')
+        filename_generic_ab = filename_generic_ab.replace(',', '_')
+        filename_generic_ab = filename_generic_ab.replace(" ", "")
+        filename_generic_ab = filename_generic_ab.replace("'","")
+        filename_generic_ab = filename_generic_ab.replace("{", "")
+        filename_generic_ab = filename_generic_ab.replace("}", "")
+        filename_generic_ab = filename_generic_ab.replace("[", "")
+        filename_generic_ab = filename_generic_ab.replace("]", "")
+        filename_generic_ab = filename_generic_ab.replace(":", "=")
+
 
         shutil.rmtree('context', ignore_errors=True)
         #if not os.path.exists('context'):
         os.mkdir('context')
 
         path_unmodified = os.path.join('context', filename_unmodified)
+        path_generic_ab1 = os.path.join('context', filename_generic_ab1)
         path_generic_ab = os.path.join('context', filename_generic_ab)
 
         with open(path_unmodified, 'w', encoding='utf-8') as f:
@@ -496,12 +626,15 @@ class ActivityBlock(StateProducer):
 
 
         #for ab_id, ab in activity_blocks.items():
-            #del ab[ctx.ACTIVITY_BLOCK_RUN_ID]
+        #del ab[ctx.ACTIVITY_BLOCK_RUN_ID]
 
 
         #ab = context['_activityBlocks'][self._activity_block_id]
         #del ab[ctx.ACTIVITY_BLOCK_RUN_ID]
         with open(path_generic_ab, 'w', encoding='utf-8') as f:
+            json.dump(context, f, ensure_ascii=False, indent=4)
+
+        with open(path_generic_ab1, 'w', encoding='utf-8') as f:
             json.dump(context, f, ensure_ascii=False, indent=4)
 
 
@@ -536,7 +669,7 @@ class ActivityBlock(StateProducer):
             # logging.info(f"FLOW ID: {self._flow_id}")
 
         except Exception as e:
-            self._register_exception(e, "Unhandled exception during Autor tear down", ex_type=ExceptionType.TEAR_DOWN)
+            self._abort_and_register_exception(e, "Unhandled exception during Autor tear down", ex_type=ExceptionType.TEAR_DOWN)
     '''
     def _initiate_autor_mode(self):
         # Set Autor mode.
@@ -664,6 +797,7 @@ class ActivityBlock(StateProducer):
     def _dbg_print_activity_block_finished(self):
         prefix = DebugConfig.autor_info_prefix
         Util.print_header(prefix, 'A C T I V I T Y   B L O C K   F I N I S H E D', level='info')
+        logging.info(f'{prefix}mode:                  {self._mode}')
         logging.info(f'{prefix}flow_id:               {self._flow_id}')
         logging.info(f'{prefix}activity_block_id:     {self._activity_block_id}')
         logging.info(f'{prefix}flow_run_id:           {self._flow_run_id}')
@@ -674,12 +808,12 @@ class ActivityBlock(StateProducer):
 
 
     # pylint: disable-next=redefined-builtin
-    def _register_exception(self, e, description, ex_type, abort_autor=True):
+    def _abort_and_register_exception(self, e:Exception, description:str, ex_type:ExceptionType):
         # Sanity check
         if self._autor_aborted:
             Check.is_true(self._activity_block_status == Status.ABORTED,f"An activity block that has been aborted by the framework should always have status: {Status.ABORTED}. Current block status: {self._activity_block_status}")
 
-        if abort_autor and not self._autor_aborted:
+        if not self._autor_aborted:
             self._abort_autor(str(description))
 
         ExceptionHandler.register_exception(ex=e, description=description, ex_type=ex_type)
@@ -691,7 +825,7 @@ class ActivityBlock(StateProducer):
         # fmt: off
         if DebugConfig.print_selected_activity:
             prefix = DebugConfig.selected_activity_prefix
-            Util.print_header(prefix, "S E L E C T E D   A C T I V I T Y")
+            Util.print_header(prefix, "S E L E C T E D   A C T I V I T Y", level="info")
             logging.info(f"{prefix}ACTIVITY_ID:                {activity_id}")
             logging.info(f"{prefix}ACTIVITY_NAME:              {activity_name}")
             logging.info(f"{prefix}ACTIVITY_TYPE:              {activity_type}")
@@ -791,8 +925,12 @@ class ActivityBlock(StateProducer):
 
         return data
 
-    def _update_activity_lists(self, activity:Activity, activity_config, activity_group_type):  # TODO take from data object
+    def _update_activity_lists(self, activity_data:ActivityData, activity_config, activity_group_type):  # TODO take from data object
+        activity = activity_data.activity
         self._activity_block_activities.append(activity)
+        self._activity_block_activities_data.append(activity_data)
+        self._activity_block_activities_id.append(activity_data.activity_id)
+
         self._activities_by_name[activity_config.name] = activity
 
         if activity_group_type == ActivityGroupType.BEFORE_BLOCK:
@@ -847,6 +985,11 @@ class ActivityBlock(StateProducer):
     def _run_activity(self, activity_name, activity_id, activity_group_type, activity_config:ActivityConfiguration):
         self._activity_data:ActivityData = self._create_data(activity_id, activity_group_type, activity_config)
 
+        if (self._mode == Mode.ACTIVITY) or (self._mode == Mode.ACTIVITY_IN_BLOCK and (self._activity_data.activity_id == self._activity_id_special)):
+            Check.is_true(self._activity_data_special is None, "Internal error: Special activity data may not be created twice.")
+            self._activity_data_special = self._activity_data
+            self._activity_found_special = True
+
         # ---------------------------------------------------------------------#
         StateHandler.change_state(State.SELECT_ACTIVITY)
         # ---------------------------------------------------------------------#
@@ -860,27 +1003,18 @@ class ActivityBlock(StateProducer):
             self._activity_data.activity_type = "reuse"
         elif self._activity_data.action == Action.SKIP_WITH_OUTPUT_VALUES:
             self._activity_data.activity_type = "skip-with-output-values"
-        # elif self._activity_data.action == Action.SKIP_BY_FRAMEWORK or self._activity_data.action == Action.SKIP_BY_CONFIGURATION:
-        #     self._activity_data.activity_type = "SKIP"
-        # elif self._activity_data.action == Action.RUN:
-        #     pass
-        # else:
-        #     raise AutorFrameworkException(f"Unknown action type: {self._activity_data.action}")
 
         # ---------------------------------------------------------------------#
         # -----------------   R U N   A C T I V I T Y   ---------------------- #
-        framework_error_occurred = ActivityRunner().run_activity(self._activity_data)
+        need_to_abort, abort_reason = ActivityRunner().run_activity(self._activity_data)
         # ---------------------------------------------------------------------#
         # ---------------------------------------------------------------------#
 
+        if need_to_abort:
+            self._abort_autor(abort_reason)
 
-        if framework_error_occurred:
-            self._abort_autor("Autor framework error occurred during activity run")
-
-
-
-        self._update_activity_lists(self._activity_data.activity, activity_config, activity_group_type)
-        self._update_activity_block_status(framework_error_occurred)
+        self._update_activity_lists(self._activity_data, activity_config, activity_group_type)
+        self._update_activity_block_status(need_to_abort)
         self._create_activity_skip_with_outputs_config(self._activity_data)
 
         if DebugConfig.print_default_config_conditions:
@@ -898,9 +1032,9 @@ class ActivityBlock(StateProducer):
         raw_dict["skipWithOutputsValues"] = skip_with_outputs_conf
 
         # the outputs that the activity has saved into its context
-        ctx:dict = data.output_context.get_focus_activity_dict()
+        context:dict = data.output_context.get_focus_activity_dict()
 
-        for key,val in ctx.items():
+        for key,val in context.items():
             skip_with_outputs_conf[key] = val
 
 
@@ -1000,12 +1134,22 @@ class ActivityBlock(StateProducer):
 
 
 
+        if self._mode == Mode.ACTIVITY_IN_BLOCK:
+            try:
+                Check.is_true(self._activity_found_special, f"Activity with id: {self._activity_id_special} not found.")
+            except Exception as ex:
+                descr = f"Activity with id: {self._activity_id_special} is not part of activity block: {self._activity_block_id} -> aborting activity block. Check the spelling of the activity id/name. Valid activity ids: {self._activity_block_activities_id}"
+                self._abort_and_register_exception(e=ex,description=descr,ex_type=ExceptionType.AUTOR_INPUT_PARAMETERS)
+
+
+
+
 
 
     def _get_activity_name(self, conf, group):
 
         if self._mode == Mode.ACTIVITY:
-            Check.is_non_empty_string(self._activity_name_special, "Autor mode: ACTIVITY requires activity_name, which should be provided by Autor's extension.")
+            Check.is_non_empty_string(self._activity_name_special, "Internal error. Mode ACTIVITY requires activity_name, which should be created by Autor internal bootstrap extension. In this mode Autor generates a Flow Configuration with the acitivity_name.")
             default_name= self._activity_name_special
 
         elif group == ActivityGroupType.BEFORE_BLOCK:
@@ -1043,7 +1187,7 @@ class ActivityBlock(StateProducer):
         prefix = DebugConfig.callbacks_trace_prefix  # For debug logging
 
         if DebugConfig.trace_callbacks:
-            Util.print_header(prefix=DebugConfig.callbacks_trace_prefix, text="R U N N I N G   C A L L B A C K S   B L O C K")
+            Util.print_header(prefix=DebugConfig.callbacks_trace_prefix, text="R U N N I N G   C A L L B A C K S   B L O C K", level="info")
 
         for activity in self._activity_block_activities:
             callbacks = activity.activity_block_callbacks
@@ -1059,13 +1203,9 @@ class ActivityBlock(StateProducer):
                         callback.run()
                     except Exception as exception:
                         logging.error("%s Callback exception during activity: %s. Exception: %s",prefix,activity.id,exception,)
-                        ExceptionHandler.register_exception(exception,description=f"Callback exception during activity: {activity.id}. Exception: {exception}",
-                            ex_type=ExceptionType.ACTIVITY_BLOCK_CALLBACK,
-                            framework_error=False,
-                        )
-                        self._activity_block_callback_exceptions.append(
-                            self._create_callback_exception(callback, activity, exception)
-                        )
+                        descr = f"Callback exception during activity: {activity.id}. Exception: {exception}"
+                        ExceptionHandler.register_exception(exception,description=descr,ex_type=ExceptionType.ACTIVITY_BLOCK_CALLBACK)
+                        self._activity_block_callback_exceptions.append(self._create_callback_exception(callback, activity, exception))
 
                 else:
                     if DebugConfig.trace_callbacks:
@@ -1108,7 +1248,7 @@ class ActivityBlock(StateProducer):
         state_handler = StateHandler()
         state_handler.add_state_listener(extension)
         if DebugConfig.print_loaded_extensions:
-            Util.print_header("A D D E D   E X T E N S I O N")
+            Util.print_header(prefix=DebugConfig.autor_info_prefix, text="A D D E D   E X T E N S I O N", level="info")
             logging.info(f"{extension.__class__}")
 
 
@@ -1153,9 +1293,9 @@ class ActivityBlock(StateProducer):
         if DebugConfig.print_loaded_extensions or DebugConfig.print_autor_info:
             self._loaded_items_print_info(
                 prefix=DebugConfig.autor_info_prefix,
-                item_names = extensions,
-                title = "L O A D E D   E X T E N S I O N S   F R O M   C O N F I G U R A T I O N",
-                no_extensions_found_msg = "Flow configuration contains no extensions -> nothing to load -> OK")
+                item_names=extensions,
+                title="L O A D E D   E X T E N S I O N S   F R O M   C O N F I G U R A T I O N",
+                no_extensions_found_msg="Flow configuration contains no extensions -> nothing to load -> OK")
         # ----------------- Debug prints -------------------------#
 
     def _loaded_items_print_info(self, prefix:str, item_names:List[str], title:str, no_extensions_found_msg:str):
@@ -1185,9 +1325,7 @@ class ActivityBlock(StateProducer):
 
         # ----------------- Debug prints -------------------------#
         if DebugConfig.print_loaded_extensions or DebugConfig.print_autor_info:
-            Util.print_header(
-                "L O A D E D   E X T E N S I O N S   F R O M   C O N F I G U R A T I O N"
-            )
+            Util.print_header(prefix=DebugConfig.autor_info_prefix, text="L O A D E D   E X T E N S I O N S   F R O M   C O N F I G U R A T I O N", level="info")
             if len(loaded_extension_names) > 0:
                 for extension in loaded_extension_names:
                     logging.info(extension)
@@ -1207,12 +1345,7 @@ class ActivityBlock(StateProducer):
         # ----------------- Debug prints -------------------------#
         if DebugConfig.print_loaded_modules or DebugConfig.print_autor_info:
             prefix = DebugConfig.autor_info_prefix
-            Util.print_header(prefix,
-                (
-                    "L O A D E D   A C T I V I T Y   M O D U L E S"
-                    + "   F R O M   C O N F I G U R A T I O N"),
-                    level='info'
-            )
+            Util.print_header(prefix, "L O A D E D   A C T I V I T Y   M O D U L E S   F R O M   C O N F I G U R A T I O N", level='info')
             if modules and len(modules) > 0:
                 for module in modules:
                     logging.info(f'{prefix}{module}')
@@ -1352,26 +1485,43 @@ class ActivityBlock(StateProducer):
     # fmt: on
     # pylint: enable=line-too-long
 
-    def get_context(self)->Context:
+    def get_context(self) -> Context:
         return self._flow_context
 
-    def get_activity_context(self, activity_id:str)->Context:
+    def get_activity_context(self, activity_id:str) -> Context:
         return Context(activity_block=self._activity_block_id,activity=activity_id)
 
-    def get_flow_run_id(self)->str:
+    def get_flow_run_id(self) -> str:
         return self._flow_run_id
 
-    def get_activity_block_status(self)->str:
+    def get_activity_block_status(self) -> str:
         return self._activity_block_status
 
-    def get_mode(self)->str:
+    def get_mode(self) -> str:
         return self._mode
 
-    def get_skip_with_outputs_flow_configuration_url(self)->str:
+    def get_skip_with_outputs_flow_configuration_url(self) -> str:
         return self._skip_with_outputs_flow_configuration_url
 
-    def get_exception(self)->Exception:
+    def get_exception(self) -> Exception:
         return ExceptionHandler.get_first_exception()
 
-    def get_status(self)->str:
+    def get_status(self) -> str:
         return self._activity_block_status
+
+
+    def _create_debug_input_string(self, args, values):
+        first_param_detected = False
+        for i,name in enumerate(args):
+            val = str(values[name])
+            if i > 0 and val != "None" and val != "{}" and val != "[]":
+                if not first_param_detected:
+                    self._debug_input_str = val
+                    first_param_detected = True
+                else:
+                    if name == "flow_config_url":
+                        pass
+                    elif name == "flow_run_id":
+                        self._debug_input_str = self._debug_input_str + self._debug_separator + name
+                    else:
+                        self._debug_input_str = self._debug_input_str + self._debug_separator + val

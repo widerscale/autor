@@ -17,8 +17,9 @@ import logging
 class ContextProperty:
     """A context property container class"""
 
-    def __init__(self, name, class_name, mandatory, property_type, default):
+    def __init__(self, name, module_name, class_name, mandatory, property_type, default):
         self.__name = name
+        self.__module_name = module_name
         self.__class_name = class_name
         self.__mandatory = mandatory
         self.__property_type = property_type
@@ -30,7 +31,7 @@ class ContextProperty:
            # default_value_def = f",default={self.default}"
         #logging.info(f"{self.class_name}.{self.name} @{self.property_type}(mandatory={self.mandatory},type={self.property_type}{default_value_def}")
 
-        logging.info(f"{self.name} {self.property_type} {self.mandatory} {self.default} {self.class_name}")
+        logging.info(f"{self.name} {self.property_type} {self.mandatory} {self.default} {self.class_name} {self.__module_name}")
 
 
 
@@ -41,6 +42,10 @@ class ContextProperty:
     @name.setter
     def name(self, n):
         self.__name = n
+
+    @property
+    def module_name(self) -> str:
+        return self.__module_name
 
     @property
     def class_name(self) -> str:
