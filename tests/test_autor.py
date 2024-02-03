@@ -12,7 +12,7 @@ def test_version():
 
 def test_ACTIVITY_BLOCK():
     ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
-    #ab = test.run(activity_block_id='calculateMax2', expectation='ACTIVITY_BLOCK_calculateMax2_SUCCESS_secondAB', flow_run_id=ab.get_flow_run_id())
+    ab = test.run(activity_block_id='calculateMax2', expectation='ACTIVITY_BLOCK_calculateMax2_SUCCESS_secondAB', flow_run_id=ab.get_flow_run_id())
 
 def test_ACTIVITY_BLOCK_RERUN():
     ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
@@ -86,8 +86,8 @@ def test_ACTIVITY_IN_BLOCK_running_activities_backwards():
 
 def test_ACTIVITY_IN_BLOCK_skipping_some_activities_with_extra_context_inputs():
     # Run activities 2 and 4 in a row filling the gaps with context inputs.
-    ab = test.run(activity_block_id='calculateMaxWithNames', activity_name='second', additional_context={'max':3}, expectation='ACTIVITY_IN_BLOCK_calculateMaxWithNames_SUCCESS_uc4_second.json')
-    ab = test.run(activity_block_id='calculateMaxWithNames', activity_name='fourth', additional_context={'max':5}, expectation='ACTIVITY_IN_BLOCK_calculateMaxWithNames_SUCCESS_uc4_fourth.json', flow_run_id=ab.get_flow_run_id())
+    ab = test.run(activity_block_id='calculateMaxWithNames', activity_name='second', activity_input={'max':3}, expectation='ACTIVITY_IN_BLOCK_calculateMaxWithNames_SUCCESS_uc4_second.json')
+    ab = test.run(activity_block_id='calculateMaxWithNames', activity_name='fourth', activity_input={'max':5}, expectation='ACTIVITY_IN_BLOCK_calculateMaxWithNames_SUCCESS_uc4_fourth.json', flow_run_id=ab.get_flow_run_id())
 
 
 def test_ACTIVITY_IN_BLOCK_skipping_some_activities_without_extra_context_inputs():
@@ -237,3 +237,7 @@ def test_mandatory_inputs_must_have_a_value_in_context():
 # Outputs may not have default values
 # Provided values must be of right type
 # Provided default values must be of right type
+
+
+
+
