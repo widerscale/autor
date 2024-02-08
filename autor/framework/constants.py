@@ -33,8 +33,8 @@ class Constant():
         return hasattr(Mode(),constant_name)
 
     @staticmethod
-    def get_valid_constants()->list:
-        mmbrs: List[(str, str)] = inspect.getmembers(Mode)  # returns [(name,val)]
+    def get_valid_constants(klass)->list:
+        mmbrs: List[(str, str)] = inspect.getmembers(klass)  # returns [(name,val)]
         values:List[str] = []
         for (name,val) in mmbrs:
             if not name.startswith('__') and name != "is_valid" and  name != "get_valid_constants":
@@ -45,6 +45,8 @@ class Constant():
 class Constants(Constant):
     AUTOR_ENVIRONMENT_VARIABLE_PREFIX = "AUTOR_ARGUMENT_"
     DEBUG_LINE_LENGTH = 50
+    GENERATED_ACTIVITY_BLOCK_ID = "generatedActivityBlock"
+    GENERATED_FLOW_CONFIG_URL = "autor-config.yml"
 
 class ContextPropertyPrefix(Constant):
     input = "inp_"
@@ -91,6 +93,23 @@ class Configuration(Constant):
     ANY = "_any"
     PREVIOUS = "_previous"
     LATEST = "_latest"
+
+# Autor in-parameter names
+class Inparam(Constant):
+    MODE                    = "mode"
+    FLOW_CONFIG_URL         = "flow-config-url"
+    ACTIVITY_BLOCK_ID       = "activity-block-id"
+    ACTIVITY_CONFIG         = "activity-config"
+    ACTIVITY_ID             = "activity-id"
+    INPUT                   = "input"
+    ACTIVITY_MODULE         = "activity-module"
+    ACTIVITY_NAME           = "activity-name"
+    ACTIVITY_TYPE           = "activity-type"
+    CUSTOM_DATA             = "custom-data"
+    FLOW_RUN_ID             = "flow-run-id"
+    ADDITIONAL_EXTENSIONS   = "additional-extensions"
+
+
 
 
 

@@ -219,7 +219,7 @@ Autor can be run in three modes:
                     # E X A M P L E
                     #
                     # Arguments in simple format:
-                    # argInt=1,argFloat=0.5,argStr='Hello world!',argList=1,2,3,4
+                    # argInt=1,argFloat=0.5,argBool=True,argStr='Hello world!',argList=1,2,3,4
                     #
                     #
                     # After split on '='

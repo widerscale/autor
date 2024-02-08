@@ -1,3 +1,5 @@
+import logging
+
 from autor.framework.extension_exception import AutorExtensionException
 from autor.framework.state import Bootstrap
 from autor.framework.state_listener import StateListener
@@ -10,6 +12,14 @@ class ConfigBootstrapExtension(StateListener):
         Provide flow-config-url and/or activity-block-id values in case these were not provided as input arguments.
         The values to set should be provided through the custom_data argument to Autor.
         """
+
+        logging.info("RTE____RTE")
+        logging.info("RTE____RTE")
+        logging.info("RTE____RTE")
+
+        logging.info(f"custom_data type: {type(state.custom_data)}")
+        data = state.custom_data.get("ConfigBootstrapExtension", {})
+
         flow_config_url = state.custom_data.get("ConfigBootstrapExtension", {}).get("flowConfigUrl", None)
         activity_block_id = state.custom_data.get("ConfigBootstrapExtension", {}).get("activityBlockId", None)
 

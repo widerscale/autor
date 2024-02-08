@@ -75,6 +75,17 @@ class Bootstrap(State):
     def __init__(self, dict: dict):
         super().__init__(name=State.BOOTSTRAP, dict=dict)
 
+
+    # -------------------- mode -------------------------#
+    @property
+    def mode(self) -> str:  # getter
+        return self._dict[sta.MODE]
+
+    @mode.setter
+    def mode(self, n:str) -> None:  # setter
+        self._dict[sta.MODE] = n
+
+
     #---------------- flow_config_url --------------------#
     @property
     def flow_config_url(self) -> str: # getter
@@ -144,10 +155,25 @@ class Bootstrap(State):
         self._dict[sta.CUSTOM_DATA] = n
 
 
-    # ---------------- bootstrap_extension ---------------------#
+    # ------------------- flags -------------------------#
+    @property
+    def flags(self) -> dict:  # getter
+        return deepcopy(self._dict[sta.flags])
+
+    @flags.setter
+    def flags(self, n:dict) -> None:  # setter
+        self._dict[sta.FLAGS] = n
+
+
+
+    # ------------- bootstrap_extension ------------------#
     @property
     def additional_extensions(self) -> list:  # getter
         return deepcopy(self._dict[sta.ADDITIONAL_EXTENSIONS])
+
+    @additional_extensions.setter
+    def additional_extensions(self, n:list) -> None:  # setter
+        self._dict[sta.ADDITIONAL_EXTENSIONS] = n
 
 
 

@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 from autor.framework.autor_framework_exception import AutorFrameworkException
-from autor.framework.constants import Status, ExceptionType
+from autor.framework.constants import Status, ExceptionType, Mode
 
 
 class Check:
@@ -51,28 +51,54 @@ class Check:
 
 
     @staticmethod
-    def is_true(value, msg: str = ""):
-        description = str(msg)
-        if value is False:
-            raise AutorFrameworkException(description)
+    def is_true(value, exception_type:type=AutorFrameworkException,  msg: str = "Msg not provided"):
+        if msg == "Msg not provided":
+            msg = f"Expression did not evaluate to True."
+            if not value:
+                raise exception_type(msg)
+
 
     @staticmethod
     def true(value,  exception:type, msg:str="",):
         if value is False:
-            #ex_type = type(exception)
-            #raise ex_type(msg)
             raise exception(msg)
 
 
 
 
     @staticmethod
-    def is_non_empty_string(value: str, msg: str = ""):
-        description = (
-            str(msg) + " ([Check]: Expected non-empty string, received: " + str(value) + ")"
-        )
+    def is_non_empty_string(value: str, exception_type:type=AutorFrameworkException, msg: str = "Msg not provided"):
+        if msg == "Msg not provided":
+            msg = f"Expected non-empty string, received: {value}"
+
         if (str is None) or (not isinstance(value, str)) or len(value) <= 0:
-            raise AutorFrameworkException(description)
+            raise exception_type(msg)
+
+
+    @staticmethod
+    def is_string(value: str, exception_type:type=AutorFrameworkException, msg: str = "Msg not provided"):
+        if msg == "Msg not provided":
+            msg = f"Expected string, received: {value}"
+
+        if (str is None) or (not isinstance(value, str)):
+            raise exception_type(msg)
+
+    @staticmethod
+    def is_none_or_empty(value, exception_type:type=AutorFrameworkException, msg: str = "Msg not provided"):
+        if msg == "Msg not provided":
+            msg = f'Expected one of the following values: None, "", {{}}, []. Received: {value}'
+
+        if not ((value is None) or (value == "") or (value == {}) or (value == [])):
+            raise exception_type(msg)
+
+
+    @staticmethod
+    def is_autor_mode(value: Mode, exception_type:type=AutorFrameworkException, msg: str = "Msg not provided"):
+        if msg == "Msg not provided":
+            msg = f"Expected Autor Mode, received: {value}. Valid modes: {Mode.get_valid_constants(Mode)}"
+
+        if (str is None) or (not isinstance(value, str)) or len(value) <= 0:
+            raise exception_type(msg)
 
 
 
@@ -82,11 +108,7 @@ class Check:
         if value is not None:
             raise AutorFrameworkException(description)
 
-    @staticmethod
-    def is_true(value, msg: str = ""):
-        description = str(msg)
-        if value is False:
-            raise AutorFrameworkException(description)
+
 
     @staticmethod
     def is_false(value, msg: str = ""):

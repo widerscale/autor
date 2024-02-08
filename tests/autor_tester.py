@@ -66,7 +66,6 @@ class AutorTester():
     @staticmethod
     def run(
             additional_extensions: List[str] = None,
-
             activity_block_id: str = None,
             activity_config: dict = None,
             activity_id: str = None,
@@ -77,20 +76,31 @@ class AutorTester():
             custom_data: dict = None,
             expectation: str = None,
             err_msg: str = None,
+            flags: dict = None,
             flow_run_id: str = None,
-            flow_config_url: str = "test_flow_configs/test-config.yml",
+            flow_config_url: str = None,
             mode: str = None, # mandatory if 'expectation' is not provided,
             status: str = None, # mandatory if 'expectation' is not provided
     )->ActivityBlock:
 
+
+
         if activity_config is None: activity_config = {}
         if input is None: input = {}
         if custom_data is None: custom_data = {}
+        if flags is None: flags = {}
 
         if expectation is not None:
             mode,_ = AutorTester._parse_expectation(expectation)
         else:
             Check.not_none(mode, "Test framework value error: 'mode' must be provided if 'expectation' is not provided.")
+
+        if mode.upper() != Mode.ACTIVITY:
+            if flow_config_url == None:
+                flow_config_url =  "test_flow_configs/test-config.yml"
+
+
+
 
         AutorTester._create_commands(
             additional_extensions=additional_extensions,
@@ -102,6 +112,7 @@ class AutorTester():
             activity_name=activity_name,
             activity_type=activity_type,
             custom_data=custom_data,
+            flags=flags,
             flow_run_id=flow_run_id,
             flow_config_url=flow_config_url,
             mode=mode
@@ -119,6 +130,7 @@ class AutorTester():
             activity_name = activity_name,
             activity_type = activity_type,
             custom_data = custom_data,
+            flags = flags,
             flow_run_id = flow_run_id,
             flow_config_url = flow_config_url
         )
@@ -148,8 +160,9 @@ class AutorTester():
             custom_data: dict = None,
             expectation: str = None,
             err_msg: str = None,
+            flags: dict = None,
             flow_run_id: str = None,
-            flow_config_url: str = "test_flow_configs/test-config.yml",
+            flow_config_url: str = None,
             mode: str = None, # mandatory if 'expectation' is not provided,
             status: str = None, # mandatory if 'expectation' is not provided
     )->ActivityBlock:
@@ -171,6 +184,10 @@ class AutorTester():
                 mode = p_mode
             if activity_block_id is None:
                 activity_block_id = p_activity_block_id
+
+            if mode.upper() != Mode.ACTIVITY:
+                if flow_config_url == None:
+                    flow_config_url = "test_flow_configs/test-config.yml"
         else:
             Check.not_none(mode, "Test framework value error: 'mode' must be provided if 'expectation' is not provided.")
 
@@ -184,6 +201,7 @@ class AutorTester():
             activity_name=activity_name,
             activity_type=activity_type,
             custom_data=custom_data,
+            flags=flags,
             flow_run_id=flow_run_id,
             flow_config_url=flow_config_url,
             mode=mode
@@ -196,11 +214,12 @@ class AutorTester():
             activity_block_id = activity_block_id,
             activity_config = activity_config,
             activity_id = activity_id,
-            input= input,
+            input = input,
             activity_module = activity_module,
             activity_name = activity_name,
             activity_type = activity_type,
             custom_data = custom_data,
+            flags = flags,
             flow_run_id = flow_run_id,
             flow_config_url = flow_config_url
         )
@@ -290,6 +309,7 @@ class AutorTester():
             activity_name: str = None,
             activity_type: str = None,
             custom_data: dict = None,
+            flags :dict = None,
             flow_run_id: str = None,
             flow_config_url: str = None,
             mode: str = None
@@ -297,6 +317,7 @@ class AutorTester():
         if activity_config is None: activity_config = {}
         if input is None: input = {}
         if custom_data is None: custom_data = {}
+        if flags is None: flags = {}
 
 
         # Create a commandline command for debugging purposes
@@ -305,6 +326,7 @@ class AutorTester():
         command = AutorTester._add_list_to_command(additional_extensions, "additional-extensions", command)
         command = AutorTester._add_to_command(activity_block_id, "activity-block-id", command)
         command = AutorTester._add_dict_to_command(activity_config, "activity-config", command)
+        command = AutorTester._add_dict_to_command(flags, "flags", command)
         command = AutorTester._add_to_command(activity_id, "activity-id", command)
         command = AutorTester._add_dict_to_command(input, "input", command)
         command = AutorTester._add_to_command(activity_module, "activity-module", command)

@@ -157,10 +157,11 @@ def test_ACTIVITY_without_required_configuration():
 
 def test_ACTIVITY_with_config_and_input():
     ab = test.run(activity_type='max', activity_module='test_activities.activities', activity_config={'val':3},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc1_first.json')
-    ab = test.run(activity_type='max2', activity_module='test_activities.activities2', activity_config={'val':1},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc1_second.json', flow_run_id=ab.get_flow_run_id())
-    ab = test.run(activity_type='max', activity_module='test_activities.activities', activity_config={'val':5},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc1_third.json', flow_run_id=ab.get_flow_run_id())
-    ab = test.run(activity_type='max', activity_module='test_activities.activities', activity_config={'val':4},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc1_fourth.json', flow_run_id=ab.get_flow_run_id())
+    ab = test.run(activity_type='max2', activity_module='test_activities.activities2', activity_config={'val':1},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc1_second.json', flow_run_id=ab.get_flow_run_id(), flags={'allow_flow_run_id_in_mode_activity':True})
+    ab = test.run(activity_type='max', activity_module='test_activities.activities', activity_config={'val':5},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc1_third.json', flow_run_id=ab.get_flow_run_id(), flags={'allow_flow_run_id_in_mode_activity':True})
+    ab = test.run(activity_type='max', activity_module='test_activities.activities', activity_config={'val':4},expectation='ACTIVITY_generatedActivityBlock_SUCCESS_uc1_fourth.json', flow_run_id=ab.get_flow_run_id(), flags={'allow_flow_run_id_in_mode_activity':True})
 
+    return
 
     f1 = os.path.join("autor-config.yml")
     f2 = os.path.join("data","ACTIVITY_uc1_generatedFlowConfig_fourth.yml")

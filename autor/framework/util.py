@@ -181,4 +181,11 @@ class Util:
             logging.debug(txt)
 
 
+    @staticmethod
+    def is_non_empty_string(value: str):
+        return not ((str is None) or (not isinstance(value, str)) or len(value) <= 0)
+
+   # @staticmethod
+   # def is_string(value: str):
+    #    return not ((str is None) or (not isinstance(value, str)))
 

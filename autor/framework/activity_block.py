@@ -51,12 +51,13 @@ from autor.framework.constants import (
     ActivityGroupType,
     ExceptionType,
     Mode,
-    Status, ContextPropertyPrefix,
+    Status, ContextPropertyPrefix, Inparam, Constants,
 )
 from autor.framework.context import Context
 from autor.framework.debug_config import DebugConfig
 from autor.framework.exception_handler import ExceptionHandler
 from autor.framework.file_context import FileContext
+from autor.framework.flags import Flags
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
 from autor.framework.keys import StateKeys as sta
@@ -92,6 +93,7 @@ class ActivityBlock(StateProducer):
         activity_name: str = None,
         activity_type: str = None,     # mode: ACTIVITY
         custom_data: dict = None,
+        flags: dict = None,
         flow_run_id: str = None,
         flow_config_url: str = None
     ):
@@ -137,9 +139,6 @@ class ActivityBlock(StateProducer):
         - self._activity_block_context
         """
 
-
-
-
         # fmt: off
         string = r"""
 
@@ -163,12 +162,14 @@ class ActivityBlock(StateProducer):
             input = {}
         if custom_data is None:
             custom_data = {}
+        if flags is None:
+            flags = {}
 
 
         # Check that the expected values are correct
-        Check.is_true(Mode.is_valid(mode), f'Unknown mode: {mode}. The valid modes are: {Mode.get_valid_constants()}')
+        Check.is_true(Mode.is_valid(mode), f'Unknown mode: {mode}. The valid modes are: {Mode.get_valid_constants(Mode)}')
 
-
+        self._flags = flags
 
 
 
@@ -213,6 +214,9 @@ class ActivityBlock(StateProducer):
         # The id of the activity that should be treated in a special manner.
         # How it should be treated depends on Autor mode.
         self._activity_id_special = activity_id  # Can be overriden by extensions in state BOOTSTRAP
+        if activity_id is None and activity_name is not None and activity_block_id is not None:
+            self._activity_id_special = f"{activity_block_id}-{activity_name}"
+
 
         # Data that is collected about the special activity. Added to Autor output file in modes
         # ACTIVITY and ACTIVITY_IN_BLOCK
@@ -357,8 +361,10 @@ class ActivityBlock(StateProducer):
             # the static data needs to be reset. Can be a case during testing Autor.
             ActivityBlockRules.reset_static_data()
             Context.reset_static_data()
-
+            Flags.reset_static_data()
             ExceptionHandler.debug_reset()
+
+            Flags.set_flags(self._flags)
 
             Context.remote_context = FileContext()  # Default is to use file DB locally. Can be overriden in extensions.
 
@@ -369,13 +375,15 @@ class ActivityBlock(StateProducer):
             # are needed internally in Autor framework.
             self._register_bootstrap_extensions(self._additional_extensions)
 
+
+
             StateHandler.add_state_producer(self)
             # ---------------------------------------------------------------#
             StateHandler.change_state(State.BOOTSTRAP)
             # ---------------------------------------------------------------#
 
             # Inputs finalized from user perspective -> perform internal trim
-            self._trim_inputs()
+            self._check_and_trim_inputs()
 
             if DebugConfig.print_final_input or DebugConfig.print_autor_info:
                 self._print_input_args_after_bootstrap()
@@ -386,6 +394,10 @@ class ActivityBlock(StateProducer):
             #self._initiate_autor_mode()
             self._initiate_flow()
             self._initiate_context()
+
+
+
+
 
             # ---------------------------------------------------------------#
             StateHandler.change_state(State.CONTEXT)
@@ -421,7 +433,222 @@ class ActivityBlock(StateProducer):
         # re-calculated from activity statuses as if it was a first activity block run. We need this behaviour to support re-runs.
         pass
 
-    def _trim_inputs(self):
+
+    def _confirm_mode(self, val):
+        Check.is_autor_mode(val, exception_type=ValueError)
+
+    def _confirm_generated_activity_block_id(self, val):
+        Check.is_true(value=Constants.GENERATED_ACTIVITY_BLOCK_ID, exception_type=ValueError, msg=f"In mode: {self._mode} the only allowed activity block id is: {Constants.GENERATED_ACTIVITY_BLOCK_ID}. This value is generated internally by Autor and need not be provided.")
+
+    def _confirm_string(self, name:str, val):
+        Check.is_non_empty_string(val, exception_type=ValueError, msg=f"Mandatory parameter '{name}' not provided.")
+
+    def _confirm_generated_flow_configuration_name(self, val):
+        Check.is_true(value=Constants.GENERATED_FLOW_CONFIG_URL, exception_type=ValueError, msg=f"In mode: {self._mode} the only allowed flow configuration url is: {Constants.GENERATED_FLOW_CONFIG_URL}. This value is generated internally by Autor and need not be provided.")
+
+    def _assure_absence(self, name:str, val):
+        Check.is_none_or_empty(val, exception_type=ValueError, msg=f"Parameter '{name}' must not be provided in mode: {self._mode}")
+
+
+
+
+    def _check_mode_ACTIVITY_BLOCK_params(self, params:dict):
+        all_possible_params = Inparam.get_valid_constants(Inparam)
+        for name in all_possible_params:
+            val = params[name]
+            if name == Inparam.MODE:                    # Mandatory
+                self._confirm_mode(val)
+            elif name == Inparam.ACTIVITY_BLOCK_ID:     # Mandatory
+                self._confirm_string(name, val)
+            elif name == Inparam.ACTIVITY_CONFIG:       # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_ID:           # No
+                self._assure_absence(name, val)
+            elif name == Inparam.INPUT:                 # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_MODULE:       # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_NAME:         # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_TYPE:         # No
+                self._assure_absence(name, val)
+            elif name == Inparam.CUSTOM_DATA:           # Optional (advanced usage)
+                pass
+            elif name == Inparam.FLOW_RUN_ID:           # Optional
+                pass
+            elif name == Inparam.FLOW_CONFIG_URL:       # Mandatory
+                self._confirm_string(name, val)
+            elif name == Inparam.ADDITIONAL_EXTENSIONS: # Optional (advanced usage)
+                pass
+            else:
+                raise AutorFrameworkException(f"Internal error: Unhandled parameter name: {name} -> add to implementation!")
+
+
+    def _check_mode_ACTIVITY_IN_BLOCK_params(self, params:dict):
+        all_possible_params = Inparam.get_valid_constants(Inparam)
+
+
+        activity_id_value:str = None
+        activity_name_value:str = None
+
+        for name in all_possible_params:
+            val = params[name]
+            if name == Inparam.MODE:                    # Mandatory
+                self._confirm_mode(val)
+            elif name == Inparam.ACTIVITY_BLOCK_ID:     # Mandatory
+                self._confirm_string(name, val)
+            elif name == Inparam.ACTIVITY_CONFIG:       # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_NAME:         # Mandatory within group
+                activity_name_value = val
+            elif name == Inparam.ACTIVITY_ID:           # Mandatory within group
+                activity_id_value = val
+            elif name == Inparam.INPUT:                 # Optional
+                pass
+            elif name == Inparam.ACTIVITY_MODULE:       # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_TYPE:         # No
+                self._assure_absence(name, val)
+            elif name == Inparam.CUSTOM_DATA:           # Optional (advanced usage)
+                pass
+            elif name == Inparam.FLOW_RUN_ID:           # Optional
+                pass
+            elif name == Inparam.FLOW_CONFIG_URL:       # Mandatory
+                self._confirm_string(name, val)
+            elif name == Inparam.ADDITIONAL_EXTENSIONS: # Optional (advanced usage)
+                pass
+            else:
+                raise AutorFrameworkException(f"Internal error: Unhandled parameter name: {name} -> add to implementation!")
+
+        # Checking mandatory within group values
+        self._confirm_activity_name_or_id(id=activity_id_value, name=activity_name_value)
+
+    def _check_mode_ACTIVITY_BLOCK_RERUN_params(self, params:dict):
+        all_possible_params = Inparam.get_valid_constants(Inparam)
+        activity_id_value:str = None
+        activity_name_value:str = None
+
+        for name in all_possible_params:
+            val = params[name]
+            if name == Inparam.MODE:                    # Mandatory
+                self._confirm_mode(val)
+            elif name == Inparam.ACTIVITY_BLOCK_ID:     # Mandatory
+                self._confirm_string(name, val)
+            elif name == Inparam.ACTIVITY_CONFIG:       # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_NAME:         # Mandatory within group
+                activity_name_value = val
+            elif name == Inparam.ACTIVITY_ID:           # Mandatory within group
+                activity_id_value = val
+            elif name == Inparam.INPUT:                 # Optional
+                pass
+            elif name == Inparam.ACTIVITY_MODULE:       # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_TYPE:         # No
+                self._assure_absence(name, val)
+            elif name == Inparam.CUSTOM_DATA:           # Optional (advanced usage)
+                pass
+            elif name == Inparam.FLOW_RUN_ID:           # Mandatory
+                self._confirm_string(name, val)
+            elif name == Inparam.FLOW_CONFIG_URL:       # Mandatory
+                self._confirm_string(name, val)
+            elif name == Inparam.ADDITIONAL_EXTENSIONS: # Optional (advanced usage)
+                pass
+            else:
+                raise AutorFrameworkException(f"Internal error: Unhandled parameter name: {name} -> add to implementation!")
+
+        # Checking mandatory within group values
+        self._confirm_activity_name_or_id(name=activity_name_value, id=activity_id_value)
+
+    def _check_mode_ACTIVITY_params(self, params:dict):
+
+        all_possible_params = Inparam.get_valid_constants(Inparam)
+
+        for name in all_possible_params:
+            val = params[name]
+            if name == Inparam.MODE:                    # Mandatory
+                self._confirm_mode(val)
+            elif name == Inparam.ACTIVITY_BLOCK_ID:     # Generated by Autor
+                self._confirm_generated_activity_block_id(val)
+            elif name == Inparam.ACTIVITY_CONFIG:       # Optional
+                pass
+            elif name == Inparam.INPUT:                 # Optional
+                pass
+            elif name == Inparam.ACTIVITY_MODULE:       # Mandatory
+                self._confirm_string(name, val)
+            elif name == Inparam.ACTIVITY_NAME:         # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_ID:           # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_TYPE:         # Mandatory
+                self._confirm_string(name, val)
+            elif name == Inparam.CUSTOM_DATA:           # Optional (advanced usage)
+                pass
+            elif name == Inparam.FLOW_RUN_ID:           # No
+                if Flags.allow_flow_run_id_in_mode_activity:
+                    pass
+                else:
+                    self._assure_absence(name, val)
+            elif name == Inparam.FLOW_CONFIG_URL:       # Generated by Autor
+                self._confirm_generated_flow_configuration_name(val)
+            elif name == Inparam.ADDITIONAL_EXTENSIONS: # Optional (advanced usage)
+                pass
+            else:
+                raise AutorFrameworkException(f"Internal error: Unhandled parameter name: {name} -> add to implementation!")
+
+
+
+
+
+
+
+
+    def _confirm_activity_name_or_id(self, name:str, id:str):
+        valid_name = Util.is_non_empty_string(name)
+        valid_id = Util.is_non_empty_string(id)
+        if valid_name and valid_id:
+            logging.warning(f"{DebugConfig.autor_info_prefix}Found both {Inparam.ACTIVITY_ID} and {Inparam.ACTIVITY_NAME}, whereas only one of them should be provided.")
+
+            if not id.endswith(name):
+                raise ValueError(f"The provided values are not compatible: {Inparam.ACTIVITY_ID}={id} and {Inparam.ACTIVITY_NAME}={name}. Provide only one of them.")
+
+        elif not valid_name and not valid_id:
+            raise ValueError(f"Parameter not found. Expected either: {Inparam.ACTIVITY_ID} or {Inparam.ACTIVITY_NAME}.")
+
+
+
+
+    def _check_and_trim_inputs(self):
+        # Create a temporary dict for parameter validation. The dict contains
+        # pairs (parameter,checked:bool)
+        params:dict = {}
+        params[Inparam.MODE] = self._mode
+        params[Inparam.ACTIVITY_BLOCK_ID] = self._activity_block_id
+        params[Inparam.FLOW_CONFIG_URL] = self._flow_config_url
+        params[Inparam.FLOW_RUN_ID] = self._flow_run_id
+        params[Inparam.ACTIVITY_CONFIG] = self._activity_config
+        params[Inparam.ACTIVITY_MODULE] = self._activity_module
+        params[Inparam.ACTIVITY_NAME] = self._activity_name_special
+        params[Inparam.ACTIVITY_ID] = self._activity_id_special
+        params[Inparam.ACTIVITY_TYPE] = self._activity_type
+        params[Inparam.INPUT] = self._input
+        params[Inparam.CUSTOM_DATA] = self._custom_data
+        params[Inparam.ADDITIONAL_EXTENSIONS] = self._additional_extensions
+
+
+        if self._mode == Mode.ACTIVITY_BLOCK:
+            self._check_mode_ACTIVITY_BLOCK_params(params)
+        elif self._mode == Mode.ACTIVITY_IN_BLOCK:
+            self._check_mode_ACTIVITY_IN_BLOCK_params(params)
+        elif self._mode == Mode.ACTIVITY:
+            self._check_mode_ACTIVITY_params(params)
+        elif self._mode == Mode.ACTIVITY_BLOCK_RERUN:
+            self._check_mode_ACTIVITY_BLOCK_RERUN_params(params)
+        else:
+            raise ValueError(f"Unknown mode: {self._mode}.")
+
+        # self._activity_name_special is always provided by users as an input parameter, but in Autor we only use self._activity_id_special,
+        # so we need to be able to create self._activity_id_special if self._activity_name_special has been provided.
         if self._activity_name_special is not None and self._activity_id_special is None:
             Check.is_non_empty_string(self._activity_block_id, f"Missing activity_block_id. Cannot create special activity-id from special activity name: {self._activity_name_special}.")
             self._activity_id_special = f"{self._activity_block_id}-{self._activity_name_special}"
@@ -1345,6 +1572,7 @@ class ActivityBlock(StateProducer):
         # General
         state_data[sta.ADDITIONAL_EXTENSIONS]           = self._additional_extensions
         state_data[sta.CUSTOM_DATA]                     = self._custom_data
+        state_data[sta.FLAGS]                           = self._flags
         state_data[sta.MODE]                            = self._mode
 
         # Flow
@@ -1410,6 +1638,7 @@ class ActivityBlock(StateProducer):
         # General
         self._additional_extensions             = state_data[sta.ADDITIONAL_EXTENSIONS]
         self._custom_data                       = state_data[sta.CUSTOM_DATA]
+        self._flags                             = state_data[sta.FLAGS]
         self._mode                              = state_data[sta.MODE]
 
         # Flow

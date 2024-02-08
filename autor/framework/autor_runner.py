@@ -39,6 +39,7 @@ def run():
         activity_name           = params.get(argp.ACTIVITY_NAME, None),
         activity_type           = params.get(argp.ACTIVITY_TYPE, None),
         custom_data             = params.get(argp.CUSTOM_DATA, None),
+        flags                   = params.get(argp.FLAGS, None),
         flow_run_id             = params.get(argp.FLOW_RUN_ID, None),
         flow_config_url         = params.get(argp.FLOW_CONFIG_URL, None)
 

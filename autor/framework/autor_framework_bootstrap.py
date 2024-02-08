@@ -26,7 +26,7 @@ from autor.framework.debug_config import DebugConfig
 from autor.framework.file_context import FileContext
 from autor.framework.key_handler import KeyConverter
 from autor.framework.keys import StateKeys as sta
-from autor.framework.state import Bootstrap, FrameworkStart, BeforeActivityBlock, AfterActivityBlock
+from autor.framework.state import Bootstrap, FrameworkStart, BeforeActivityBlock, AfterActivityBlock, State
 from autor.framework.state_listener import StateListener
 from autor.framework.keys import StateKeys as sta
 from autor.framework.util import Util
@@ -75,30 +75,21 @@ class AutorFrameworkBootstrap(StateListener):
         # activity-input
         # activity-config
 
-        if state.activity_module is not None:
-            logging.debug('activity-module is provided -> Preparing to run one activity separately')
-            logging.debug(f'activity_module: {state.activity_module}')
-            logging.debug(f'activity_type:   {state.activity_type}')
-            logging.debug(f'activity_config: {state.activity_config}')
-            logging.debug(f'input:  {state.input}')
-            logging.debug(f'flow_run_id:     {state.flow_run_id}')
+        if state.mode == Mode.ACTIVITY:
             Check.is_non_empty_string(state.activity_module, "activity_mode is mandatory in mode ACTIVITY")
-            Check.is_non_empty_string(state.activity_type,   "activity_type is mandatory in mode ACTIVITY")
+            Check.is_non_empty_string(state.activity_type, "activity_type is mandatory in mode ACTIVITY")
 
             self._fc_helper.create_flow_configuration(state.activity_module, state.activity_type, state.activity_config)
             state.flow_config_url = self._fc_helper.flow_configuration_url
             state.activity_block_id = self._fc_helper.activity_block_id
 
-            Check.not_none(state.flow_config_url)
-            Check.not_none(state.activity_block_id)
-
-        elif state.flow_run_id is not None and state.activity_name_special is not None:
-            logging.debug('flow-run-id and activity-name are provided -> Preparing to re-run activity block')
-            if state.activity_block_id is not None:
-                state.activity_id_special = f'{state.activity_block_id}-{state.activity_name_special}'
-                logging.debug(f'Created activity-id: {state.activity_id_special}')
-            else:
-                logging.debug('activity-block-id not provided -> did not create "activity-id" -> expecting an extension to create "activity-id"')
+        # elif state.flow_run_id is not None and state.activity_name_special is not None:
+        #     logging.debug('flow-run-id and activity-name are provided -> Preparing to re-run activity block')
+        #     if state.activity_block_id is not None:
+        #         state.activity_id_special = f'{state.activity_block_id}-{state.activity_name_special}'
+        #         logging.debug(f'Created activity-id: {state.activity_id_special}')
+        #     else:
+        #         logging.debug('activity-block-id not provided -> did not create "activity-id" -> expecting an extension to create "activity-id"')
 
 
     def _is_camel_case(self, string:str):

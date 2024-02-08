@@ -122,6 +122,7 @@ keys = [
     "EXTENSIONS",
     "FALSE",
     "FIRST_EXCEPTION_MESSAGE",
+    "FLAGS",
     "FLOW_CONFIG",
     "FLOW_CONFIG_URL",
     "FLOW_CONTEXT",
