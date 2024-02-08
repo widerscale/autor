@@ -2,7 +2,7 @@
     "_activityBlocks": {
         "calculateMaxWithNames": {
             "mode": "ACTIVITY_IN_BLOCK",
-            "flowConfigUrl": "test-config.yml",
+            "flowConfigPath": "test-config.yml",
             "_activities": {
                 "calculateMaxWithNames-first": {
                     "skipType": "SKIPPED_BY_FRAMEWORK",
@@ -34,7 +34,7 @@
         }
     },
     "mode": "ACTIVITY_IN_BLOCK",
-    "flowConfigUrl": "test-config.yml",
+    "flowConfigPath": "test-config.yml",
     "skipType": "SKIPPED_BY_FRAMEWORK",
     "action": "SKIP_BY_FRAMEWORK",
     "status": "SKIPPED",

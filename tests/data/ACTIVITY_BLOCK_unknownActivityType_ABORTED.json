@@ -1,6 +1,6 @@
 {
     "mode": "ACTIVITY_BLOCK",
-    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
     "status": "SKIPPED",
     "max": 7,
@@ -11,7 +11,7 @@
         "unknownActivityType": {
             "mode": "ACTIVITY_BLOCK",
             "activityBlockRunId": "2e165047-7b20-448e-a601-5ef630ad849c",
-            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "unknownActivityType-activity1": {
                     "action": "RUN",

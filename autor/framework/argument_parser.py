@@ -51,18 +51,18 @@ of arguments are mandatory or optional once Autor starts running.
 Autor can be run in three modes:
 1. ACTIVITY BLOCK mode
    Autor runs activities in a specified activity block
-   Mandatory: --flow-config-url
+   Mandatory: --flow-config-path
    Mandatory: --activity-block-id
    Optional:  --flow-run-id
    
-   --flow-config-url - URL to the flow configuration file. If this 
+   --flow-config-path - URL to the flow configuration file. If this 
                        argument is not provided, the URL needs to 
                        be provided by an extension. 
                        
    --activity-block-id - The identifier of the activity block that will
                         be run. The identifier must match the activity
                         block identifier within the Flow Configuration
-                        (pointed out by --flow-config-url)
+                        (pointed out by --flow-config-path)
                         
    --flow-run-id - An identifier that binds together several Autor runs.
                    Each Autor run creates data that is saved in context.
@@ -72,22 +72,22 @@ Autor can be run in three modes:
    
 2. ACTIVITY IN BLOCK mode (for development)
    Autor runs one specified activity within a specified activity block
-   Mandatory: --flow-config-url
+   Mandatory: --flow-config-path
    Mandatory: --activity-block-id
    Mandatory: --activity-name
 
-    --flow-config-url - URL to the flow configuration file. If this 
+    --flow-config-path - URL to the flow configuration file. If this 
                        argument is not provided, the URL needs to 
                        be provided by an extension. 
                        
    --activity-block-id - The identifier of the activity block that will
                         be run. The identifier must match the activity
                         block identifier within the Flow Configuration
-                        (pointed out by --flow-config-url)
+                        (pointed out by --flow-config-path)
                         
    --activity-name - An identifier that points out the activity to run
                      inside the Flow Configuration (pointed out by 
-                     --flow-config-url)      
+                     --flow-config-path)      
    
    
    
@@ -142,7 +142,7 @@ Autor can be run in three modes:
 
         parser.add_argument(
             # pylint: disable-next=no-member
-            "--" + cln.FLOW_CONFIG_URL,
+            "--" + cln.FLOW_CONFIG_PATH,
             required=False,
             action="store",
             type=str,

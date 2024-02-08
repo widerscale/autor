@@ -2,7 +2,7 @@
     "_activityBlocks": {
         "calculateMaxWithExceptionEverySecondRun1": {
             "mode": "ACTIVITY_BLOCK",
-            "flowConfigUrl": "test-config.yml",
+            "flowConfigPath": "test-config.yml",
             "_activities": {
                 "calculateMaxWithExceptionEverySecondRun1-activity1": {
                     "action": "RUN",
@@ -38,7 +38,7 @@
         }
     },
     "mode": "ACTIVITY_BLOCK",
-    "flowConfigUrl": "test-config.yml",
+    "flowConfigPath": "test-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
     "run_nbr": 1,

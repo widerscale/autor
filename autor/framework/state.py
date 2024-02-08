@@ -86,14 +86,14 @@ class Bootstrap(State):
         self._dict[sta.MODE] = n
 
 
-    #---------------- flow_config_url --------------------#
+    #---------------- flow_config_path --------------------#
     @property
-    def flow_config_url(self) -> str: # getter
-        return self._dict[sta.FLOW_CONFIG_URL]
+    def flow_config_path(self) -> str: # getter
+        return self._dict[sta.FLOW_CONFIG_PATH]
 
-    @flow_config_url.setter
-    def flow_config_url(self, n:str) -> None:  # setter
-        self._dict[sta.FLOW_CONFIG_URL] = n
+    @flow_config_path.setter
+    def flow_config_path(self, n:str) -> None:  # setter
+        self._dict[sta.FLOW_CONFIG_PATH] = n
 
 
     # --------------- activity_block_id --------------------#

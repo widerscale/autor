@@ -1,6 +1,6 @@
 {
     "mode": "ACTIVITY_IN_BLOCK",
-    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
     "__generatedFlowConfig": null,
@@ -10,7 +10,7 @@
     "_activityBlocks": {
         "statusFlow": {
             "mode": "ACTIVITY_IN_BLOCK",
-            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "statusFlow-first": {
                     "action": "KEEP_AS_IS",

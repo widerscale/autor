@@ -3,7 +3,7 @@
         "generatedActivityBlock": {
             "mode": "ACTIVITY",
             "__AutorFrameworkBootstrap_activityModeCounter": 3,
-            "flowConfigUrl": "autor-config.yml",
+            "flowConfigPath": "autor-config.yml",
             "_activities": {
                 "generatedActivityBlock-activity1": {
                     "action": "RUN",
@@ -30,7 +30,7 @@
     },
     "mode": "ACTIVITY",
     "__AutorFrameworkBootstrap_activityModeCounter": 3,
-    "flowConfigUrl": "autor-config.yml",
+    "flowConfigPath": "autor-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
     "max": 5,

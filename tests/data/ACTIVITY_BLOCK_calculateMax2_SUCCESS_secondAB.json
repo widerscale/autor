@@ -2,7 +2,7 @@
     "_activityBlocks": {
         "calculateMax2": {
             "mode": "ACTIVITY_BLOCK",
-            "flowConfigUrl": "test-config.yml",
+            "flowConfigPath": "test-config.yml",
             "_activities": {
                 "calculateMax2-activity1": {
                     "action": "RUN",
@@ -32,7 +32,7 @@
         }
     },
     "mode": "ACTIVITY_BLOCK",
-    "flowConfigUrl": "test-config.yml",
+    "flowConfigPath": "test-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
     "max": 9,

@@ -46,7 +46,7 @@ class Constants(Constant):
     AUTOR_ENVIRONMENT_VARIABLE_PREFIX = "AUTOR_ARGUMENT_"
     DEBUG_LINE_LENGTH = 50
     GENERATED_ACTIVITY_BLOCK_ID = "generatedActivityBlock"
-    GENERATED_FLOW_CONFIG_URL = "autor-config.yml"
+    GENERATED_FLOW_CONFIG_PATH = "autor-config.yml"
 
 class ContextPropertyPrefix(Constant):
     input = "inp_"
@@ -97,7 +97,7 @@ class Configuration(Constant):
 # Autor in-parameter names
 class Inparam(Constant):
     MODE                    = "mode"
-    FLOW_CONFIG_URL         = "flow-config-url"
+    FLOW_CONFIG_PATH         = "flow-config-path"
     ACTIVITY_BLOCK_ID       = "activity-block-id"
     ACTIVITY_CONFIG         = "activity-config"
     ACTIVITY_ID             = "activity-id"

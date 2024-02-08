@@ -1,6 +1,6 @@
 {
     "mode": "ACTIVITY_BLOCK",
-    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
     "status": "SKIPPED",
     "run_nbr": 2,
@@ -12,7 +12,7 @@
         "calculateMaxWithExceptionEverySecondRun2": {
             "mode": "ACTIVITY_BLOCK",
             "activityBlockRunId": "41143923-e3c0-4bdc-b7d9-a44efde7ead9",
-            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "calculateMaxWithExceptionEverySecondRun2-activity1": {
                     "action": "RUN",

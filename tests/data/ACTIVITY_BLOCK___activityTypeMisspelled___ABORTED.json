@@ -1,6 +1,6 @@
 {
     "mode": "ACTIVITY_BLOCK",
-    "flowConfigUrl": "test_flow_configs/test-config.yml",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
     "status": "SKIPPED",
     "abortType": "ABORTED_BY_FRAMEWORK",
@@ -10,7 +10,7 @@
     "_activityBlocks": {
         "activityTypeMisspelled": {
             "mode": "ACTIVITY_BLOCK",
-            "flowConfigUrl": "test_flow_configs/test-config.yml",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "activityTypeMisspelled-activity1": {
                     "__props": {

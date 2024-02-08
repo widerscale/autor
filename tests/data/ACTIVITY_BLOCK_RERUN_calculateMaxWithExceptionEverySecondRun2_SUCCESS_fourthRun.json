@@ -2,7 +2,7 @@
     "_activityBlocks": {
         "calculateMaxWithExceptionEverySecondRun2": {
             "mode": "ACTIVITY_BLOCK_RERUN",
-            "flowConfigUrl": "test-config.yml",
+            "flowConfigPath": "test-config.yml",
             "_activities": {
                 "calculateMaxWithExceptionEverySecondRun2-activity1": {
                     "action": "REUSE",
@@ -38,7 +38,7 @@
         }
     },
     "mode": "ACTIVITY_BLOCK_RERUN",
-    "flowConfigUrl": "test-config.yml",
+    "flowConfigPath": "test-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
     "run_nbr": 3,

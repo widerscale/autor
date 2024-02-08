@@ -80,7 +80,7 @@ class AutorFrameworkBootstrap(StateListener):
             Check.is_non_empty_string(state.activity_type, "activity_type is mandatory in mode ACTIVITY")
 
             self._fc_helper.create_flow_configuration(state.activity_module, state.activity_type, state.activity_config)
-            state.flow_config_url = self._fc_helper.flow_configuration_url
+            state.flow_config_path = self._fc_helper.flow_configuration_url
             state.activity_block_id = self._fc_helper.activity_block_id
 
         # elif state.flow_run_id is not None and state.activity_name_special is not None:

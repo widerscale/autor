@@ -3,7 +3,7 @@
         "calculateMaxWithNames": {
             "max": 3,
             "mode": "ACTIVITY_IN_BLOCK",
-            "flowConfigUrl": "test-config.yml",
+            "flowConfigPath": "test-config.yml",
             "_activities": {
                 "calculateMaxWithNames-first": {
                     "action": "KEEP_AS_IS"
@@ -27,7 +27,7 @@
     },
     "max": 3,
     "mode": "ACTIVITY_IN_BLOCK",
-    "flowConfigUrl": "test-config.yml",
+    "flowConfigPath": "test-config.yml",
     "action": "KEEP_AS_IS",
     "status": "SUCCESS",
     "activityBlockStatus": "SUCCESS"

@@ -78,7 +78,7 @@ class AutorTester():
             err_msg: str = None,
             flags: dict = None,
             flow_run_id: str = None,
-            flow_config_url: str = None,
+            flow_config_path: str = None,
             mode: str = None, # mandatory if 'expectation' is not provided,
             status: str = None, # mandatory if 'expectation' is not provided
     )->ActivityBlock:
@@ -96,8 +96,8 @@ class AutorTester():
             Check.not_none(mode, "Test framework value error: 'mode' must be provided if 'expectation' is not provided.")
 
         if mode.upper() != Mode.ACTIVITY:
-            if flow_config_url == None:
-                flow_config_url =  "test_flow_configs/test-config.yml"
+            if flow_config_path == None:
+                flow_config_path =  "test_flow_configs/test-config.yml"
 
 
 
@@ -114,7 +114,7 @@ class AutorTester():
             custom_data=custom_data,
             flags=flags,
             flow_run_id=flow_run_id,
-            flow_config_url=flow_config_url,
+            flow_config_path=flow_config_path,
             mode=mode
         )
 
@@ -132,7 +132,7 @@ class AutorTester():
             custom_data = custom_data,
             flags = flags,
             flow_run_id = flow_run_id,
-            flow_config_url = flow_config_url
+            flow_config_path = flow_config_path
         )
 
         # --------------- RUN AUTOR --------------#
@@ -162,7 +162,7 @@ class AutorTester():
             err_msg: str = None,
             flags: dict = None,
             flow_run_id: str = None,
-            flow_config_url: str = None,
+            flow_config_path: str = None,
             mode: str = None, # mandatory if 'expectation' is not provided,
             status: str = None, # mandatory if 'expectation' is not provided
     )->ActivityBlock:
@@ -172,7 +172,7 @@ class AutorTester():
         if custom_data is None: custom_data = {}
 
         #parent_directory = Path(__file__).parent
-        #flow_config_url = str(parent_directory/flow_config_url)
+        #flow_config_path = str(parent_directory/flow_config_path)
 
 
         if expectation is not None:
@@ -186,8 +186,8 @@ class AutorTester():
                 activity_block_id = p_activity_block_id
 
             if mode.upper() != Mode.ACTIVITY:
-                if flow_config_url == None:
-                    flow_config_url = "test_flow_configs/test-config.yml"
+                if flow_config_path == None:
+                    flow_config_path = "test_flow_configs/test-config.yml"
         else:
             Check.not_none(mode, "Test framework value error: 'mode' must be provided if 'expectation' is not provided.")
 
@@ -203,7 +203,7 @@ class AutorTester():
             custom_data=custom_data,
             flags=flags,
             flow_run_id=flow_run_id,
-            flow_config_url=flow_config_url,
+            flow_config_path=flow_config_path,
             mode=mode
         )
 
@@ -221,7 +221,7 @@ class AutorTester():
             custom_data = custom_data,
             flags = flags,
             flow_run_id = flow_run_id,
-            flow_config_url = flow_config_url
+            flow_config_path = flow_config_path
         )
 
         # --------------- RUN AUTOR --------------#
@@ -311,7 +311,7 @@ class AutorTester():
             custom_data: dict = None,
             flags :dict = None,
             flow_run_id: str = None,
-            flow_config_url: str = None,
+            flow_config_path: str = None,
             mode: str = None
     ):
         if activity_config is None: activity_config = {}
@@ -334,7 +334,7 @@ class AutorTester():
         command = AutorTester._add_to_command(activity_type, "activity-type", command)
         command = AutorTester._add_dict_to_command(custom_data, "custom-data", command)
         command = AutorTester._add_to_command(flow_run_id, "flow-run-id", command)
-        command = AutorTester._add_to_command(flow_config_url, "flow-config-url", command)
+        command = AutorTester._add_to_command(flow_config_path, "flow-config-path", command)
 
         AutorTester.__commands.append(command)
 

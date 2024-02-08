@@ -52,7 +52,7 @@ def test_bootstrap_configuration():
     extensions:list = ['tests.test_extensions.ConfigBootstrapExtension.ConfigBootstrapExtension']
     custom_data:dict = {}
     data:dict = {}
-    data["flowConfigUrl"] = "test-config.yml"
+    data["flowConfigPath"] = "test-config.yml"
     data["activityBlockId"] = "calculateMax"
     custom_data["ConfigBootstrapExtension"] = data
     ab = test.run(additional_extensions=extensions, custom_data=custom_data, expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS_bootstrapConfig')
@@ -62,7 +62,7 @@ def test_bootstrap_configuration_commandline_prio():
     extensions:list = ['tests.test_extensions.ConfigBootstrapExtension.ConfigBootstrapExtension']
     custom_data:dict = {}
     data:dict = {}
-    data["flowConfigUrl"] = "test-config.yml"
+    data["flowConfigPath"] = "test-config.yml"
     data["activityBlockId"] = "calculateMax"  # This should not be used by the extension (<- testing this)
     custom_data["ConfigBootstrapExtension"] = data
     ab = test.run(activity_block_id='calculateMax2',additional_extensions=extensions, custom_data=custom_data, expectation='ACTIVITY_BLOCK_calculateMax2_SUCCESS_bootstrapConfigActivityIdProvided')
@@ -191,7 +191,7 @@ def test_ACTIVITY_BLOCK_err_misspelled_activity_type():
 def test_ACTIVITY_BLOCK_err_activity_defined_without_type():
     # Flow config contains an activity that is decorated, but lacks type.
     # Running activity blocks that don't include that problematic activity should succeed
-    ab = test.run(activity_block_id='calculateMax', mode="ACTIVITY_BLOCK", status="SUCCESS", flow_config_url="test_flow_configs/test-config-activity-impl-misses-type.yml")
+    ab = test.run(activity_block_id='calculateMax', mode="ACTIVITY_BLOCK", status="SUCCESS", flow_config_path="test_flow_configs/test-config-activity-impl-misses-type.yml")
 
 def test_ACTIVITY_BLOCK_err_input_misspelling():
     #assert False, "Test not implemented"

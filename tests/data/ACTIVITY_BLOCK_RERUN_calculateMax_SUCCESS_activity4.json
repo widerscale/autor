@@ -2,7 +2,7 @@
     "_activityBlocks": {
         "calculateMax": {
             "mode": "ACTIVITY_BLOCK_RERUN",
-            "flowConfigUrl": "test-config.yml",
+            "flowConfigPath": "test-config.yml",
             "_activities": {
                 "calculateMax-activity1": {
                     "action": "REUSE",
@@ -32,7 +32,7 @@
         }
     },
     "mode": "ACTIVITY_BLOCK_RERUN",
-    "flowConfigUrl": "test-config.yml",
+    "flowConfigPath": "test-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
     "max": 5,

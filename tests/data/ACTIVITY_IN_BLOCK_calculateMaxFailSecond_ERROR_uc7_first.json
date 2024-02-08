@@ -2,7 +2,7 @@
     "_activityBlocks": {
         "calculateMaxFailSecond": {
             "mode": "ACTIVITY_IN_BLOCK",
-            "flowConfigUrl": "test-config.yml",
+            "flowConfigPath": "test-config.yml",
             "_activities": {
                 "calculateMaxFailSecond-first": {
                     "action": "RUN",
@@ -30,7 +30,7 @@
         }
     },
     "mode": "ACTIVITY_IN_BLOCK",
-    "flowConfigUrl": "test-config.yml",
+    "flowConfigPath": "test-config.yml",
     "action": "KEEP_AS_IS",
     "status": "SUCCESS",
     "max": 5,

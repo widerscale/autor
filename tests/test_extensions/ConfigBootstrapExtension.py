@@ -9,7 +9,7 @@ class ConfigBootstrapExtension(StateListener):
     def on_bootstrap(self, state: Bootstrap):
 
         """
-        Provide flow-config-url and/or activity-block-id values in case these were not provided as input arguments.
+        Provide flow-config-path and/or activity-block-id values in case these were not provided as input arguments.
         The values to set should be provided through the custom_data argument to Autor.
         """
 
@@ -20,15 +20,15 @@ class ConfigBootstrapExtension(StateListener):
         logging.info(f"custom_data type: {type(state.custom_data)}")
         data = state.custom_data.get("ConfigBootstrapExtension", {})
 
-        flow_config_url = state.custom_data.get("ConfigBootstrapExtension", {}).get("flowConfigUrl", None)
+        flow_config_path = state.custom_data.get("ConfigBootstrapExtension", {}).get("flowConfigPath", None)
         activity_block_id = state.custom_data.get("ConfigBootstrapExtension", {}).get("activityBlockId", None)
 
-        if state.flow_config_url is None or state.flow_config_url == "":
-            if flow_config_url is None:
-                raise AutorExtensionException("Expected ConfigBootstrapExtension.flowConfigUrl in custom_data (command-line argument)")
+        if state.flow_config_path is None or state.flow_config_path == "":
+            if flow_config_path is None:
+                raise AutorExtensionException("Expected ConfigBootstrapExtension.flowConfigPath in custom_data (command-line argument)")
             else:
-                self.log_info(f'flow-config-url: {state.flow_config_url} -> {flow_config_url}')
-                state.flow_config_url = flow_config_url
+                self.log_info(f'flow-config-path: {state.flow_config_path} -> {flow_config_path}')
+                state.flow_config_path = flow_config_path
 
 
         if state.activity_block_id is None or state.activity_block_id == "":
