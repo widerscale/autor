@@ -13,8 +13,8 @@
             "_activities": {
                 "calculateMaxWithException-activity1": {
                     "__props": {
-                        "cfg_val": 3,
-                        "inp_max": 0
+                        "cfg_provide__val": 3,
+                        "inp_default__max": 0
                     },
                     "action": "KEEP_AS_IS"
                 },
@@ -24,15 +24,15 @@
                 },
                 "calculateMaxWithException-activity3": {
                     "__props": {
-                        "cfg_val": 1,
-                        "inp_max": 0
+                        "cfg_provide__val": 1,
+                        "inp_default__max": 0
                     },
                     "action": "KEEP_AS_IS"
                 },
                 "calculateMaxWithException-activity4": {
                     "__props": {
-                        "cfg_val": 4,
-                        "inp_max": 0
+                        "cfg_provide__val": 4,
+                        "inp_default__max": 0
                     },
                     "action": "KEEP_AS_IS"
                 }

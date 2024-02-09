@@ -30,18 +30,18 @@ config = ContextPropertiesRegistry.config
 # my max (received through configuration)
 @ActivityRegistry.activity(type="max")
 class Max(Activity):
+
     # region property: max @input/output(mandatory=False/True, type=int)
     @property
-    @input(mandatory=False, type=int, default=0)  # load the value before run() is called
-    @output(mandatory=True, type=int)  # save the value after  run() is finished
-    def max(self) -> int:  # getter
-        return self.__max
+    @input(mandatory=False, type=int, default=0)
+    @output(mandatory=True, type=int)
+    def max(self) -> int:
+        return self._max
 
     @max.setter
-    def max(self, n) -> None:  # setter
-        self.__max = n
+    def max(self, n) -> None:
+        self._max = n
     # endregion
-
     # region property: val @config(mandatory=True, type=int)
     @property
     @config(mandatory=True, type=int)
@@ -54,25 +54,18 @@ class Max(Activity):
     # endregion
 
 
-
-
-
-
-
     def run(self):
         # ---------------- Prepare inputs -------------------#
-        #my_val = self.configuration["val"]  # Read my max from Flow Configuration file
         logging.info(f"Property:        'max': {self.max} (initial value read from context)")
         logging.info(f"Configuration:   'val': {self.val} (value provided through configuration)")
 
-        # ----------------- Call helper ----------------------#
-        new_max = Helper.max(val1=self.val, val2=self.max)
-        logging.info(f"Property:        'max': {new_max} (final value written to context)")
+        # --------------- Calculate max --------------------#
+        new_max = max(self.val, self.max)
 
-        # --------------- Prepare outputs --------------------#
+        # ------------------ Set output --------------------#
         self.max = new_max
-
-        # ------------------ Set status ----------------------#
+        logging.info(f"Property:        'max': {new_max} (final value written to context)")
+        # ------------------ Set status --------------------#
         if "status" in self.configuration:
             self.status = self.configuration["status"]
 

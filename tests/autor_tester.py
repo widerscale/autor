@@ -321,7 +321,7 @@ class AutorTester():
 
 
         # Create a commandline command for debugging purposes
-        command = "python -m autor "
+        command = "python -m autor"
         command = AutorTester._add_to_command(mode, "mode", command)
         command = AutorTester._add_list_to_command(additional_extensions, "additional-extensions", command)
         command = AutorTester._add_to_command(activity_block_id, "activity-block-id", command)

@@ -53,7 +53,7 @@ class Max(Activity):
         logging.info(f"Configuration:   'val': {my_val} (value provided through configuration)")
 
         # ----------------- Call helper ----------------------#
-        new_max = Helper.max(val1=my_val, val2=self.max)
+        new_max = max(my_val, self.max)
         logging.info(f"Property:        'max': {new_max} (final value written to context)")
 
         # --------------- Prepare outputs --------------------#
@@ -64,16 +64,4 @@ class Max(Activity):
             self.status = self.configuration["status"]
 
 
-
-class Helper:
-
-    @staticmethod
-    def max(val1: int, val2: int):
-        if val1 is None and val2 is None:
-            raise ValueError("Both parameters to Helper.max() were None.")
-        if val1 is None:
-            return val2
-        if val2 is None:
-            return val1
-        return max(val1,val2)
 

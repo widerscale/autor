@@ -134,8 +134,8 @@ class ActivityRunner:
                 StateHandler.change_state(State.BEFORE_ACTIVITY_RUN)
                 # ----------------------------------------------------------------#
                 activity_full_class_name:str = f"{self._data.activity.__module__}.{self._data.activity.__class__.__name__}"
-                logging.info(f'{DebugConfig.autor_info_prefix}')
-                logging.info(f'{DebugConfig.autor_info_prefix}')
+                #logging.info(f'{DebugConfig.autor_info_prefix}')
+                #logging.info(f'{DebugConfig.autor_info_prefix}')
                 logging.info(f"{DebugConfig.autor_info_prefix}---------> Started activity: [Name:{self._data.activity_name} Type:{self._data.activity_type}, Class:{activity_full_class_name}] -------->")
                 #logging.info(f'{DebugConfig.autor_info_prefix}')
                 #logging.info(f'{DebugConfig.autor_info_prefix}Started activity name:  {self._data.activity_name}')
@@ -172,7 +172,7 @@ class ActivityRunner:
 
             if self._ok_to_run():
                 logging.info(f'{DebugConfig.autor_info_prefix}Activity status: {self._data.activity.status}')
-                logging.info(DebugConfig.autor_info_prefix)
+                #logging.info(DebugConfig.autor_info_prefix)
 
 
             # Add more data to the activity context.
@@ -183,6 +183,7 @@ class ActivityRunner:
                 self._save_activity_properties(status_only = not self._ok_to_run()) # if something is wrong, we should only save status
                 # Store the activity values in the data object.
                 self._data.outputs = self._context_properties_handler.get_output_properties_values(status_only = not self._ok_to_run())
+                logging.info(DebugConfig.autor_info_prefix)
 
 
         except Exception as e:

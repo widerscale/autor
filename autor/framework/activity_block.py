@@ -464,8 +464,8 @@ class ActivityBlock(StateProducer):
                 self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_ID:           # No
                 self._assure_absence(name, val)
-            elif name == Inparam.INPUT:                 # No
-                self._assure_absence(name, val)
+            elif name == Inparam.INPUT:                 # Optional
+                pass
             elif name == Inparam.ACTIVITY_MODULE:       # No
                 self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_NAME:         # No
@@ -766,8 +766,8 @@ class ActivityBlock(StateProducer):
                     properties: dict = data.activity_context.get(ContextPropertyPrefix.props)
 
                     for (key, val) in properties.items():
-                        if key.startswith(ContextPropertyPrefix.output):
-                            prop_name = key[4:]
+                        if key.startswith(ContextPropertyPrefix.out_provide):
+                            prop_name = key[len(ContextPropertyPrefix.out_provide):]
                             activity["activity_outputs"][prop_name] = val
 
 
@@ -989,7 +989,7 @@ class ActivityBlock(StateProducer):
         attr = self._flow_run_id
         self._print_attribute(attr, "flow_run_id:           ")
         attr = self._flow_config_path
-        self._print_attribute(attr, "flow_config_path:       ")
+        self._print_attribute(attr, "flow_config_path:      ")
 
 
         logging.info(f'{prefix}')

@@ -1,18 +1,18 @@
 {
     "mode": "ACTIVITY_BLOCK",
-    "flowConfigPath": "test_flow_configs/test-config.yml",
+    "flowConfigPath": "test_flow_configs/doc-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
-    "max": 4,
+    "max": 5,
     "__generatedFlowConfig": null,
-    "activityBlockStatus": "ERROR",
+    "activityBlockStatus": "SUCCESS",
     "activityBlockInterrupted": false,
     "_activityBlocks": {
-        "calculateMaxWithExceptionAllowError": {
+        "calculateMax": {
             "mode": "ACTIVITY_BLOCK",
-            "flowConfigPath": "test_flow_configs/test-config.yml",
+            "flowConfigPath": "test_flow_configs/doc-config.yml",
             "_activities": {
-                "calculateMaxWithExceptionAllowError-activity1": {
+                "calculateMax-activity1": {
                     "__props": {
                         "cfg_provide__val": 3,
                         "inp_default__max": 0,
@@ -23,14 +23,7 @@
                     "status": "SUCCESS",
                     "max": 3
                 },
-                "calculateMaxWithExceptionAllowError-activity2": {
-                    "__props": {
-                        "out_provide__status": "ERROR"
-                    },
-                    "action": "RUN",
-                    "status": "ERROR"
-                },
-                "calculateMaxWithExceptionAllowError-activity3": {
+                "calculateMax-activity2": {
                     "__props": {
                         "cfg_provide__val": 1,
                         "inp_provide__max": 3,
@@ -41,22 +34,33 @@
                     "status": "SUCCESS",
                     "max": 3
                 },
-                "calculateMaxWithExceptionAllowError-activity4": {
+                "calculateMax-activity3": {
                     "__props": {
-                        "cfg_provide__val": 4,
+                        "cfg_provide__val": 5,
                         "inp_provide__max": 3,
                         "out_provide__status": "SUCCESS",
-                        "out_provide__max": 4
+                        "out_provide__max": 5
                     },
                     "action": "RUN",
                     "status": "SUCCESS",
-                    "max": 4
+                    "max": 5
+                },
+                "calculateMax-activity4": {
+                    "__props": {
+                        "cfg_provide__val": 4,
+                        "inp_provide__max": 5,
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 5
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
                 }
             },
             "action": "RUN",
             "status": "SUCCESS",
-            "max": 4,
-            "activityBlockStatus": "ERROR",
+            "max": 5,
+            "activityBlockStatus": "SUCCESS",
             "activityBlockInterrupted": false
         }
     }

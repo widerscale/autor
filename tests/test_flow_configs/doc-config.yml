@@ -1,0 +1,330 @@
+---
+flowId: example-flow
+
+#   E X T E N S I O N S
+#######################
+extensions:
+   #- examples.extensions.context.AddFileContext
+
+
+#   A C T I V I T Y   M O D U L E S
+###################################
+activityModules:
+  - test_activities.doc_activities
+
+
+#   A C T I V I T Y   B L O C K S
+#################################
+activityBlocks:
+
+  calculateMax:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+
+
+
+
+
+
+
+
+  calculateMaxWithException:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+
+      - type: divide-by-zero
+
+      - type: max
+        configuration:
+          val: 1
+
+      - type: max
+        configuration:
+          val: 4
+
+
+  calculateMaxWithExceptionAllowError:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+      - type: divide-by-zero
+        continueOn:
+          ALL
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 4
+
+
+  calculateMax2:
+    activities:
+      - type: max
+        configuration:
+          val: 2
+      - type: max
+        configuration:
+          val: 6
+      - type: max
+        configuration:
+          val: 9
+      - type: max
+        configuration:
+          val: 8
+
+  calculateMaxWithNames:
+    activities:
+      - type: max
+        name: first
+        configuration:
+          val: 3
+      - type: max
+        name: second
+        configuration:
+          val: 1
+      - type: max
+        name: third
+        configuration:
+          val: 5
+      - type: max
+        name: fourth
+        configuration:
+          val: 4
+
+
+
+  calculateMaxFailSecond:
+    activities:
+      - type: max
+        name: first
+        configuration:
+          val: 3
+      - type: max
+        name: second
+        configuration:
+          val: 1
+          status: ERROR
+      - type: max
+        name: third
+        configuration:
+          val: 5
+      - type: max
+        name: fourth
+        configuration:
+          val: 4
+
+
+
+  calculateMaxWithExceptionEverySecondRun1:
+    activities:
+      - type: run-nbr
+      - type: max
+        configuration:
+          val: 3
+      - type: max
+        configuration:
+          val: 1
+      - type: max-with-exception-every-second-run
+        name: exceptionEverySecondRun
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+  calculateMaxWithExceptionEverySecondRun2:
+    activities:
+      - type: run-nbr
+      - type: max
+        configuration:
+          val: 3
+      - type: max
+        configuration:
+          val: 1
+      - type: max-with-exception-every-second-run
+        name: exceptionEverySecondRun
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+
+
+
+  unknownActivityType:
+    activities:
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 7
+      - type: my-type-is-unknown
+        configuration:
+          val: 99
+      - type: max
+        configuration:
+          val: 2
+      - type: max
+        configuration:
+          val: 9
+
+  activityTypeMisspelled:
+    activities:
+      - type: max-misspelled
+        configuration:
+          val: 3
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+
+  decoratorRuleBreaking1:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+      - type: max-problem-1
+        configuration:
+          val: 1
+      - type: max-problem-2
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+
+  decoratorRuleBreaking2:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+      - type: max-problem-1
+        configuration:
+          val: 1
+      - type: max-problem-2
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+  decoratorRuleBreaking3:
+    activities:
+      - type: max-problem-2
+        configuration:
+          val: 3
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+
+  missingMandatoryMax:
+    activities:
+      - type: mandatory-max
+
+
+  statusFlow:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: fail-every-second-run
+        name: second
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+
+
+  statusFlowFail:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: second
+        configuration:
+          status_to_set: FAIL
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+
+
+  statusFlowSkip:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: second
+        configuration:
+          status_to_set: SKIPPED
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+
+  statusFlowSuccess:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: second
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+
+  statusFlowAborted:
+    activities:
+      - type: configurable-status
+        name: first
+        configuration:
+          status_to_set: SUCCESS
+      - type: configurable-status
+        name: second
+        configuration:
+          status_to_set: ABORTED
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS

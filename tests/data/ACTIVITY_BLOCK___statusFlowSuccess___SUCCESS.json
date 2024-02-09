@@ -13,24 +13,24 @@
             "_activities": {
                 "statusFlowSuccess-first": {
                     "__props": {
-                        "cfg_status_to_set": "SUCCESS",
-                        "out_status": "SUCCESS"
+                        "cfg_provide__status_to_set": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "statusFlowSuccess-second": {
                     "__props": {
-                        "cfg_status_to_set": "SUCCESS",
-                        "out_status": "SUCCESS"
+                        "cfg_provide__status_to_set": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "statusFlowSuccess-third": {
                     "__props": {
-                        "cfg_status_to_set": "SUCCESS",
-                        "out_status": "SUCCESS"
+                        "cfg_provide__status_to_set": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"

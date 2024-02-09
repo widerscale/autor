@@ -102,11 +102,17 @@ class ContextPropertiesHandler:
         props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
         if property_category == "CONFIG":
             property_source = "configuration"
-            property_prefix = ContextPropertyPrefix.config
+            print_str = "config"
+            prefix_provide = ContextPropertyPrefix.cfg_provide
+            prefix_default = ContextPropertyPrefix.cfg_default
+            #property_prefix = ContextPropertyPrefix.config
             props: List[ContextProperty] = ContextPropertiesRegistry.get_config_properties(self._object)
         elif property_category == "INPUT":
             property_source = "context"
-            property_prefix = ContextPropertyPrefix.input
+            print_str = "input "
+            prefix_provide = ContextPropertyPrefix.inp_provide
+            prefix_default = ContextPropertyPrefix.inp_default
+            #property_prefix = ContextPropertyPrefix.input
             props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
         else:
             raise AutorFrameworkException(f"Unhandled property category: {property_category}. Cannot load properties of that category.")
@@ -136,7 +142,10 @@ class ContextPropertiesHandler:
                     raise ContextPropertiesHandlerValueException(f"Type error in Object: {str(self._object.__class__.__name__)}. Expected {property_category} property: {prop.name} of type: {str(prop.property_type)}, received type: {str(prop_value.__class__.__name__)}")
                 setattr(self._object, prop.name, prop_value)
                 #self._output_context.set(f"{property_category}_{prop.name}", prop_value, propagate_value=False)
-                self._props[f"{property_prefix}{prop.name}"] = prop_value
+                self._props[f"{prefix_provide}{prop.name}"] = prop_value
+                if DebugConfig.print_activity_properties_details:
+                    #logging.info(f"{DebugConfig.autor_info_prefix}{property_prefix}provided_{prop.name}: {prop_value}")
+                    logging.info(f"{DebugConfig.autor_info_prefix}{print_str} (provided): {prop.name}={prop_value}")
 
 
 
@@ -148,8 +157,7 @@ class ContextPropertiesHandler:
             # Mandatory inputs must not have default values in decorators
             # Mandatory inputs must not have default values in constructor
             # Mandatory inputs must have a value in context/configuration
-            # Non-mandatory inputs must not have default values defined BOTH in constructor and decorator
-            # Non-mandatory inputs are set to None if no default value is found in constructor nor decorator
+            # Non-mandatory inputs must have default value defined either in decorator or constructor, but not in both.
             # Outputs may not have default values
             # Provided values must be of right type
             # Provided default values must be of right type
@@ -158,10 +166,10 @@ class ContextPropertiesHandler:
 
             else:
                 # If a (non-mandatory) property is None, check if the class has defined a default value. If not,
-                # set the default value to None. This way there will not be a case when a class does not have a property
-                # attribute defined at all.
+                # throw an exception.
 
 
+                # Default value provided by constructor
                 if self._default_value_in_constructor(self._object, prop.name):
 
                     if prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED: # both object and property have defined a default property value
@@ -178,23 +186,31 @@ class ContextPropertiesHandler:
                         raise ContextPropertiesHandlerValueException(err_msg)
 
 
-                else: # property not defined by object
-                    if prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED:
+                else:
+                    if prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED: # Default value provided by decorator
                         if not isinstance(prop.default, prop.property_type):
                             raise ContextPropertiesHandlerValueException(
                                 f"Type error in Object: {str(self._object.__class__.__name__)}. Expected default value of type: {str(prop.property_type)}, received type: {str(prop.default.__class__.__name__)} for {property_category} property: {prop.name}")
 
                         setattr(self._object, prop.name, prop.default) # if default value was defined in the decorator @input -> set the decorator default value
                         #self._output_context.set(f"{property_category}_{prop.name}", prop.default, propagate_value=False)
-                        self._props[f"{property_prefix}{prop.name}"] = prop.default
-                    else:
-                        setattr(self._object, prop.name, None) # if no default value is available, set None
+                        self._props[f"{prefix_default}{prop.name}"] = prop.default
+                        if DebugConfig.print_activity_properties_details:
+                            #logging.info(f"{DebugConfig.autor_info_prefix}{property_prefix}default_{prop.name}: {prop.default}")
+                            logging.info(f"{DebugConfig.autor_info_prefix}{print_str} (default):  {prop.name}={prop.default}")
+
+
+
+                    else: # Default value not provided by constructor nor decorator -> problem!
+
+                        #setattr(self._object, prop.name, None) # if no default value is available, set None
                         #self._output_context.set(f"{property_category}_{prop.name}", None, propagate_value=False)
-                        self._props[f"{property_prefix}{prop.name}"] = None
-
-                        logging.warning(f"{DebugConfig.autor_info_prefix}Warning while trying to set optional input property {self._object.__class__.__name__}.{prop.name}:")
-                        logging.warning(f"{DebugConfig.autor_info_prefix}No value found for key: '{prop.name}' -> setting property: {self._object.__class__.__name__}.{prop.name} = None")
-
+                        #self._props[f"{property_prefix}{prop.name}"] = None
+                        #if DebugConfig.print_activity_properties_details:
+                            #logging.info(f"{DebugConfig.autor_info_prefix}{property_prefix}None_{prop.name}: None")
+                            #logging.info(f"{DebugConfig.autor_info_prefix}{print_str} (None):     {prop.name}=None")
+                        raise ContextPropertiesHandlerValueException(
+                            f"No default value found for optional property: '{prop.name}' in class {self._object.__class__.__name__}. Default porperties must have a default value.")
 
 
 
@@ -208,12 +224,13 @@ class ContextPropertiesHandler:
         # Rules
         # ___________________________________________________________
 
+        #logging.info(f"Checking property: {prop.name}")
+        #prop.print()
+
         # Mandatory inputs must not have default values in decorators
         if prop.mandatory and self._default_value_in_decorator(prop):
-            logging.warning(
-                f"{DebugConfig.autor_info_prefix}Mandatory Activity inputs should not have default values defined in decorator.")
-            logging.warning(
-                f"{DebugConfig.autor_info_prefix}The provided default value will be ignored during the execution.")
+            logging.warning(f"{DebugConfig.autor_info_prefix}Mandatory Activity inputs should not have default values defined in decorator.")
+            logging.warning(f"{DebugConfig.autor_info_prefix}The provided default value will be ignored during the execution.")
             logging.warning(f"{DebugConfig.autor_info_prefix}   class:    {cls.__name__}")
             logging.warning(f"{DebugConfig.autor_info_prefix}   property: {prop.name}")
             logging.warning(f"{DebugConfig.autor_info_prefix}   type:     {prop.property_type}")
@@ -223,10 +240,8 @@ class ContextPropertiesHandler:
 
         # Mandatory inputs must not have default values in constructor
         if prop.mandatory and self._default_value_in_constructor(self._object, prop.name):
-            logging.warning(
-                f"{DebugConfig.autor_info_prefix}Mandatory Activity inputs properties should not have default values defined in constructor.")
-            logging.warning(
-                f"{DebugConfig.autor_info_prefix}The provided default value will be ignored during the execution.")
+            logging.warning(f"{DebugConfig.autor_info_prefix}Mandatory Activity inputs properties should not have default values defined in constructor.")
+            logging.warning(f"{DebugConfig.autor_info_prefix}The provided default value will be ignored during the execution.")
             logging.warning(f"{DebugConfig.autor_info_prefix}   class:             {cls.__name__}")
             logging.warning(f"{DebugConfig.autor_info_prefix}   property:          {prop.name}")
             logging.warning(f"{DebugConfig.autor_info_prefix}   type:              {prop.property_type}")
@@ -237,6 +252,15 @@ class ContextPropertiesHandler:
 
 
 
+
+        # Non-mandatory inputs must have a default value defined either in decorator or constructor
+        if not prop.mandatory and (not self._default_value_in_constructor(self._object, prop.name) and not self._default_value_in_decorator(prop)):
+            err_msg = f"Missing default value for Activity property: {prop.name}. Optional Activity properties must have a default value defined. " \
+                      f"Class: {cls.__name__}, " \
+                      f"property: {prop.name}, " \
+                      f"type: {prop.property_type}, " \
+                      f"file: {inspect.getfile(cls)}"
+            raise ContextPropertiesHandlerValueException(err_msg)
 
 
 
@@ -390,13 +414,14 @@ class ContextPropertiesHandler:
                             )
                         )
                     # Set the property value to the context
-                    #ctx_key = KeyHandler.convert_key(
-                       # prop.name, from_format=prp.format, to_format=ctx.format
-                   # )
                     self._output_context.set(prop.name, prop_value)
-                    #self._output_context.set(f"OUTPUT_{prop.name}", prop_value, propagate_value=False)
-                    self._props[f"{ContextPropertyPrefix.output}{prop.name}"] = prop_value
-
+                    self._props[f"{ContextPropertyPrefix.out_provide}{prop.name}"] = prop_value
+                    if DebugConfig.print_activity_properties_details:
+                        logging.info(f"{DebugConfig.autor_info_prefix}output: {prop.name}={prop_value}")
+# input  (provided)
+# input  (default)
+# output (provided)
+# config (provided)
 
         # Synchronize the context with the remote context (if it exists)
         self._output_context.sync_remote()
