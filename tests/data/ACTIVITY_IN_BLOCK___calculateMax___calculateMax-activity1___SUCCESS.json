@@ -1,0 +1,55 @@
+{
+    "mode": "ACTIVITY_IN_BLOCK",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
+    "action": "KEEP_AS_IS",
+    "status": "SUCCESS",
+    "max": 3,
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false,
+    "_activityBlocks": {
+        "calculateMax": {
+            "mode": "ACTIVITY_IN_BLOCK",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "calculateMax-activity1": {
+                    "__props": {
+                        "cfg_provide__val": 3,
+                        "inp_default__max": 0,
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 3
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMax-activity2": {
+                    "__props": {
+                        "cfg_provide__val": 1,
+                        "inp_provide__max": 3
+                    },
+                    "action": "KEEP_AS_IS"
+                },
+                "calculateMax-activity3": {
+                    "__props": {
+                        "cfg_provide__val": 5,
+                        "inp_provide__max": 3
+                    },
+                    "action": "KEEP_AS_IS"
+                },
+                "calculateMax-activity4": {
+                    "__props": {
+                        "cfg_provide__val": 4,
+                        "inp_provide__max": 3
+                    },
+                    "action": "KEEP_AS_IS"
+                }
+            },
+            "action": "KEEP_AS_IS",
+            "status": "SUCCESS",
+            "max": 3,
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false
+        }
+    }
+}

@@ -209,11 +209,11 @@ Autor can be run in three modes:
         def json_string_or_simple_format(arg)->dict:
             try:
                 dict_data: dict = json.loads(arg)
-                logging.info(f"{DebugConfig.string_arg_parsing_prefix}Argument is JSON string: {arg}")
+                #logging.info(f"{DebugConfig.string_arg_parsing_prefix}Argument is JSON string: {arg}")
 
             except:
                 try:
-                    logging.info(f"{DebugConfig.string_arg_parsing_prefix}Argument is NOT JSON string: {arg}")
+                    #logging.info(f"{DebugConfig.string_arg_parsing_prefix}Argument is NOT JSON string: {arg}")
                     eq_split = arg.split('=')
 
                     # E X A M P L E

@@ -1,0 +1,53 @@
+{
+    "max": 3,
+    "mode": "ACTIVITY",
+    "__AutorFrameworkBootstrap_activityModeCounter": 1,
+    "flowConfigPath": "autor-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "__generatedFlowConfig": {
+        "flowId": "autor-flow",
+        "activityModules": [
+            "test_activities.doc_activities"
+        ],
+        "activityBlocks": {
+            "generatedActivityBlock": {
+                "activities": [
+                    {
+                        "type": "max",
+                        "configuration": {
+                            "val": 3
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false,
+    "_activityBlocks": {
+        "generatedActivityBlock": {
+            "max": 3,
+            "mode": "ACTIVITY",
+            "__AutorFrameworkBootstrap_activityModeCounter": 1,
+            "flowConfigPath": "autor-config.yml",
+            "_activities": {
+                "generatedActivityBlock-activity1": {
+                    "__props": {
+                        "cfg_provide__val": 3,
+                        "inp_provide__max": 2,
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 3
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false
+        }
+    }
+}

@@ -19,7 +19,7 @@ import autor.framework.autor_framework_activities
 from autor.framework.activity_data import ActivityData
 from autor.framework.activity_factory import ActivityFactory
 from autor.framework.check import Check
-from autor.framework.constants import Action, ExceptionType, Status
+from autor.framework.constants import Action, ExceptionType, Status, ContextPropertyPrefix
 from autor.framework.context_properties_handler import ContextPropertiesHandler
 from autor.framework.debug_config import DebugConfig
 from autor.framework.exception_handler import ExceptionHandler
@@ -134,8 +134,9 @@ class ActivityRunner:
                 StateHandler.change_state(State.BEFORE_ACTIVITY_RUN)
                 # ----------------------------------------------------------------#
                 activity_full_class_name:str = f"{self._data.activity.__module__}.{self._data.activity.__class__.__name__}"
-                #logging.info(f'{DebugConfig.autor_info_prefix}')
-                #logging.info(f'{DebugConfig.autor_info_prefix}')
+                logging.info(f'{DebugConfig.autor_info_prefix}')
+                logging.info(f'{DebugConfig.autor_info_prefix}')
+                self._print_activity_inputs_and_configs()
                 logging.info(f"{DebugConfig.autor_info_prefix}---------> Started activity: [Name:{self._data.activity_name} Type:{self._data.activity_type}, Class:{activity_full_class_name}] -------->")
                 #logging.info(f'{DebugConfig.autor_info_prefix}')
                 #logging.info(f'{DebugConfig.autor_info_prefix}Started activity name:  {self._data.activity_name}')
@@ -152,15 +153,47 @@ class ActivityRunner:
                 #logging.info(f'{DebugConfig.autor_info_prefix}')
                 logging.info(f"{DebugConfig.autor_info_prefix}<-------- Finished activity: [Name:{self._data.activity_name} Type:{self._data.activity_type}, Class:{activity_full_class_name}] <--------")
 
+
             except Exception as e:
                 LoggingConfig.activate_framework_logging()
                 logging.warning(f"Exception caught during activity run: {e.__class__.__name__}: {str(e)}")
                 self._activity_run_exception_occurred = True
                 self._register_error(e, ExceptionType.ACTIVITY_RUN, description=f"Exception caught during activity run: {e.__class__.__name__}: {str(e)}")
             finally:
+
                 # ----------------------------------------------------------------#
                 StateHandler.change_state(State.AFTER_ACTIVITY_RUN)
                 # ----------------------------------------------------------------#
+
+    def _print_activity_inputs_and_configs(self):
+        props:dict = self._data.output_context.get(ContextPropertyPrefix.props)
+        for key,val in props.items():
+            if isinstance(val, str):
+                self._trim_string(val)
+
+            if key.startswith(ContextPropertyPrefix.inp_default):
+                logging.info(f"{DebugConfig.autor_info_prefix}input   (default): {key.replace(ContextPropertyPrefix.inp_default,'')}={val}")
+            if key.startswith(ContextPropertyPrefix.inp_provide):
+                logging.info(f"{DebugConfig.autor_info_prefix}input  (provided): {key.replace(ContextPropertyPrefix.inp_provide,'')}={val}")
+            if key.startswith(ContextPropertyPrefix.cfg_default):
+                logging.info(f"{DebugConfig.autor_info_prefix}config  (default): {key.replace(ContextPropertyPrefix.cfg_default,'')}={val}")
+            if key.startswith(ContextPropertyPrefix.cfg_provide):
+                logging.info(f"{DebugConfig.autor_info_prefix}config (provided): {key.replace(ContextPropertyPrefix.cfg_provide,'')}={val}")
+
+    def _print_activity_outputs(self):
+        props: dict = self._data.output_context.get(ContextPropertyPrefix.props)
+        for key, val in props.items():
+            if isinstance(val, str):
+                self._trim_string(val)
+            if key.startswith(ContextPropertyPrefix.out_provide) and key != f"{ContextPropertyPrefix.out_provide}status":
+                logging.info(f"{DebugConfig.autor_info_prefix}output: {key.replace(ContextPropertyPrefix.out_provide,'')}={val}")
+
+    def _trim_string(self, string:str)->str:
+        if len(string) > 100:
+            string = string[0:90]
+            string = f"{string} ..."
+            return string
+
 
     def _postprocess(self):
         try:
@@ -183,6 +216,7 @@ class ActivityRunner:
                 self._save_activity_properties(status_only = not self._ok_to_run()) # if something is wrong, we should only save status
                 # Store the activity values in the data object.
                 self._data.outputs = self._context_properties_handler.get_output_properties_values(status_only = not self._ok_to_run())
+                self._print_activity_outputs()
                 logging.info(DebugConfig.autor_info_prefix)
 
 

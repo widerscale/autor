@@ -1,0 +1,59 @@
+{
+    "mode": "ACTIVITY_IN_BLOCK",
+    "flowConfigPath": "test_flow_configs/doc-config.yml",
+    "action": "KEEP_AS_IS",
+    "status": "SUCCESS",
+    "max": 5,
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false,
+    "_activityBlocks": {
+        "calculateMaxWithNames": {
+            "mode": "ACTIVITY_IN_BLOCK",
+            "flowConfigPath": "test_flow_configs/doc-config.yml",
+            "_activities": {
+                "calculateMaxWithNames-first": {
+                    "__props": {
+                        "cfg_provide__val": 3,
+                        "inp_provide__max": 3
+                    },
+                    "action": "KEEP_AS_IS",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithNames-second": {
+                    "__props": {
+                        "cfg_provide__val": 1,
+                        "inp_provide__max": 3
+                    },
+                    "action": "KEEP_AS_IS",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "calculateMaxWithNames-third": {
+                    "__props": {
+                        "cfg_provide__val": 5,
+                        "inp_provide__max": 3,
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 5
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                },
+                "calculateMaxWithNames-fourth": {
+                    "__props": {
+                        "cfg_provide__val": 4,
+                        "inp_provide__max": 5
+                    },
+                    "action": "KEEP_AS_IS"
+                }
+            },
+            "action": "KEEP_AS_IS",
+            "status": "SUCCESS",
+            "max": 5,
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false
+        }
+    }
+}

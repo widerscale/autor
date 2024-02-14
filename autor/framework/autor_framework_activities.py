@@ -78,11 +78,11 @@ class ReuseActivity(Activity):
         Read values from context and add them back to the context to simulate
         a real run.
         '''
-        logging.info(f"Context type: {self._activity_output_context.__class__.__name__}")
+        logging.info("Reusing the results...")
         ctx_dict:dict = self._activity_output_context.get_focus_activity_dict()
 
         for key, val in ctx_dict.items():
-            logging.info(f"key: {val}  val: {val}")
+            #logging.info(f"key: {key}  val: {val}")
             self._activity_output_context.set(key=key, value=val)
 
 #---------------------------- SKIP_WITH_OUTPUT_VALUES ---------------------------------#

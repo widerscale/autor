@@ -1,0 +1,75 @@
+{
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "max": 5,
+    "__generatedFlowConfig": null,
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false,
+    "_activityBlocks": {
+        "flexMaxWithStatusSkipped": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "flexMaxWithStatusSkipped-activity1": {
+                    "__props": {
+                        "cfg_provide__my_value": 3,
+                        "cfg_default__throw_ex": false,
+                        "cfg_default__my_status": null,
+                        "inp_default__max": 0,
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 3
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "flexMaxWithStatusSkipped-activity2": {
+                    "__props": {
+                        "cfg_provide__my_value": 1,
+                        "cfg_default__throw_ex": false,
+                        "cfg_default__my_status": null,
+                        "inp_provide__max": 3,
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 3
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 3
+                },
+                "flexMaxWithStatusSkipped-activity3": {
+                    "__props": {
+                        "cfg_provide__my_value": 5,
+                        "cfg_default__throw_ex": false,
+                        "cfg_provide__my_status": "SKIPPED",
+                        "inp_provide__max": 3,
+                        "out_provide__status": "SKIPPED",
+                        "out_provide__max": 5
+                    },
+                    "action": "RUN",
+                    "status": "SKIPPED",
+                    "max": 5
+                },
+                "flexMaxWithStatusSkipped-activity4": {
+                    "__props": {
+                        "cfg_provide__my_value": 4,
+                        "cfg_default__throw_ex": false,
+                        "cfg_default__my_status": null,
+                        "inp_provide__max": 5,
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 5
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "max": 5,
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false
+        }
+    }
+}

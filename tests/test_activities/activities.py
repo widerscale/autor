@@ -12,7 +12,7 @@
 #    License for the specific language governing permi
 #     *******************ssions and limitations
 #    under the License.
-
+import inspect
 import logging
 
 from autor import Activity
@@ -55,19 +55,95 @@ class Max(Activity):
 
 
     def run(self):
-        # ---------------- Prepare inputs -------------------#
-        logging.info(f"Property:        'max': {self.max} (initial value read from context)")
-        logging.info(f"Configuration:   'val': {self.val} (value provided through configuration)")
 
         # --------------- Calculate max --------------------#
-        new_max = max(self.val, self.max)
+        self.max = max(self.val, self.max)
 
-        # ------------------ Set output --------------------#
-        self.max = new_max
-        logging.info(f"Property:        'max': {new_max} (final value written to context)")
         # ------------------ Set status --------------------#
+        # An old rest. An activity should not look into self.configuration
         if "status" in self.configuration:
             self.status = self.configuration["status"]
+
+
+
+
+@ActivityRegistry.activity(type="max-flex")
+class MaxFlex(Activity):
+
+    # region property: max @input/@output(mandatory=False/True, type=int, default=0)
+    @property
+    @input(mandatory=False, type=int, default=0)
+    @output (mandatory=True, type=int)
+    def max(self) -> int:
+        return self._max
+
+    @max.setter
+    def max(self, value: int) -> None:
+        self._max = value
+    # endregion
+
+    # region property: my_value @config(mandatory=True, type=int)
+    @property
+    @config(mandatory=True, type=int)
+    def my_value(self) -> int:
+        return self._my_value
+
+    @my_value.setter
+    def my_value(self, value: int) -> None:
+        self._my_value = value
+
+    # endregion
+
+    # region property: throw_ex @config(mandatory=False, type=bool, default=False)
+    @property
+    @config(mandatory=False, type=bool, default=False)
+    def throw_ex(self) -> bool:
+        return self._throw_ex
+
+    @throw_ex.setter
+    def throw_ex(self, value: bool) -> None:
+        self._throw_ex = value
+
+    # endregion
+
+    # region property: my_status @config(mandatory=False, type=str, default=None)
+    @property
+    @config(mandatory=False, type=str, default=None)
+    def my_status(self) -> str:
+        return self._my_status
+
+    @my_status.setter
+    def my_status(self, value: str) -> None:
+        self._my_status = value
+    # endregion
+
+
+
+
+
+ 
+    def run(self):
+        logging.info(f"Running activity ...")
+
+        # Important to set max first for the testing purpose. Don't move it!
+        self.max = max(self.max, self.my_value)
+
+        if self.my_status:
+            self.status = self.my_status
+
+        if self.throw_ex is True:
+            raise Exception("Throwing a planned exception according to Activity configuration throw_ex=True.")
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Calculate return the maximum value of the current max (received through property) and
@@ -83,7 +159,7 @@ class MaxWithExceptionEverySecondRun(Activity):
         self.__max: int = None
         self.__run_nbr: int = 0
     # endregion
-    # region property: max @input(mandatory=False, type=int
+    # region property: max @input(mandatory=False, type=int)
     @property
     @input(mandatory=False, type=int)  # load the value before run() is called
     @output(mandatory=True, type=int)  # save the value after run() is finished

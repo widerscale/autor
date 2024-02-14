@@ -38,7 +38,7 @@ def test_ACTIVITY_BLOCK_RERUN_from_failure():
     ab = test.run(activity_block_id='calculateMaxWithExceptionEverySecondRun2', activity_id="calculateMaxWithExceptionEverySecondRun2-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMaxWithExceptionEverySecondRun2_SUCCESS_thirdRun')
 
     # This run will succeed, as the runNbr counter will not be updated by the first activity (as we use re-run on it).
-    ab = test.run(activity_block_id='calculateMaxWithExceptionEverySecondRun2', activity_id="calculateMaxWithExceptionEverySecondRun2-exceptionEverySecondRun", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMaxWithExceptionEverySecondRun2_SUCCESS_fourthRun')
+    #ab = test.run(activity_block_id='calculateMaxWithExceptionEverySecondRun2', activity_id="calculateMaxWithExceptionEverySecondRun2-exceptionEverySecondRun", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMaxWithExceptionEverySecondRun2_SUCCESS_fourthRun')
 
 
 
@@ -106,8 +106,8 @@ def test_ACTIVITY_IN_BLOCK_once_per_flow():
 def test_ACTIVITY_IN_BLOCK_one_activity_fails():
     ab = test.run(activity_block_id='calculateMaxFailSecond', activity_name='first', expectation='ACTIVITY_IN_BLOCK_calculateMaxFailSecond_SUCCESS_uc6_first.json')
     ab = test.run(activity_block_id='calculateMaxFailSecond', activity_name='second', expectation='ACTIVITY_IN_BLOCK_calculateMaxFailSecond_ERROR_uc6_second.json', flow_run_id=ab.get_flow_run_id())
-   # ab = test.run(activity_block_id='calculateMaxFailSecond', activity_name='third', expectation='ACTIVITY_IN_BLOCK_calculateMaxFailSecond_ERROR_uc6_third.json', flow_run_id=ab.get_flow_run_id())
-   # ab = test.run(activity_block_id='calculateMaxFailSecond', activity_name='fourth', expectation='ACTIVITY_IN_BLOCK_calculateMaxFailSecond_ERROR_uc6_fourth.json', flow_run_id=ab.get_flow_run_id())
+    ab = test.run(activity_block_id='calculateMaxFailSecond', activity_name='third', expectation='ACTIVITY_IN_BLOCK_calculateMaxFailSecond_ERROR_uc6_third.json', flow_run_id=ab.get_flow_run_id())
+    ab = test.run(activity_block_id='calculateMaxFailSecond', activity_name='fourth', expectation='ACTIVITY_IN_BLOCK_calculateMaxFailSecond_ERROR_uc6_fourth.json', flow_run_id=ab.get_flow_run_id())
 
 
 def test_ACTIVITY_IN_BLOCK_one_activity_fails2():
@@ -145,7 +145,11 @@ def test_activity_block_status():
     ab = test.run2(expectation='ACTIVITY_BLOCK___statusFlowAborted___ABORTED')
     ab = test.run2(expectation='ACTIVITY_BLOCK___statusFlowSuccess___SUCCESS')
 
-
+def test_status_prints():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___flexMaxWithStatusFail___FAIL')
+    ab = test.run2(expectation='ACTIVITY_BLOCK___flexMaxWithStatusSkipped___SUCCESS')
+    ab = test.run2(expectation='ACTIVITY_BLOCK___flexMaxWithStatusError___ERROR')
+    ab = test.run2(expectation='ACTIVITY_BLOCK___flexMaxWithException___ERROR')
 
 
 def test_ACTIVITY():

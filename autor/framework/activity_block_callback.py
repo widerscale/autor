@@ -22,14 +22,14 @@ from autor.framework.constants import Status
 
 class ActivityBlockCallback:
     """
-    ActivityBlockCallbacks are callbacs that are created by activities and run after an activity \
+    ActivityBlockCallbacks are callbacks that are created by activities and run after an activity \
         block has finished running.
     Each callback has a run_on condition, that is a list of statuses that make up the running \
         condition for the callback.
     The running condition is compared to the status of the activity that owns the callback \
         and if the running condition is fulfilled, the callback is run.
 
-    To create callbacks, inherit this class, implement the run() method and attatch an instance of \
+    To create callbacks, inherit this class, implement the run() method and attach an instance of \
         this object to your activity.
     """
 

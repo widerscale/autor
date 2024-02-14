@@ -6,7 +6,7 @@ from typing import List
 
 from autor.framework.activity_block import ActivityBlock
 from autor.framework.check import Check
-from autor.framework.constants import Mode
+from autor.framework.constants import Mode, Status
 from autor.framework.context import Context
 from autor.framework.key_handler import KeyConverter
 from autor.framework.keys import CommandLineKeys as key
@@ -180,10 +180,10 @@ class AutorTester():
             if p_activity_block_id == "generatedActivityBlock":
                 p_activity_block_id = None
 
+            activity_block_id = p_activity_block_id
+
             if mode is None:
                 mode = p_mode
-            if activity_block_id is None:
-                activity_block_id = p_activity_block_id
 
             if mode.upper() != Mode.ACTIVITY:
                 if flow_config_path == None:
@@ -240,12 +240,14 @@ class AutorTester():
     def _validate(activity_block:ActivityBlock, expected_status:str, expected_err_msg:str=None):
         Check.not_none(expected_status, "'expected_status' is mandatory - was not provided")
         actual_status = activity_block.get_activity_block_status()
-        Check.expected(expected_status, actual_status, "Activity block did not have expected status")
-        if expected_err_msg is not None:
-            ex:Exception = activity_block.get_exception()
-            Check.not_none(ex, f"No exception provided by ActivityBlock. Expected exception with message: {expected_err_msg}")
-            actual_err_msg = str(ex)
-            Check.expected(expected_err_msg, actual_err_msg, "Exception error message was not as expected.")
+
+        if not expected_status == Status.ALL: # Status ALL is always correct -> nothing to check
+            Check.expected(expected_status, actual_status, "Activity block did not have expected status")
+            if expected_err_msg is not None:
+                ex:Exception = activity_block.get_exception()
+                Check.not_none(ex, f"No exception provided by ActivityBlock. Expected exception with message: {expected_err_msg}")
+                actual_err_msg = str(ex)
+                Check.expected(expected_err_msg, actual_err_msg, "Exception error message was not as expected.")
 
 
 

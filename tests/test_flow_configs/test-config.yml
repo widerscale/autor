@@ -51,6 +51,72 @@ activityBlocks:
           val: 4
 
 
+  flexMaxWithStatusFail:
+    activities:
+      - type: max-flex
+        configuration:
+          my_value: 3
+      - type: max-flex
+        configuration:
+          my_value: 1
+      - type: max-flex
+        configuration:
+          my_value: 5
+          my_status: FAIL
+      - type: max-flex
+        configuration:
+          my_value: 4
+
+  flexMaxWithStatusSkipped:
+    activities:
+      - type: max-flex
+        configuration:
+          my_value: 3
+      - type: max-flex
+        configuration:
+          my_value: 1
+      - type: max-flex
+        configuration:
+          my_value: 5
+          my_status: SKIPPED
+      - type: max-flex
+        configuration:
+          my_value: 4
+
+  flexMaxWithStatusError:
+    activities:
+      - type: max-flex
+        configuration:
+          my_value: 3
+      - type: max-flex
+        configuration:
+          my_value: 1
+      - type: max-flex
+        configuration:
+          my_value: 5
+          my_status: ERROR
+      - type: max-flex
+        configuration:
+          my_value: 4
+
+  flexMaxWithException:
+    activities:
+      - type: max-flex
+        configuration:
+          my_value: 3
+      - type: max-flex
+        configuration:
+          my_value: 1
+      - type: max-flex
+        configuration:
+          my_value: 5
+          throw_ex: True
+      - type: max-flex
+        configuration:
+          my_value: 4
+
+
+
   calculateMaxWithExceptionAllowError:
     activities:
       - type: max

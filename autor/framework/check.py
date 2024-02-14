@@ -138,7 +138,7 @@ class Check:
 
     @staticmethod
     def is_status(value, msg: str = ""):
-        description = str(msg) + " [Check]: " + str(value) + " is not a status"
+        description = f"{msg}. Valid status values are: {Status.get_valid_constants(Status)}"
         status = Status()
         if not hasattr(status, value):
             raise AutorFrameworkException(description)

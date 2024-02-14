@@ -71,7 +71,6 @@ class ContextPropertiesHandler:
         if output_context is not None:
             Check.is_instance_of(output_context, Context)
             self._output_context = output_context
-
         if config is not None:
             Check.is_instance_of(config, dict)
             self._config = config
@@ -141,10 +140,8 @@ class ContextPropertiesHandler:
                 if not isinstance(prop_value, prop.property_type):
                     raise ContextPropertiesHandlerValueException(f"Type error in Object: {str(self._object.__class__.__name__)}. Expected {property_category} property: {prop.name} of type: {str(prop.property_type)}, received type: {str(prop_value.__class__.__name__)}")
                 setattr(self._object, prop.name, prop_value)
-                #self._output_context.set(f"{property_category}_{prop.name}", prop_value, propagate_value=False)
                 self._props[f"{prefix_provide}{prop.name}"] = prop_value
                 if DebugConfig.print_activity_properties_details:
-                    #logging.info(f"{DebugConfig.autor_info_prefix}{property_prefix}provided_{prop.name}: {prop_value}")
                     logging.info(f"{DebugConfig.autor_info_prefix}{print_str} (provided): {prop.name}={prop_value}")
 
 
@@ -188,9 +185,10 @@ class ContextPropertiesHandler:
 
                 else:
                     if prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED: # Default value provided by decorator
-                        if not isinstance(prop.default, prop.property_type):
+
+                        if (prop.default is not None) and (not isinstance(prop.default, prop.property_type)): # Ok if None, otherwise must be correct type.
                             raise ContextPropertiesHandlerValueException(
-                                f"Type error in Object: {str(self._object.__class__.__name__)}. Expected default value of type: {str(prop.property_type)}, received type: {str(prop.default.__class__.__name__)} for {property_category} property: {prop.name}")
+                                f"Type error in Object: {str(self._object.__class__.__name__)}. For {property_category} property '{prop.name}' expected default value of type: {str(prop.property_type)}, received type: {str(prop.default.__class__.__name__)}")
 
                         setattr(self._object, prop.name, prop.default) # if default value was defined in the decorator @input -> set the decorator default value
                         #self._output_context.set(f"{property_category}_{prop.name}", prop.default, propagate_value=False)
@@ -418,10 +416,7 @@ class ContextPropertiesHandler:
                     self._props[f"{ContextPropertyPrefix.out_provide}{prop.name}"] = prop_value
                     if DebugConfig.print_activity_properties_details:
                         logging.info(f"{DebugConfig.autor_info_prefix}output: {prop.name}={prop_value}")
-# input  (provided)
-# input  (default)
-# output (provided)
-# config (provided)
+
 
         # Synchronize the context with the remote context (if it exists)
         self._output_context.sync_remote()

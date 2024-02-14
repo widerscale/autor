@@ -158,10 +158,7 @@ class Activity(abc.ABC):
 
     @status.setter
     def status(self, n):
-        Check.is_status(
-            n,
-            f"An attempt to set an invalid status {str(n)}. See constants.Status for valid values.",
-        )
+        Check.is_status(n,f"An attempt to set an invalid status {str(n)}.")
         Check.is_false(n == Status.ALL, f"{Status.ALL} is not a valid activity status")
         self.__status = n
 

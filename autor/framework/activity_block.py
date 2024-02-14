@@ -214,8 +214,8 @@ class ActivityBlock(StateProducer):
         # The id of the activity that should be treated in a special manner.
         # How it should be treated depends on Autor mode.
         self._activity_id_special = activity_id  # Can be overriden by extensions in state BOOTSTRAP
-        if activity_id is None and activity_name is not None and activity_block_id is not None:
-            self._activity_id_special = f"{activity_block_id}-{activity_name}"
+        #if activity_id is None and activity_name is not None and activity_block_id is not None:
+         #   self._activity_id_special = f"{activity_block_id}-{activity_name}"
 
 
         # Data that is collected about the special activity. Added to Autor output file in modes
