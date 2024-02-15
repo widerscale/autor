@@ -47,7 +47,7 @@ class ActivityData:
         self.activity_context:ActivityContext = None
         self.input_context:Context = None # To read input props from (Activity Block level)
         self.output_context:Context = None # To write output props to (Activity level)
-        self.output_context_properties_handler:ContextPropertiesHandler = None
+        #self.output_context_properties_handler:ContextPropertiesHandler = None
 
 
         self.inputs: dict = None # Set when activity is created
@@ -94,7 +94,7 @@ class ActivityData:
         self._print(f"activity_context: {self.activity_context}")
         self._print(f"input_context: {self.input_context}")
         self._print(f"output_context: {self.output_context}")
-        self._print(f"output_context_properties_handler: {self.output_context_properties_handler}")
+        #self._print(f"output_context_properties_handler: {self.output_context_properties_handler}")
         self._print(f"activities: {self.activities}")
         self._print(f"activities_by_name: {self.activities_by_name}")
         self._print(f"before_block_activities: {self.before_block_activities}")

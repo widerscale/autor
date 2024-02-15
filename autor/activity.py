@@ -103,9 +103,9 @@ class Activity(abc.ABC):
         # A context object for reading context data from flow context.
         self.__context = data.activity_context
 
-        Check.is_instance_of(data.output_context_properties_handler, ContextPropertiesHandler)
+        #Check.is_instance_of(data.output_context_properties_handler, ContextPropertiesHandler)
         # Used for reading/saving properties from/to context.
-        self.__context_properties_handler = data.output_context_properties_handler
+        #self.__context_properties_handler = data.output_context_properties_handler
 
         # Internal Autor framework info. Not intended to be used by Activity
         # developers. Used for debugging purposes.

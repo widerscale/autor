@@ -23,9 +23,9 @@ import logging
 import os.path
 import shutil
 import uuid
+from copy import deepcopy
 from datetime import datetime
-from typing import List
-
+from typing import List, Dict
 
 import yaml
 
@@ -953,6 +953,45 @@ class ActivityBlock(StateProducer):
         self._flow_context.id = self._flow_run_id
         self._activity_block_context = Context(activity_block=self._activity_block_id)
 
+       #  ctx = Context.get_context_dict()
+       #
+       #  activities_run:Dict = ctx.get("_activityBlocks", {}).get(self._activity_block_id, {}).get("_activities", {})
+       #  activities_run_copy:Dict = deepcopy(activities_run)
+       #  old_snapshot: Dict = self._flow_context.get("__snapshot", None)  # First activity block run within the flow.
+       #  new_snapshot:Dict = deepcopy(ctx)
+       #
+       #
+       # # if self._mode == Mode.ACTIVITY_BLOCK:
+       #    # self._flow_context.set(key="__snapshot", value=ctx, propagate_value=False)
+       # # elif self._mode == Mode.ACTIVITY_BLOCK_RERUN:
+       # #     activity_block:dict = self._flow_context.getff
+       #
+       #
+       #
+       #
+       #  # mode: ACTIVITY_BLOCK
+       #  # create flow_run snapshot -> enables ACTIVITY_BLOCK_RERUN
+       #
+       #
+       #  # mode: ACTIVITY_BLOCK_RERUN
+       #  # do NOT create flow_run snapshot, use the existing (previous activities are run using REUSE)
+       #  #   - Create a copy of the activity block run in context
+       #  #   - Replace the current context entirely with the previous snapshot
+       #  #   - Add the activity block run copy back to the context (that is now a snapshot)
+       #
+       #
+       #  # mode: ACTIVITY_IN_BLOCK
+       #  # crate flow_run snapshot each time -> enables to re-run an activity using the snapshot. Requires that the activities are being run in order. (Discover re-run automatically?)
+       #  #   - Replace the current context entirely with the previous snapshot
+       #
+       #
+       #  # mode: ACTIVITY
+       #  # do NOT create flow_run snapshot
+
+
+
+
+
 
     def _do_print(self, obj:object)->bool:
         return obj or DebugConfig.print_uninitiated_inputs
@@ -1120,7 +1159,7 @@ class ActivityBlock(StateProducer):
         # fmt: on
         data.input_context  = Context(activity_block=data.activity_block_id)
         data.output_context = Context(activity_block=data.activity_block_id, activity=data.activity_id)
-        data.output_context_properties_handler = None # Initiated in ActivityRunner when activity object is created
+        #data.output_context_properties_handler = None # Initiated in ActivityRunner when activity object is created
 
         data.activity_context = ActivityContext(activity_block=data.activity_block_id, activity=data.activity_id)
 

@@ -90,7 +90,7 @@ class ActivityRunner:
                 input_context=self._data.input_context,
                 output_context=self._data.output_context,
                 config = self._data.activity_config.configuration)
-            self._data.output_context_properties_handler = self._context_properties_handler
+            #self._data.output_context_properties_handler = self._context_properties_handler
 
             # Load activity properties.
             self._load_activity_properties()
@@ -111,7 +111,7 @@ class ActivityRunner:
                 self._print("keeping activity data from previous run unchanged...")
             elif self._activity_processing_error_occurred:
                 self._data.activity.status = Status.ERROR
-                self._print("Not calling activitu run() due to problems creating the activity or loading inputs/configurations for the activity...")
+                self._print("Not calling activity run() due to problems creating the activity or loading inputs/configurations for the activity...")
             elif self._need_to_abort:
                 self._data.activity.status = Status.ERROR
                 self._print("skipping activity due to an error (likely Autor framework error)...")
