@@ -1,55 +1,50 @@
 {
-    "mode": "ACTIVITY_BLOCK_RERUN",
+    "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/doc-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
     "status": "SKIPPED",
-    "max": 5,
+    "max": 3,
     "__generatedFlowConfig": null,
     "activityBlockStatus": "FAIL",
     "activityBlockInterrupted": true,
-    "val": null,
     "_activityBlocks": {
         "everyOtherActivityRunFails": {
-            "mode": "ACTIVITY_BLOCK_RERUN",
+            "mode": "ACTIVITY_BLOCK",
             "flowConfigPath": "test_flow_configs/doc-config.yml",
             "_activities": {
                 "everyOtherActivityRunFails-first": {
                     "__props": {
                         "cfg_provide__val": 3,
                         "inp_default__max": 0,
-                        "out_provide__status": "SUCCESS",
+                        "out_provide__status": "FAIL",
                         "out_provide__max": 3
                     },
-                    "action": "REUSE",
-                    "status": "SUCCESS",
+                    "action": "RUN",
+                    "status": "FAIL",
                     "max": 3
                 },
                 "everyOtherActivityRunFails-second": {
                     "__props": {
                         "cfg_provide__val": 1,
                         "inp_provide__max": 3,
-                        "out_provide__status": "SUCCESS",
-                        "out_provide__max": 3
+                        "out_provide__status": "SKIPPED"
                     },
-                    "action": "RUN_REUSE_INPUT",
-                    "status": "SUCCESS",
-                    "max": 3
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
                 },
                 "everyOtherActivityRunFails-third": {
                     "__props": {
                         "cfg_provide__val": 5,
                         "inp_provide__max": 3,
-                        "out_provide__status": "FAIL",
-                        "out_provide__max": 5
+                        "out_provide__status": "SKIPPED"
                     },
-                    "action": "RUN",
-                    "status": "FAIL",
-                    "max": 5
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
                 },
                 "everyOtherActivityRunFails-fourth": {
                     "__props": {
                         "cfg_provide__val": 4,
-                        "inp_provide__max": 5,
+                        "inp_provide__max": 3,
                         "out_provide__status": "SKIPPED"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
@@ -58,10 +53,9 @@
             },
             "action": "SKIP_BY_FRAMEWORK",
             "status": "SKIPPED",
-            "max": 5,
+            "max": 3,
             "activityBlockStatus": "FAIL",
-            "activityBlockInterrupted": true,
-            "val": null
+            "activityBlockInterrupted": true
         }
     }
 }

@@ -54,7 +54,6 @@ class ContextPropertyPrefix(Constant):
     cfg_default = "cfg_default__"
     cfg_provide = "cfg_provide__"
     out_provide = "out_provide__"
-
     props = "__props"
 
 
@@ -80,7 +79,8 @@ class Action(Constant):
     RUN = 'RUN'
     SKIP_BY_FRAMEWORK = "SKIP_BY_FRAMEWORK"
     SKIP_BY_CONFIGURATION = "SKIP_BY_CONFIGURATION"
-    REUSE = 'REUSE' # Reuse the values from context provided by previous run.
+    REUSE = 'REUSE' # Reuse activity INPUT and OUTPUT values from context provided by previous run.
+    RUN_REUSE_INPUT = 'RUN_REUSE_INPUT' # Reuse activity INPUT values from context provided by previous run.
     SKIP_WITH_OUTPUT_VALUES = 'SKIP_WITH_OUTPUT_VALUES' # Option in Flow Config -> use outputs provided in Flow Config.
     KEEP_AS_IS = 'KEEP_AS_IS'
 

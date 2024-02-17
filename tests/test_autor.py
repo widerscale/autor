@@ -16,42 +16,37 @@ def test_ACTIVITY_BLOCK():
 
 
 
-def test_ACTIVITY_BLOCK_RERUN_temp():
-    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
-    #ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity2')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity4')
-    #ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_missingContext')
-    #ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_withContext', input={'max':None})
-
-
-
 def test_ACTIVITY_BLOCK_RERUN():
-    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity2')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity4')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_missingContext')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_withContext', input={'max':None})
+    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK___calculateMax___SUCCESS')
 
-    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity2')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity4')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_missingContext')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity1_withContext', input={'max':None})
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity2___flow_run_id___SUCCESS')
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity4___flow_run_id___SUCCESS')
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___flow_run_id___SUCCESS')
+    # Input should not have effect
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___flow_run_id___SUCCESS', input={'max':100})
 
-    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
+    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK___calculateMax___SUCCESS')
+
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity2___flow_run_id___SUCCESS')
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity4___flow_run_id___SUCCESS')
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___flow_run_id___SUCCESS')
+    # Input should not have effect
+    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___flow_run_id___SUCCESS', input={'max':100})
+
+    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK___calculateMax___SUCCESS')
+
+
 
 
 def test_ACTIVITY_BLOCK_RERUN_from_failure():
-    ab = test.run(activity_block_id='calculateMaxWithExceptionEverySecondRun1', expectation='ACTIVITY_BLOCK_calculateMaxWithExceptionEverySecondRun1_SUCCESS_firstRun')
-    ab = test.run(activity_block_id='calculateMaxWithExceptionEverySecondRun2', flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_calculateMaxWithExceptionEverySecondRun2_ERROR_secondRun')
 
-    # Success, if run from the first activity, as we need the counter from that activity to succeed.
-    ab = test.run(activity_block_id='calculateMaxWithExceptionEverySecondRun2', activity_id="calculateMaxWithExceptionEverySecondRun2-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMaxWithExceptionEverySecondRun2_SUCCESS_thirdRun')
+    #ab = test.run2(expectation='ACTIVITY_BLOCK___flexMaxWithInput___throw_ex=False___SUCCESS', input={'throw_ex': False})
+    ab = test.run2(expectation='ACTIVITY_BLOCK___flexMaxWithInput___throw_ex=True___ERROR', input={'throw_ex': True})
 
-    # This run will succeed, as the runNbr counter will not be updated by the first activity (as we use re-run on it).
-    ab = test.run(activity_block_id='calculateMaxWithExceptionEverySecondRun2', activity_id="calculateMaxWithExceptionEverySecondRun2-exceptionEverySecondRun", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN_calculateMaxWithExceptionEverySecondRun2_SUCCESS_fourthRun')
+    # providing input should not change the outcome
+    ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___flexMaxWithInput___throw_ex=False___third___flow_run_id___ERROR', input={'throw_ex': False}, activity_name='third', flow_run_id=ab.get_flow_run_id())
 
-
+    # more tests for ACTIVITY_BLOCK_RERUN in test_doc.py
 
 
 

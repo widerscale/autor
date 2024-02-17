@@ -1,67 +1,67 @@
 {
-    "mode": "ACTIVITY_BLOCK_RERUN",
+    "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/doc-config.yml",
-    "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
+    "action": "RUN",
+    "status": "SUCCESS",
     "max": 5,
     "__generatedFlowConfig": null,
-    "activityBlockStatus": "FAIL",
-    "activityBlockInterrupted": true,
-    "val": null,
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false,
     "_activityBlocks": {
-        "everyOtherActivityRunFails": {
-            "mode": "ACTIVITY_BLOCK_RERUN",
+        "calculateMaxWithNames": {
+            "mode": "ACTIVITY_BLOCK",
             "flowConfigPath": "test_flow_configs/doc-config.yml",
             "_activities": {
-                "everyOtherActivityRunFails-first": {
+                "calculateMaxWithNames-first": {
                     "__props": {
                         "cfg_provide__val": 3,
                         "inp_default__max": 0,
                         "out_provide__status": "SUCCESS",
                         "out_provide__max": 3
                     },
-                    "action": "REUSE",
+                    "action": "RUN",
                     "status": "SUCCESS",
                     "max": 3
                 },
-                "everyOtherActivityRunFails-second": {
+                "calculateMaxWithNames-second": {
                     "__props": {
                         "cfg_provide__val": 1,
                         "inp_provide__max": 3,
                         "out_provide__status": "SUCCESS",
                         "out_provide__max": 3
                     },
-                    "action": "RUN_REUSE_INPUT",
+                    "action": "RUN",
                     "status": "SUCCESS",
                     "max": 3
                 },
-                "everyOtherActivityRunFails-third": {
+                "calculateMaxWithNames-third": {
                     "__props": {
                         "cfg_provide__val": 5,
                         "inp_provide__max": 3,
-                        "out_provide__status": "FAIL",
+                        "out_provide__status": "SUCCESS",
                         "out_provide__max": 5
                     },
                     "action": "RUN",
-                    "status": "FAIL",
+                    "status": "SUCCESS",
                     "max": 5
                 },
-                "everyOtherActivityRunFails-fourth": {
+                "calculateMaxWithNames-fourth": {
                     "__props": {
                         "cfg_provide__val": 4,
                         "inp_provide__max": 5,
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 5
                     },
-                    "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
                 }
             },
-            "action": "SKIP_BY_FRAMEWORK",
-            "status": "SKIPPED",
+            "action": "RUN",
+            "status": "SUCCESS",
             "max": 5,
-            "activityBlockStatus": "FAIL",
-            "activityBlockInterrupted": true,
-            "val": null
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false
         }
     }
 }

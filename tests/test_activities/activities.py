@@ -119,8 +119,6 @@ class MaxFlex(Activity):
 
 
 
-
-
  
     def run(self):
         logging.info(f"Running activity ...")
@@ -132,11 +130,75 @@ class MaxFlex(Activity):
             self.status = self.my_status
 
         if self.throw_ex is True:
+            logging.info("Going throw a planned exception...")
             raise Exception("Throwing a planned exception according to Activity configuration throw_ex=True.")
 
 
 
+@ActivityRegistry.activity(type="max-flex-input")
+class MaxFlexInput(Activity):
 
+    # region property: max @input/@output(mandatory=False/True, type=int, default=0)
+    @property
+    @input(mandatory=False, type=int, default=0)
+    @output(mandatory=True, type=int)
+    def max(self) -> int:
+        return self._max
+
+    @max.setter
+    def max(self, value: int) -> None:
+        self._max = value
+
+    # endregion
+
+    # region property: my_value @config(mandatory=True, type=int)
+    @property
+    @config(mandatory=True, type=int)
+    def my_value(self) -> int:
+        return self._my_value
+
+    @my_value.setter
+    def my_value(self, value: int) -> None:
+        self._my_value = value
+
+    # endregion
+
+    # region property: throw_ex @input(mandatory=False, type=bool, default=False)
+    @property
+    @input(mandatory=False, type=bool, default=False)
+    def throw_ex(self) -> bool:
+        return self._throw_ex
+
+    @throw_ex.setter
+    def throw_ex(self, value: bool) -> None:
+        self._throw_ex = value
+
+    # endregion
+
+    # region property: my_status @input(mandatory=False, type=str, default=None)
+    @property
+    @input(mandatory=False, type=str, default=Status.SUCCESS)
+    def my_status(self) -> str:
+        return self._my_status
+
+    @my_status.setter
+    def my_status(self, value: str) -> None:
+        self._my_status = value
+    # endregion
+
+
+    def run(self):
+        logging.info(f"Running activity ...")
+
+        # Important to set max first for the testing purpose. Don't move it!
+        self.max = max(self.max, self.my_value)
+
+        if self.my_status:
+            self.status = self.my_status
+
+        if self.throw_ex is True:
+            logging.info("Going throw a planned exception...")
+            raise Exception("Throwing a planned exception according to Activity input throw_ex=True.")
 
 
 

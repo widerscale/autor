@@ -12,6 +12,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import logging
+from copy import deepcopy
+from typing import Dict
+
 import humps
 
 from autor.activity import Activity
@@ -20,6 +23,7 @@ from autor.framework.activity_data import ActivityData
 from autor.framework.activity_factory import ActivityFactory
 from autor.framework.check import Check
 from autor.framework.constants import Action, ExceptionType, Status, ContextPropertyPrefix
+from autor.framework.context import Context
 from autor.framework.context_properties_handler import ContextPropertiesHandler
 from autor.framework.debug_config import DebugConfig
 from autor.framework.exception_handler import ExceptionHandler
@@ -57,7 +61,7 @@ class ActivityRunner:
 
         return self._need_to_abort, self._need_to_abort_reason
 
-    def _ok_to_run(self):
+    def _correct_properties_expected(self)->bool:
         # An activity will be run only if it is allowed by the framework and by the configuration
         #  AND no error has occurred.
         ok = (
@@ -68,7 +72,18 @@ class ActivityRunner:
             and (self._data.action != Action.SKIP_BY_CONFIGURATION)
             and (self._data.action != Action.KEEP_AS_IS)
         )
+        return ok
 
+    def _ok_to_run(self)->bool:
+        ok = (
+            not self._need_to_abort
+            and not self._activity_processing_error_occurred
+            and not self._activity_run_exception_occurred
+            and (self._data.action != Action.SKIP_BY_FRAMEWORK)
+            and (self._data.action != Action.SKIP_BY_CONFIGURATION)
+            and (self._data.action != Action.KEEP_AS_IS)
+            and (self._data.action != Action.REUSE)
+        )
         return ok
 
     def _preprocess(self):
@@ -81,6 +96,17 @@ class ActivityRunner:
 
             Check.not_none(self._data.action, "Action not provided in the activity data.")
 
+            # Prepare for REUSE
+            if self._data.action == Action.REUSE or self._data.action == Action.RUN_REUSE_INPUT:
+                self._original_props = deepcopy(self._data.output_context.get(ContextPropertyPrefix.props))
+
+                #Util.print_dict(Context.get_context_dict(), "Whole context", level="info")
+                #Util.print_dict(self._original_props, "ORIGINAL PROPS", level="info")
+                self._prepare_input_reuse(self._original_props, self._data.input_context)
+                #Util.print_dict(Context.get_context_dict(), "AFTER INPUT-REUSE PREPARATIONS", level="info")
+
+
+
             # Create activity
             self._create_activity()  # Can set activity status to ERROR
 
@@ -92,8 +118,16 @@ class ActivityRunner:
                 config = self._data.activity_config.configuration)
             #self._data.output_context_properties_handler = self._context_properties_handler
 
+            #Util.print_dict(Context.get_context_dict(), "Whole context", level="info")
+           # Util.print_dict(self._data.output_context.get(ContextPropertyPrefix.props), "Previous output props", level="info")
+
+
+
             # Load activity properties.
             self._load_activity_properties()
+
+            #Util.print_dict(Context.get_context_dict(), "AFTER PROPS LOADED", level="info")
+
 
             # Save the loaded properties for reference int the data object. Used for report creation.
             self._data.inputs  = self._context_properties_handler.get_input_properties_values()
@@ -127,21 +161,28 @@ class ActivityRunner:
 
 
     def _run(self):
+        activity_full_class_name: str = f"{self._data.activity.__module__}.{self._data.activity.__class__.__name__}"
 
-        if self._ok_to_run():
+
+
+        if not self._ok_to_run():
+            if self._data.action == Action.REUSE:
+                logging.info(f'{DebugConfig.autor_info_prefix}')
+                logging.info(f'{DebugConfig.autor_info_prefix}')
+                logging.info(f'{DebugConfig.autor_info_prefix}ACTION: {self._data.action}')
+                logging.info(f"{DebugConfig.autor_info_prefix}=========> Reusing activity: [Name:{self._data.activity_name} Type:{self._data.activity_type}, Class:{activity_full_class_name}] <========")
+
+        else:
             try:
                 # ----------------------------------------------------------------#
                 StateHandler.change_state(State.BEFORE_ACTIVITY_RUN)
                 # ----------------------------------------------------------------#
-                activity_full_class_name:str = f"{self._data.activity.__module__}.{self._data.activity.__class__.__name__}"
                 logging.info(f'{DebugConfig.autor_info_prefix}')
                 logging.info(f'{DebugConfig.autor_info_prefix}')
                 self._print_activity_inputs_and_configs()
+                logging.info(f'{DebugConfig.autor_info_prefix}ACTION: {self._data.action}')
                 logging.info(f"{DebugConfig.autor_info_prefix}---------> Started activity: [Name:{self._data.activity_name} Type:{self._data.activity_type}, Class:{activity_full_class_name}] -------->")
-                #logging.info(f'{DebugConfig.autor_info_prefix}')
-                #logging.info(f'{DebugConfig.autor_info_prefix}Started activity name:  {self._data.activity_name}')
-                #logging.info(f'{DebugConfig.autor_info_prefix}Started activity type:  {self._data.activity_type}')
-                #logging.info(f'{DebugConfig.autor_info_prefix}Started activity class: {activity_full_class_name}')
+
 
 
                 LoggingConfig.activate_activity_logging()
@@ -164,6 +205,65 @@ class ActivityRunner:
                 # ----------------------------------------------------------------#
                 StateHandler.change_state(State.AFTER_ACTIVITY_RUN)
                 # ----------------------------------------------------------------#
+
+
+
+    def _prepare_input_reuse(self, original_props:Dict, inputs_ctx:Context):
+        # props that came from configuration (provided or default)        -> set to None in context. Will be re-read by PropertyContextHandler from configuration
+        # props that came as input defaults (from decorators/constructor) -> set to None in context. Will be re-read by PropertyContextHandler from decorator/object
+        # props that came as inputs from context                          -> assign back to context. Will be re-read by PropertyContextHandler from context
+        for key,val in original_props.items():
+            if key.startswith(ContextPropertyPrefix.cfg_provide):
+                prop_name = key.replace(ContextPropertyPrefix.cfg_provide,'')
+                inputs_ctx.set(prop_name, None)
+                #logging.info(f"SETTING_CFG_PRV: {prop_name}=None")
+
+            if key.startswith(ContextPropertyPrefix.cfg_default):
+                prop_name = key.replace(ContextPropertyPrefix.cfg_default,'')
+                inputs_ctx.set(prop_name, None)
+                #logging.info(f"SETTING_CFG_DEF: {prop_name}=None")
+
+            if key.startswith(ContextPropertyPrefix.inp_default):
+                prop_name = key.replace(ContextPropertyPrefix.inp_default,'')
+                inputs_ctx.set(prop_name, None)
+                #logging.info(f"SETTING_INP_DEF: {prop_name}=None")
+
+            if key.startswith(ContextPropertyPrefix.inp_provide):
+                prop_name = key.replace(ContextPropertyPrefix.inp_provide,'')
+                inputs_ctx.set(prop_name, val)
+                #logging.info(f"SETTING_INP_PRV: {prop_name}={val}")
+
+
+    def _prepare_output_reuse(self, original_props:Dict, activity:Activity):
+        for key,val in original_props.items():
+            if key.startswith(ContextPropertyPrefix.out_provide):
+                prop_name = key.replace(ContextPropertyPrefix.out_provide,'')
+                setattr(activity, prop_name, val) # Set the outputs as activity properties -> ContextPropertiesHandler will read them from there.
+                #logging.info(f"SETTING_OUT_PRV: {prop_name}={val}")
+
+
+
+    def _get_provided_inputs(self, props:Dict)->Dict:
+        result:dict = {}
+        for key,val in props.items():
+            #logging.info(f"key: {key}, value: {val}")
+            if key.startswith(ContextPropertyPrefix.inp_provide):
+                name: str = key.replace(ContextPropertyPrefix.inp_provide, '')
+                result[name] = val
+        return result
+
+
+    def _get_outputs(self, props: Dict) -> Dict:
+        result: dict = {}
+        for key, val in props.items():
+            if key.startswith(ContextPropertyPrefix.out_provide):
+                name: str = key.replace(ContextPropertyPrefix.out_provide, '')
+                result[name] = val
+        return result
+
+
+
+
 
     def _print_activity_inputs_and_configs(self):
         props:dict = self._data.output_context.get(ContextPropertyPrefix.props)
@@ -197,13 +297,19 @@ class ActivityRunner:
 
     def _postprocess(self):
         try:
+            # Reuse activity outputs, if needed.
+            if self._data.action == Action.REUSE:
+                # Read what outputs were provided during the previous run (saved in output_context __props) and
+                # move them into output_context as direct values. Then they become available to the ContextPropertiesHandler.
+                self._prepare_output_reuse(self._original_props, self._data.activity)
+
             self._print("PRELIMINARY activity status: " + self._data.activity.status)
             # See rules: https://jira-dowhile.atlassian.net/l/c/zy6Q0oJ8
 
             if self._data.action != Action.KEEP_AS_IS:
                 self._adjust_activity_status()
 
-            if self._ok_to_run():
+            if self._correct_properties_expected():
                 logging.info(f'{DebugConfig.autor_info_prefix}Activity status: {self._data.activity.status}')
                 #logging.info(DebugConfig.autor_info_prefix)
 
@@ -213,9 +319,10 @@ class ActivityRunner:
 
             # Save activity output properties
             if self._data.action != Action.KEEP_AS_IS:
-                self._save_activity_properties(status_only = not self._ok_to_run()) # if something is wrong, we should only save status
+
+                self._save_activity_properties(status_only = not self._correct_properties_expected())  # if something is wrong, we should only save status
                 # Store the activity values in the data object.
-                self._data.outputs = self._context_properties_handler.get_output_properties_values(status_only = not self._ok_to_run())
+                self._data.outputs = self._context_properties_handler.get_output_properties_values(status_only = not self._correct_properties_expected())
                 self._print_activity_outputs()
                 logging.info(DebugConfig.autor_info_prefix)
 
@@ -269,13 +376,13 @@ class ActivityRunner:
         try:
             # If the framework has decided that the activity status is ERROR,
             #  no input parameter checks should be performed.
-            self._context_properties_handler.load_config_properties(check_mandatory_properties=self._ok_to_run())
+            self._context_properties_handler.load_config_properties(check_mandatory_properties=self._correct_properties_expected())
         except Exception as e:
             self._register_error(e, ExceptionType.ACTIVITY_CONFIGURATION, description="Exception loading activity configuration properties.")
 
         # Ok to continue after failing with configuration in the previous step -> gives us more information in case there are problems.
         try:
-            self._context_properties_handler.load_input_properties(check_mandatory_properties=self._ok_to_run())
+            self._context_properties_handler.load_input_properties(check_mandatory_properties=self._correct_properties_expected())
         except Exception as e:
             self._register_error(e, ExceptionType.ACTIVITY_INPUT, description="Exception loading activity input properties.")
 

@@ -5,7 +5,7 @@
             "flowConfigPath": "test-config.yml",
             "_activities": {
                 "calculateMaxWithExceptionEverySecondRun2-activity1": {
-                    "action": "RUN",
+                    "action": "RUN_REUSE_INPUT",
                     "status": "SUCCESS",
                     "run_nbr": 3
                 },

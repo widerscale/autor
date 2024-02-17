@@ -70,7 +70,19 @@ class ReuseActivity(Activity):
 
     def set_arguments(self, data: ActivityData):
         self._activity_output_context = data.output_context
+        ctx_dict:dict = self._activity_output_context.get_focus_activity_dict()
+
+        for key, val in ctx_dict.items():
+            logging.info(f"key: {key}  val: {val}")
+            self._activity_output_context.set(key=key, value=val)
+
         super().set_arguments(data)
+
+        ctx_dict:dict = self._activity_output_context.get_focus_activity_dict()
+
+        for key, val in ctx_dict.items():
+            logging.info(f"key: {key}  val: {val}")
+            self._activity_output_context.set(key=key, value=val)
 
 
     def run(self):
@@ -82,7 +94,7 @@ class ReuseActivity(Activity):
         ctx_dict:dict = self._activity_output_context.get_focus_activity_dict()
 
         for key, val in ctx_dict.items():
-            #logging.info(f"key: {key}  val: {val}")
+            logging.info(f"key: {key}  val: {val}")
             self._activity_output_context.set(key=key, value=val)
 
 #---------------------------- SKIP_WITH_OUTPUT_VALUES ---------------------------------#

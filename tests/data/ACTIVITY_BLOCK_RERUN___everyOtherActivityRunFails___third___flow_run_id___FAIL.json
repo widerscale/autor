@@ -1,8 +1,8 @@
 {
     "mode": "ACTIVITY_BLOCK_RERUN",
     "flowConfigPath": "test_flow_configs/doc-config.yml",
-    "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
+    "action": "RUN",
+    "status": "FAIL",
     "max": 5,
     "__generatedFlowConfig": null,
     "activityBlockStatus": "FAIL",
@@ -31,7 +31,7 @@
                         "out_provide__status": "SUCCESS",
                         "out_provide__max": 3
                     },
-                    "action": "RUN_REUSE_INPUT",
+                    "action": "REUSE",
                     "status": "SUCCESS",
                     "max": 3
                 },
@@ -39,25 +39,27 @@
                     "__props": {
                         "cfg_provide__val": 5,
                         "inp_provide__max": 3,
-                        "out_provide__status": "FAIL",
+                        "out_provide__status": "SUCCESS",
                         "out_provide__max": 5
                     },
-                    "action": "RUN",
-                    "status": "FAIL",
+                    "action": "RUN_REUSE_INPUT",
+                    "status": "SUCCESS",
                     "max": 5
                 },
                 "everyOtherActivityRunFails-fourth": {
                     "__props": {
                         "cfg_provide__val": 4,
                         "inp_provide__max": 5,
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "FAIL",
+                        "out_provide__max": 5
                     },
-                    "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "action": "RUN",
+                    "status": "FAIL",
+                    "max": 5
                 }
             },
-            "action": "SKIP_BY_FRAMEWORK",
-            "status": "SKIPPED",
+            "action": "RUN",
+            "status": "FAIL",
             "max": 5,
             "activityBlockStatus": "FAIL",
             "activityBlockInterrupted": true,

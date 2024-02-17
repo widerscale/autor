@@ -183,7 +183,6 @@ class ActivityBlockRules:
         # ______________________________ ACTIVITY_BLOCK_RERUN _________________________________#
         elif mode == Mode.ACTIVITY_BLOCK_RERUN:
             if data.activity_id == activity_id_special: # The activity from which the re-run starts
-
                 Check.is_false(self._rerun_activated, "rerun_activated should not be activated twice")
                 ActivityBlockRules._rerun_activated = True
                 logging.info("Re-run initiated")
@@ -192,7 +191,12 @@ class ActivityBlockRules:
                 if skip_with_outputs:
                     return Action.SKIP_WITH_OUTPUT_VALUES
                 else:
-                    return self._get_action(data, ignore_unrun=ignore_unrun)
+                    action = self._get_action(data, ignore_unrun=ignore_unrun)
+                    if action == Action.RUN and data.activity_id == activity_id_special:
+                        action = Action.RUN_REUSE_INPUT
+                    return action
+
+
             else:
                 return Action.REUSE
 

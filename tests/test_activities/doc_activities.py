@@ -99,17 +99,6 @@ class MaxWithFailureChance(Activity):
 @ActivityRegistry.activity(type="max-with-every-other-fail")
 class FailEveryOtherRun(Activity):
 
-    # region property: nbr_activity_runs @input/@output(mandatory=False/True, type=int, default=0)
-    @property
-    @input(mandatory=False, type=int, default=0)
-    @output (mandatory=True, type=int)
-    def nbr_activity_runs(self) -> int:
-        return self._nbr_activity_runs
-
-    @nbr_activity_runs.setter
-    def nbr_activity_runs(self, value: int) -> None:
-        self._nbr_activity_runs = value
-    # endregion
     # region property: max @input/output(mandatory=False/True, type=int, default=0)
     @property
     @input(mandatory=False, type=int, default=0)
@@ -140,9 +129,9 @@ class FailEveryOtherRun(Activity):
         if os.path.isfile("time_to_fail"):
             logging.info("Time to fail -> setting status to FAIL")
             os.remove("time_to_fail")
+
             self.status = Status.FAIL
         else:
- 
             Path("time_to_fail").touch()
             self.status = Status.SUCCESS # For clarification only. Status would be SUCCESS by default.
 

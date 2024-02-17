@@ -26,8 +26,18 @@ def test_ACTIVITY():
 
 
 
+def test_ACTIVITY_BLOCK_RERUN():
+    # Note that the activities signal if they should fail every second run through creating/deleting a file.
+    ab = test.run2(expectation='ACTIVITY_BLOCK___everyOtherActivityRunFails___FAIL', flow_config_path="test_flow_configs/doc-config.yml")
+    ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___everyOtherActivityRunFails___second___flow_run_id___FAIL', activity_name='second', flow_config_path="test_flow_configs/doc-config.yml", flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___everyOtherActivityRunFails___third___flow_run_id___FAIL', activity_name='third', flow_config_path="test_flow_configs/doc-config.yml", flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___everyOtherActivityRunFails___fourth___flow_run_id___SUCCESS', activity_name='fourth', flow_config_path="test_flow_configs/doc-config.yml", flow_run_id=ab.get_flow_run_id())
+
+    ab = test.run2(expectation='ACTIVITY_BLOCK___everyOtherActivityRunFails___FAIL_first_activity', flow_config_path="test_flow_configs/doc-config.yml")
+    ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___everyOtherActivityRunFails___first___flow_run_id___FAIL',activity_name='first', flow_config_path="test_flow_configs/doc-config.yml", flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___everyOtherActivityRunFails___second___flow_run_id___FAIL', activity_name='second', flow_config_path="test_flow_configs/doc-config.yml", flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___everyOtherActivityRunFails___third___flow_run_id___FAIL', activity_name='third', flow_config_path="test_flow_configs/doc-config.yml", flow_run_id=ab.get_flow_run_id())
+
 def test_ACTIVITY_BLOCK_RERUN_2():
-    # These tests do not perform any testing as they contain a random element. Used for generating examples.
-    ab = test.run2(mode=Mode.ACTIVITY_BLOCK, activity_block_id="calculateMaxWithFailureChance", status=Status.ALL, flow_config_path="test_flow_configs/doc-config.yml")
-    ab = test.run2(mode=Mode.ACTIVITY_BLOCK_RERUN, activity_block_id="calculateMaxWithFailureChance", activity_name='third', status=Status.ALL, flow_config_path="test_flow_configs/doc-config.yml", flow_run_id=ab.get_flow_run_id())
-    #ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___everyOtherActivityRunFails___second___flow_run_id___FAIL', activity_name='second', flow_config_path="test_flow_configs/doc-config.yml", flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(expectation='ACTIVITY_BLOCK___calculateMaxWithNames___SUCCESS', flow_config_path="test_flow_configs/doc-config.yml")
+    ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___calculateMaxWithNames___third___flow_run_id___SUCCESS',activity_name='third', flow_config_path="test_flow_configs/doc-config.yml", flow_run_id=ab.get_flow_run_id())

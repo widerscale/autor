@@ -117,6 +117,27 @@ activityBlocks:
 
 
 
+  flexMaxWithInput:
+    activities:
+      - type: max-flex
+        name: first
+        configuration:
+          my_value: 3
+      - type: max-flex
+        name: second
+        configuration:
+          my_value: 1
+      - type: max-flex-input
+        name: third
+        configuration:
+          my_value: 5
+      - type: max-flex
+        name: fourth
+        configuration:
+          my_value: 4
+
+
+
   calculateMaxWithExceptionAllowError:
     activities:
       - type: max

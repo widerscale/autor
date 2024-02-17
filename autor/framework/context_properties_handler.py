@@ -312,7 +312,8 @@ class ContextPropertiesHandler:
         return prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED
 
     def _get_type_name(self, str_type:str)->str:
-        str_name = str_type.split("'")[1]
+        logging.info(f"33RRRRRRRRRRRRRRRRRRR: {str_type}")
+        str_name = str(str_type).split("'")[1]
         return str_name
 
     def _default_value_in_constructor(self, o:object, prop_name:str)->bool:

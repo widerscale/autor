@@ -1157,8 +1157,8 @@ class ActivityBlock(StateProducer):
         data.flow_id                = self._flow_id
         data.activity_block_status  = self._activity_block_status
         # fmt: on
-        data.input_context  = Context(activity_block=data.activity_block_id)
-        data.output_context = Context(activity_block=data.activity_block_id, activity=data.activity_id)
+        data.input_context  = Context(activity_block=data.activity_block_id) # Input comes from ActivityBlock level
+        data.output_context = Context(activity_block=data.activity_block_id, activity=data.activity_id) # Output is written to Activity level (and propagated upwards)
         #data.output_context_properties_handler = None # Initiated in ActivityRunner when activity object is created
 
         data.activity_context = ActivityContext(activity_block=data.activity_block_id, activity=data.activity_id)
@@ -1249,8 +1249,10 @@ class ActivityBlock(StateProducer):
         self._activity_data.action = self._rules.get_action(data=self._activity_data, mode=self._mode, activity_id_special=self._activity_id_special)
 
 
+        # TODO - reuse-remove
         if self._activity_data.action == Action.REUSE:
-            self._activity_data.activity_type = "reuse"
+            pass
+            #self._activity_data.activity_type = "reuse"
         elif self._activity_data.action == Action.SKIP_WITH_OUTPUT_VALUES:
             self._activity_data.activity_type = "skip-with-output-values"
 
