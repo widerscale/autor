@@ -31,7 +31,7 @@ class Flags():
             if hasattr(Flags, attr_name):
                 setattr(Flags, attr_name, val)
             else:
-                raise ValueError(f"Could not set a value for flag: {attr_name}. The flag with that name does not exist.")
+                raise ValueError(f"Flag with name: {attr_name} not registered in class Flags. To create a new flag add a new attribute with that name to class Flags.")
 
 
 

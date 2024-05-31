@@ -22,46 +22,97 @@ from autor.framework.context_properties_registry import ContextPropertiesRegistr
 output = ContextPropertiesRegistry.output
 # pylint: disable-next=redefined-builtin
 input = ContextPropertiesRegistry.input
+config = ContextPropertiesRegistry.config
 
 
 # Calculate return the maximum value of the current max (received through property) and
 # my max (received through configuration)
 @ActivityRegistry.activity(type="max2")
 class Max(Activity):
-    # region constructor
-    def __init__(self):
-        super().__init__()
-        # initial value that is used if no value has been provided by flow context
-        self.__max: int = None
-    # endregion
-    # region property: max:int
+
+    # region property: max @input/output(mandatory=False/True, type=int)
     @property
-    @input(mandatory=False, type=int)  # load the value before run() is called
-    @output(mandatory=True, type=int)  # save the value after run() is finished
-    def max(self) -> int:  # getter
-        return self.__max
+    @input(mandatory=False, type=int, default=0)
+    @output(mandatory=True, type=int)
+    def max(self) -> int:
+        return self._max
 
     @max.setter
-    def max(self, n) -> None:  # setter
-        self.__max = n
+    def max(self, n) -> None:
+        self._max = n
+    # endregion
+    # region property: val @config(mandatory=True, type=int)
+    @property
+    @config(mandatory=True, type=int)
+    def val(self) -> int:
+        return self._val
+
+    @val.setter
+    def val(self, value: int) -> None:
+        self._val = value
     # endregion
 
+
     def run(self):
-        # ---------------- Prepare inputs -------------------#
-        my_val = self.configuration["val"]  # Read my max from Flow Configuration file
-        logging.info(f"Property:        'max': {self.max} (initial value read from context)")
-        logging.info(f"Configuration:   'val': {my_val} (value provided through configuration)")
+        # --------------- Calculate max --------------------#
+        self.max = max(self.val, self.max)
 
-        # ----------------- Call helper ----------------------#
-        new_max = max(my_val, self.max)
-        logging.info(f"Property:        'max': {new_max} (final value written to context)")
-
-        # --------------- Prepare outputs --------------------#
-        self.max = new_max
-
-        # ------------------ Set status ----------------------#
+        # ------------------ Set status --------------------#
+        # An old rest. An activity should not look into self.configuration
         if "status" in self.configuration:
             self.status = self.configuration["status"]
 
 
 
+
+# # Calculate return the maximum value of the current max (received through property) and
+# # my max (received through configuration)
+# @ActivityRegistry.activity(type="max2")
+# class Max(Activity):
+#     # region constructor
+#     def __init__(self):
+#         super().__init__()
+#         # initial value that is used if no value has been provided by flow context
+#         self.__max: int = None
+#     # endregion
+#     # region property: max:int
+#     @property
+#     @input(mandatory=False, type=int)  # load the value before run() is called
+#     @output(mandatory=True, type=int)  # save the value after run() is finished
+#     def max(self) -> int:  # getter
+#         return self.__max
+#
+#     @max.setter
+#     def max(self, n) -> None:  # setter
+#         self.__max = n
+#     # endregion
+#     # region property: val @config(mandatory=True, type=int)
+#     @property
+#     @config(mandatory=True, type=int)
+#     def val(self) -> int:
+#         return self._val
+#
+#     @val.setter
+#     def val(self, value: int) -> None:
+#         self._val = value
+#     # endregion
+#
+#     def run(self):
+#         # ---------------- Prepare inputs -------------------#
+#         my_val = self.configuration["val"]  # Read my max from Flow Configuration file
+#         logging.info(f"Property:        'max': {self.max} (initial value read from context)")
+#         logging.info(f"Configuration:   'val': {my_val} (value provided through configuration)")
+#
+#         # ----------------- Call helper ----------------------#
+#         new_max = max(my_val, self.max)
+#         logging.info(f"Property:        'max': {new_max} (final value written to context)")
+#
+#         # --------------- Prepare outputs --------------------#
+#         self.max = new_max
+#
+#         # ------------------ Set status ----------------------#
+#         if "status" in self.configuration:
+#             self.status = self.configuration["status"]
+#
+#
+#

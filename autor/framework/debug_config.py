@@ -97,7 +97,7 @@ class DebugConfig():
         trace_activity_processing = True
 
     if trace_context:
-        print_context_before_activities_are_run = True
+        print_context_before_activities_are_run = False
         print_context_on_finished = True
         print_context_before_state = True
         print_context_after_state = True

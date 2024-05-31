@@ -1,6 +1,5 @@
 {
     "mode": "ACTIVITY",
-    "__AutorFrameworkBootstrap_activityModeCounter": 1,
     "flowConfigPath": "autor-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
@@ -8,10 +7,10 @@
     "__generatedFlowConfig": {
         "flowId": "autor-flow",
         "activityModules": [
-            "test_activities.doc_activities"
+            "test_activities.activities"
         ],
         "activityBlocks": {
-            "generatedActivityBlock": {
+            "autogenActivityBlock1": {
                 "activities": [
                     {
                         "type": "max",
@@ -26,12 +25,11 @@
     "activityBlockStatus": "SUCCESS",
     "activityBlockInterrupted": false,
     "_activityBlocks": {
-        "generatedActivityBlock": {
+        "autogenActivityBlock1": {
             "mode": "ACTIVITY",
-            "__AutorFrameworkBootstrap_activityModeCounter": 1,
             "flowConfigPath": "autor-config.yml",
             "_activities": {
-                "generatedActivityBlock-activity1": {
+                "autogenActivityBlock1-activity1": {
                     "__props": {
                         "cfg_provide__val": 3,
                         "inp_default__max": 0,
