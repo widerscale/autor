@@ -15,7 +15,7 @@
 Import all the modules under the project (see pyproject.toml) that contain example_activities that need to be made available.
 """
 
-import example_activities.activities1
-import example_activities.hello_world
+import examples.example_activities.activities1
+import examples.example_activities.hello_world
 
 __version__ = "0.0.1"

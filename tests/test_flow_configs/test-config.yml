@@ -10,8 +10,8 @@ extensions:
 #   A C T I V I T Y   M O D U L E S
 ###################################
 activityModules:
-  - test_activities.activities
-  - test_activities.activities2
+  - tests.test_activities.activities
+  - tests.test_activities.activities2
 
 
 #   A C T I V I T Y   B L O C K S

@@ -3,7 +3,7 @@ flowId: exampleFlow
 
 #--------------------   A C T I V I T Y   M O D U L E S   -----------------------#
 activityModules:
-  - example_activities
+  - examples.example_activities
 
 #---------------------   A C T I V I T Y   B L O C K S   -----------------------#
 activityBlocks:
