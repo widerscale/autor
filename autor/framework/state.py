@@ -32,7 +32,7 @@ class State:
     # State names
     UNKNOWN = "UNKNOWN"
     BOOTSTRAP = "BOOTSTRAP"
-    CONTEXT = "CONTEXT"
+    CONTEXT_SYNCHRONIZED = "CONTEXT_SYNCHRONIZED"
     FRAMEWORK_START = "FRAMEWORK_START"
     BEFORE_ACTIVITY_BLOCK = "BEFORE_ACTIVITY_BLOCK"
     SELECT_ACTIVITY = "SELECT_ACTIVITY"
@@ -200,9 +200,9 @@ class Bootstrap(State):
         return deepcopy(self._dict[sta.INPUT])
 
 
-class Context(State):
+class ContextSynchronized(State):
     def __init__(self, dict: dict):
-        super().__init__(name=State.CONTEXT, dict=dict)
+        super().__init__(name=State.CONTEXT_SYNCHRONIZED, dict=dict)
 
 
 class FrameworkStart(State):

@@ -1,31 +1,32 @@
 {
+    "max": 11,
+    "autogenActivityBlockIdCounter": 1,
     "mode": "ACTIVITY",
     "flowConfigPath": "autor-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
-    "max": 5,
     "activityBlockStatus": "SUCCESS",
     "activityBlockInterrupted": false,
     "_activityBlocks": {
-        "autogenActivityBlock3": {
+        "autogenActivityBlock1": {
             "mode": "ACTIVITY",
             "flowConfigPath": "autor-config.yml",
             "_activities": {
-                "autogenActivityBlock3-activity1": {
+                "autogenActivityBlock1-activity1": {
                     "__props": {
-                        "cfg_provide__val": 5,
-                        "inp_provide__max": 3,
+                        "cfg_provide__val": 3,
+                        "inp_provide__max": 11,
                         "out_provide__status": "SUCCESS",
-                        "out_provide__max": 5
+                        "out_provide__max": 11
                     },
                     "action": "RUN",
                     "status": "SUCCESS",
-                    "max": 5
+                    "max": 11
                 }
             },
             "action": "RUN",
             "status": "SUCCESS",
-            "max": 5,
+            "max": 11,
             "activityBlockStatus": "SUCCESS",
             "activityBlockInterrupted": false
         }

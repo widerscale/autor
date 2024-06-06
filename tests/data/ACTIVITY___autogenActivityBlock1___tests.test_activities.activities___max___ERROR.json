@@ -1,4 +1,5 @@
 {
+    "autogenActivityBlockIdCounter": 1,
     "mode": "ACTIVITY",
     "flowConfigPath": "autor-config.yml",
     "action": "RUN",

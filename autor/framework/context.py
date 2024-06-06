@@ -96,6 +96,15 @@ class Context:
         Context._local_context: dict = {}              # The internal representation of the local context.
         Context._remote_context: RemoteContext = None  # Remote context that can be added by an extension.
 
+    @staticmethod
+    # This method has not been tested.
+    def contains_activity_block(activity_block_id:str):
+        if Context._local_context is not None:
+            activity_blocks = Context._local_context.get("_activityBlocks",{})
+            if activity_block_id in activity_blocks:
+                return True
+        return False
+
 
     # -------------------------------- I N I T  --------------------------------------#
     def __init__(self, activity_block=None, activity=None):

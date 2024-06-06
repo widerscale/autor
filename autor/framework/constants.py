@@ -45,7 +45,7 @@ class Constant():
 class Constants(Constant):
     AUTOR_ENVIRONMENT_VARIABLE_PREFIX = "AUTOR_ARGUMENT_"
     DEBUG_LINE_LENGTH = 50
-    GENERATED_ACTIVITY_BLOCK_ID = "generatedActivityBlock"
+    AUTOGEN_ACTIVITY_BLOCK_ID = "autogenActivityBlock"
     GENERATED_FLOW_CONFIG_PATH = "autor-config.yml"
 
 class ContextPropertyPrefix(Constant):

@@ -109,6 +109,7 @@ keys = [
     "CLASS",
     "CONFIG",
     "CONTEXT",
+    "CONTEXT_SYNCHRONIZED",
     "CONTINUE_ON",
     "CUSTOM",
     "CUSTOM_DATA",

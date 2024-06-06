@@ -1,27 +1,10 @@
 {
+    "autogenActivityBlockIdCounter": 1,
     "mode": "ACTIVITY",
     "flowConfigPath": "autor-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
     "max": 3,
-    "__generatedFlowConfig": {
-        "flowId": "autor-flow",
-        "activityModules": [
-            "test_activities.activities"
-        ],
-        "activityBlocks": {
-            "autogenActivityBlock1": {
-                "activities": [
-                    {
-                        "type": "max",
-                        "configuration": {
-                            "val": 3
-                        }
-                    }
-                ]
-            }
-        }
-    },
     "activityBlockStatus": "SUCCESS",
     "activityBlockInterrupted": false,
     "_activityBlocks": {

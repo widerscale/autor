@@ -6,7 +6,7 @@ from typing import List
 
 from autor.framework.activity_block import ActivityBlock
 from autor.framework.check import Check
-from autor.framework.constants import Mode, Status
+from autor.framework.constants import Mode, Status, Constants
 from autor.framework.context import Context
 from autor.framework.key_handler import KeyConverter
 from autor.framework.keys import CommandLineKeys as key
@@ -177,7 +177,7 @@ class AutorTester():
 
         if expectation is not None:
             p_mode,p_activity_block_id = AutorTester._parse_expectation2(expectation)
-            if p_activity_block_id == "generatedActivityBlock":
+            if p_activity_block_id.startswith(Constants.AUTOGEN_ACTIVITY_BLOCK_ID):
                 p_activity_block_id = None
 
             activity_block_id = p_activity_block_id

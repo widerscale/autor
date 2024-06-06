@@ -54,8 +54,8 @@ class Check:
     def is_true(value, exception_type:type=AutorFrameworkException,  msg: str = "Msg not provided"):
         if msg == "Msg not provided":
             msg = f"Expression did not evaluate to True."
-            if not value:
-                raise exception_type(msg)
+        if not value:
+            raise exception_type(msg)
 
 
     @staticmethod

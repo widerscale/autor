@@ -37,6 +37,7 @@ from autor.framework.state import (
     BeforeActivityBlockCallbacks,
     BeforeActivityPreprocess,
     BeforeActivityRun,
+    ContextSynchronized,
     Error,
     FrameworkEnd,
     FrameworkStart,
@@ -150,9 +151,9 @@ class StateHandler(StateProducer):
         base_callback = getattr(StateListener, method_name, None)
 
         if listener_callback is None:
-            raise AutorFrameworkException(f'Expected to find method: {method_name} in listener: {listener.__name__}, but did not find.')
+            raise AutorFrameworkException(f'Expected to find method: {method_name} in listener: {listener.__class__.__name__}, but did not find.')
         if base_callback is None:
-            raise AutorFrameworkException(f'Expected to find method: {method_name} in base listener: {StateListener.__name__}, but did not find.')
+            raise AutorFrameworkException(f'Expected to find method: {method_name} in base listener: {StateListener.__class__.__name__}, but did not find.')
 
         return listener_callback != base_callback
 

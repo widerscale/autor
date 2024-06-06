@@ -22,12 +22,12 @@ def test_ACTIVITY_IN_BLOCK_by_activity_name():
 
 def test_ACTIVITY():
     # Without flow-run-id
-    ab = test.run2(activity_block_id='autogenActivityBlock1', expectation='ACTIVITY___autogenActivityBlock1___val=3___test_activities.doc_activities___max___SUCCESS.json', activity_type='max', activity_module='tests.test_activities.doc_activities', activity_config={'val': 3})
-    ab = test.run2(activity_block_id='autogenActivityBlock1', expectation='ACTIVITY___autogenActivityBlock1___val=3___max=11___test_activities.doc_activities___max___SUCCESS.json', activity_type='max', activity_module='tests.test_activities.doc_activities', activity_config={'val': 3}, input={'max':11})
-
-    # Reuse of flow-run-id
-    ab = test.run(activity_block_id='autogenActivityBlock1', activity_type='max', activity_module='tests.test_activities.doc_activities', activity_config={'val':3},expectation='ACTIVITY___autogenActivityBlock1___val=3___test_activities.doc_activities___max___SUCCESS.json')
-    ab = test.run(activity_block_id='autogenActivityBlock2', activity_type='max', activity_module='tests.test_activities.doc_activities', activity_config={'val':1},expectation='ACTIVITY___autogenActivityBlock2___val=1___test_activities.doc_activities___max___flow_run_id___SUCCESS.json', flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(expectation='ACTIVITY___autogenActivityBlock1___val=3___tests.test_activities.doc_activities___max___SUCCESS.json', activity_type='max', activity_module='tests.test_activities.doc_activities', activity_config={'val': 3})
+    ab = test.run2(expectation='ACTIVITY___autogenActivityBlock1___val=3___max=11___tests.test_activities.doc_activities___max___SUCCESS.json', activity_type='max', activity_module='tests.test_activities.doc_activities', activity_config={'val': 3}, input={'max':11})
+    #
+    # # Reuse of flow-run-id
+    ab = test.run2(expectation='ACTIVITY___autogenActivityBlock1___val=3___tests.test_activities.doc_activities___max___SUCCESS.json', activity_type='max', activity_module='tests.test_activities.doc_activities', activity_config={'val':3})
+    ab = test.run2(expectation='ACTIVITY___autogenActivityBlock2___val=1___tests.test_activities.doc_activities___max___flow_run_id___SUCCESS.json', activity_type='max', activity_module='tests.test_activities.doc_activities', activity_config={'val':1}, flow_run_id=ab.get_flow_run_id())
 
 
 

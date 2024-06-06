@@ -17,7 +17,7 @@ import logging
 from autor.framework.debug_config import DebugConfig
 from autor.framework.state import (
     Bootstrap,
-    Context,
+    ContextSynchronized,
     FrameworkStart,
     BeforeActivityBlock,
     SelectActivity,
@@ -78,7 +78,7 @@ class StateListener:
         pass
 
     @abc.abstractmethod
-    def on_context(self, state: Context):
+    def on_context_synchronized(self, state: ContextSynchronized):
         pass
 
     @abc.abstractmethod

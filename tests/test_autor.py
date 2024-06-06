@@ -160,19 +160,24 @@ def test_status_prints():
 
 
 def test_ACTIVITY_without_required_configuration():
-    ab = test.run(activity_block_id='autogenActivityBlock1', activity_type='max', activity_module='tests.test_activities.activities',expectation='ACTIVITY___autogenActivityBlock1___test_activities.activities___max___ERROR.json')
-
-def test_ACTIVITY_with_config_and_input_and_flow_run_id():
-    ab = test.run(activity_block_id='autogenActivityBlock1', activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':3},expectation='ACTIVITY___autogenActivityBlock1___val=3___test_activities.activities___max___SUCCESS.json')
-    ab = test.run(activity_block_id='autogenActivityBlock2', activity_type='max2', activity_module='tests.test_activities.activities2', activity_config={'val':1},expectation='ACTIVITY___autogenActivityBlock2___val=1___test_activities.activities2___max2___flow_run_id___SUCCESS.json', flow_run_id=ab.get_flow_run_id())
-    ab = test.run(activity_block_id='autogenActivityBlock3', activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':5},expectation='ACTIVITY___autogenActivityBlock3___val=5___test_activities.activities___max___flow_run_id___SUCCESS.json', flow_run_id=ab.get_flow_run_id())
-    ab = test.run(activity_block_id='autogenActivityBlock4', activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':4},expectation='ACTIVITY___autogenActivityBlock4___val=4___test_activities.activities___max___flow_run_id___SUCCESS.json', flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(activity_type='max', activity_module='tests.test_activities.activities', expectation='ACTIVITY___autogenActivityBlock1___tests.test_activities.activities___max___ERROR.json')
 
 def test_ACTIVITY_with_config_and_input():
-    ab = test.run(activity_block_id='autogenActivityBlock1', activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':3},expectation='ACTIVITY___autogenActivityBlock1___val=3___test_activities.activities___max___SUCCESS.json')
-    ab = test.run(activity_block_id='autogenActivityBlock2', activity_type='max2', activity_module='tests.test_activities.activities2', activity_config={'val':1},expectation='ACTIVITY___autogenActivityBlock2___val=1___test_activities.activities2___max2___SUCCESS.json')
-    ab = test.run(activity_block_id='autogenActivityBlock3', activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':5},expectation='ACTIVITY___autogenActivityBlock3___val=5___test_activities.activities___max___SUCCESS.json')
-    ab = test.run(activity_block_id='autogenActivityBlock4', activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':4},expectation='ACTIVITY___autogenActivityBlock4___val=4___test_activities.activities___max___SUCCESS.json')
+    ab = test.run2(activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':3},expectation='ACTIVITY___autogenActivityBlock1___val=3___tests.test_activities.activities___max___SUCCESS.json')
+    ab = test.run2(activity_type='max2', activity_module='tests.test_activities.activities2', activity_config={'val':1},expectation='ACTIVITY___autogenActivityBlock1___val=1___tests.test_activities.activities2___max2___SUCCESS.json')
+    ab = test.run2(activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':5},expectation='ACTIVITY___autogenActivityBlock1___val=5___tests.test_activities.activities___max___SUCCESS.json')
+    ab = test.run2(activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':4},expectation='ACTIVITY___autogenActivityBlock1___val=4___tests.test_activities.activities___max___SUCCESS.json')
+
+def test_ACTIVITY_with_config_and_input_and_activity_block_id(): # without abid
+    ab = test.run2(activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':3},expectation='ACTIVITY___autogenActivityBlock1___val=3___tests.test_activities.activities___max___SUCCESS.json')
+    ab = test.run2(activity_type='max2', activity_module='tests.test_activities.activities2', activity_config={'val':1},expectation='ACTIVITY___autogenActivityBlock2___val=1___tests.test_activities.activities2___max2___flow_run_id___SUCCESS.json', flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':5},expectation='ACTIVITY___autogenActivityBlock3___val=5___tests.test_activities.activities___max___flow_run_id___SUCCESS.json', flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(activity_type='max',  activity_module='tests.test_activities.activities',  activity_config={'val':4},expectation='ACTIVITY___autogenActivityBlock4___val=4___tests.test_activities.activities___max___flow_run_id___SUCCESS.json', flow_run_id=ab.get_flow_run_id())
+
+
+
+
+
 
     # return
     #
