@@ -1,0 +1,154 @@
+{
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "activityBlockStatus": "FAIL",
+    "activityBlockInterrupted": true,
+    "_activityBlocks": {
+        "sequenceRulesFailingAfterBlockActivity": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "sequenceRulesFailingAfterBlockActivity-BB1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-BB2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA1-BA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA1-BA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA1-AA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA1-AA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA2-BA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA2-BA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA2-AA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA2-AA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA3-BA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA3-BA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA3": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA3-AA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-MA3-AA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesFailingAfterBlockActivity-AB1": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "FAIL",
+                        "out_provide__status": "FAIL"
+                    },
+                    "action": "RUN",
+                    "status": "FAIL"
+                },
+                "sequenceRulesFailingAfterBlockActivity-AB2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "activityBlockStatus": "FAIL",
+            "activityBlockInterrupted": true
+        }
+    }
+}

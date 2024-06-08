@@ -459,7 +459,10 @@ class DivideByZero(Activity):
 
 
 
-
+@ActivityRegistry.activity(type="empty")
+class Empty(Activity):
+    def run(self):
+        pass
 
 
 

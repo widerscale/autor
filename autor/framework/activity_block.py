@@ -167,7 +167,7 @@ class ActivityBlock(StateProducer):
 
 
         # Check that the expected values are correct
-        Check.is_true(Mode.is_valid(mode), f'Unknown mode: {mode}. The valid modes are: {Mode.get_valid_constants(Mode)}')
+        Check.is_true(Mode.is_valid(mode), msg=f'Unknown mode: {mode}. The valid modes are: {Mode.get_valid_constants(Mode)}')
 
         self._flags = flags
 
@@ -289,7 +289,7 @@ class ActivityBlock(StateProducer):
         self._after_activities = []
         self._after_block_activities = []
         self._activities_by_name = {}
-
+        self._activities_by_unique_name = {} # BeforeActivities and AfterActivities are prefixed with the MainActivity.
 
         # Keep track of the configuration for the next main activity.
         self._next_main_index = 0
@@ -412,19 +412,11 @@ class ActivityBlock(StateProducer):
             # ---------------------------------------------------------------#
             StateHandler.change_state(State.CONTEXT_SYNCHRONIZED)
             # ---------------------------------------------------------------#
+
+
             if self._mode == Mode.ACTIVITY:
                 self._flow_config = load_flow_configuration(self._flow_config_path)
                 self._activity_block_context = Context(activity_block=self._activity_block_id)
-
-
-
-            if DebugConfig.print_final_input or DebugConfig.print_autor_info:
-                self._print_input_args_after_bootstrap()
-
-
-            self._update_activity_block_state_from_context()
-
-            self._update_parameters_that_depend_on_context()
 
 
             self._create_activities_configurations()
@@ -434,20 +426,7 @@ class ActivityBlock(StateProducer):
         except Exception as e:
             self._abort_and_register_exception(e, "Unhandled exception during Autor set up", ex_type=ExceptionType.SET_UP)
 
-    def _update_parameters_that_depend_on_context(self):
-        # if self._mode == Mode.ACTIVITY:
-        #     autogenActivityBlockIdCounter:int = self._flow_context.get("autogenActivityBlockIdCounter", 0)
-        #     autogenActivityBlockIdCounter = autogenActivityBlockIdCounter + 1
-        #     self._activity_block_id = f"{Constants.GENERATED_ACTIVITY_BLOCK_ID}{autogenActivityBlockIdCounter}"
-        pass
 
-    def _update_activity_block_state_from_context(self):
-        #self._activity_block_interrupted = self._activity_block_context.get(ctx.ACTIVITY_BLOCK_INTERRUPTED, search=False, default=False)
-        #self._activity_block_status = self._activity_block_context.get(ctx.ACTIVITY_BLOCK_STATUS, search=False, default=Status.UNKNOWN)
-
-        # Currently we don't want activity block status data to be re-loaded when the same run is being used. The status will be
-        # re-calculated from activity statuses as if it was a first activity block run. We need this behaviour to support re-runs.
-        pass
 
 
     def _confirm_mode(self, val):
@@ -460,7 +439,7 @@ class ActivityBlock(StateProducer):
         Check.is_non_empty_string(val, exception_type=ValueError, msg=f"Mandatory parameter '{name}' not provided.")
 
     def _confirm_generated_flow_configuration_name(self, val):
-        Check.is_true(value=Constants.GENERATED_FLOW_CONFIG_PATH, exception_type=ValueError, msg=f"In mode: {self._mode} the only allowed flow configuration url is: {Constants.GENERATED_FLOW_CONFIG_PATH}. This value is generated internally by Autor and need not be provided.")
+        Check.is_true(val==Constants.GENERATED_FLOW_CONFIG_PATH, exception_type=ValueError, msg=f"In mode: {self._mode} the only allowed flow configuration url is: {Constants.GENERATED_FLOW_CONFIG_PATH}. This value is generated internally by Autor and need not be provided.")
 
     def _assure_absence(self, name:str, val):
         Check.is_none_or_empty(val, exception_type=ValueError, msg=f"Parameter '{name}' must not be provided in mode: {self._mode}")
@@ -663,7 +642,7 @@ class ActivityBlock(StateProducer):
         # self._activity_name_special is always provided by users as an input parameter, but in Autor we only use self._activity_id_special,
         # so we need to be able to create self._activity_id_special if self._activity_name_special has been provided.
         if self._activity_name_special is not None and self._activity_id_special is None:
-            Check.is_non_empty_string(self._activity_block_id, f"Missing activity_block_id. Cannot create special activity-id from special activity name: {self._activity_name_special}.")
+            Check.is_non_empty_string(self._activity_block_id, msg=f"Missing activity_block_id. Cannot create special activity-id from special activity name: {self._activity_name_special}.")
             self._activity_id_special = f"{self._activity_block_id}-{self._activity_name_special}"
 
     def _add_additional_context(self):
@@ -1044,7 +1023,7 @@ class ActivityBlock(StateProducer):
     def _abort_and_register_exception(self, e:Exception, description:str, ex_type:ExceptionType):
         # Sanity check
         if self._autor_aborted:
-            Check.is_true(self._activity_block_status == Status.ABORTED,f"An activity block that has been aborted by the framework should always have status: {Status.ABORTED}. Current block status: {self._activity_block_status}")
+            Check.is_true(self._activity_block_status == Status.ABORTED, msg=f"An activity block that has been aborted by the framework should always have status: {Status.ABORTED}. Current block status: {self._activity_block_status}")
 
         if not self._autor_aborted:
             self._abort_autor(str(description))
@@ -1112,12 +1091,13 @@ class ActivityBlock(StateProducer):
         data.activities              = self._activity_block_activities
         # A dictionary of all activities that have run with their name (not id!) as key.
         # Before/after activities will be overwritten.
-        data.activities_by_name      = self._activities_by_name
-        data.before_block_activities = self._before_block_activities
-        data.before_activities       = self._before_activities
-        data.main_activities         = self._main_activities
-        data.after_activities        = self._after_activities
-        data.after_block_activities  = self._after_block_activities
+        data.activities_by_name        = self._activities_by_name
+        data.activities_by_unique_name = self._activities_by_unique_name
+        data.before_block_activities   = self._before_block_activities
+        data.before_activities         = self._before_activities
+        data.main_activities           = self._main_activities
+        data.after_activities          = self._after_activities
+        data.after_block_activities    = self._after_block_activities
 
         data.before_block_activities_configurations = self._activity_block_configs_before_block
         data.before_activities_configurations       = self._activity_block_configs_before_activity
@@ -1129,6 +1109,10 @@ class ActivityBlock(StateProducer):
         data.activity_id            = activity_id
         data.activity_run_id        = str(uuid.uuid4())
         data.activity_name          = activity_config.name
+        if activity_id is not None: # Can be None in case of temporary configuration (created for the next main activity)
+            data.activity_name_unique   = activity_id.split(f"{self._activity_block_id}-")[1]
+        else:
+            data.activity_name_unique = "ljljljljljlj"
         data.activity_group_type    = activity_group_type
         data.activity_config        = activity_config
         data.activity_type          = activity_config.activity_type
@@ -1149,22 +1133,27 @@ class ActivityBlock(StateProducer):
         if activity_group_type == ActivityGroupType.BEFORE_ACTIVITY:
             Check.is_true(
                 len(self._activity_block_configs_main_activities) > self._next_main_index,
-                "No main activity configuration exists for the before activity.",
+                msg="No main activity configuration exists for the before activity.",
             )
             next_main_conf = self._activity_block_configs_main_activities[self._next_main_index]
+            temp = activity_id.split("-")
+            next_main_activity_id = f"{temp[0]}-{temp[1]}"
             data.next_main_activity_data = self._create_data(
-                "_NEXT_MAIN_ACTIVITY", ActivityGroupType.MAIN_ACTIVITY, next_main_conf
+                next_main_activity_id,
+                ActivityGroupType.MAIN_ACTIVITY,
+                next_main_conf
             )
 
         return data
 
-    def _update_activity_lists(self, activity_data:ActivityData, activity_config, activity_group_type):  # TODO take from data object
+    def _update_activity_lists(self, activity_data:ActivityData, activity_config:ActivityConfiguration, activity_group_type):  # TODO take from data object
         activity = activity_data.activity
         self._activity_block_activities.append(activity)
         self._activity_block_activities_data.append(activity_data)
         self._activity_block_activities_id.append(activity_data.activity_id)
 
         self._activities_by_name[activity_config.name] = activity
+        self._activities_by_unique_name[activity_data.activity_name_unique] = activity
 
         if activity_group_type == ActivityGroupType.BEFORE_BLOCK:
             self._before_block_activities.append(activity)
@@ -1215,11 +1204,11 @@ class ActivityBlock(StateProducer):
         if self._activity_data is not None:
             self._activity_data.activity_block_status = Status.ABORTED
 
-    def _run_activity(self, activity_name, activity_id, activity_group_type, activity_config:ActivityConfiguration):
+    def _run_activity(self, activity_id, activity_group_type, activity_config:ActivityConfiguration):
         self._activity_data:ActivityData = self._create_data(activity_id, activity_group_type, activity_config)
 
         if (self._mode == Mode.ACTIVITY) or (self._mode == Mode.ACTIVITY_IN_BLOCK and (self._activity_data.activity_id == self._activity_id_special)):
-            Check.is_true(self._activity_data_special is None, "Internal error: Special activity data may not be created twice.")
+            Check.is_true(self._activity_data_special is None, msg="Internal error: Special activity data may not be created twice.")
             self._activity_data_special = self._activity_data
             self._activity_found_special = True
 
@@ -1284,9 +1273,6 @@ class ActivityBlock(StateProducer):
         # Save some run info to context. Mostly for information/debugging purposes.
         self._flow_context.set(key=ctx.FLOW_RUN_ID, value=self._flow_run_id) # for info
         self._activity_block_context.set(key=ctx.ACTIVITY_BLOCK_RUN_ID, value=self._activity_block_run_id) # for info
-
-        Context.print_context("after setting activity block run id")
-
         self._activity_block_context.set(key=ctx.FLOW_CONFIG_PATH, value=self._flow_config_path) # required for mode ACTIVITY_BLOCK_RERUN
 
         # Create an ordered list of data tuples that are needed for creating activities.
@@ -1303,7 +1289,6 @@ class ActivityBlock(StateProducer):
                 + self._get_activity_name(act_conf_before_block, ActivityGroupType.BEFORE_BLOCK)
             )
             self._run_activity(
-                act_conf_before_block.name,
                 activity_id,
                 ActivityGroupType.BEFORE_BLOCK,
                 act_conf_before_block,
@@ -1325,7 +1310,6 @@ class ActivityBlock(StateProducer):
                     + self._get_activity_name(act_conf_before, ActivityGroupType.BEFORE_ACTIVITY)
                 )
                 self._run_activity(
-                    act_conf_before.name,
                     activity_id,
                     ActivityGroupType.BEFORE_ACTIVITY,
                     act_conf_before,
@@ -1333,8 +1317,7 @@ class ActivityBlock(StateProducer):
 
             # ------------------------ MAIN-ACTIVITY ---------------------------#
             activity_id = self._activity_block_id + "-" + main_name
-            self._run_activity(
-                act_conf_main.name, activity_id, ActivityGroupType.MAIN_ACTIVITY, act_conf_main
+            self._run_activity(activity_id, ActivityGroupType.MAIN_ACTIVITY, act_conf_main
             )
             self._next_main_index = self._next_main_index + 1
 
@@ -1348,7 +1331,6 @@ class ActivityBlock(StateProducer):
                     + self._get_activity_name(act_conf_after, ActivityGroupType.AFTER_ACTIVITY)
                 )
                 self._run_activity(
-                    act_conf_after.name,
                     activity_id,
                     ActivityGroupType.AFTER_ACTIVITY,
                     act_conf_after,
@@ -1364,7 +1346,6 @@ class ActivityBlock(StateProducer):
                 + self._get_activity_name(act_conf_after_block, ActivityGroupType.AFTER_BLOCK)
             )
             self._run_activity(
-                self._activity_block_id,
                 activity_id,
                 ActivityGroupType.AFTER_BLOCK,
                 act_conf_after_block,
@@ -1374,7 +1355,7 @@ class ActivityBlock(StateProducer):
 
         if self._mode == Mode.ACTIVITY_IN_BLOCK:
             try:
-                Check.is_true(self._activity_found_special, f"Activity with id: {self._activity_id_special} not found.")
+                Check.is_true(self._activity_found_special, msg=f"Activity with id: {self._activity_id_special} not found.")
             except Exception as ex:
                 descr = f"Activity with id: {self._activity_id_special} is not part of activity block: {self._activity_block_id} -> aborting activity block. Check the spelling of the activity id/name. Valid activity ids: {self._activity_block_activities_id}"
                 self._abort_and_register_exception(e=ex,description=descr,ex_type=ExceptionType.AUTOR_INPUT_PARAMETERS)
@@ -1387,7 +1368,7 @@ class ActivityBlock(StateProducer):
     def _get_activity_name(self, conf, group):
 
         if self._mode == Mode.ACTIVITY:
-            Check.is_non_empty_string(self._activity_name_special, "Internal error. Mode ACTIVITY requires activity_name, which should be created by Autor internal bootstrap extension. In this mode Autor generates a Flow Configuration with the acitivity_name.")
+            Check.is_non_empty_string(self._activity_name_special, msg="Internal error. Mode ACTIVITY requires activity_name, which should be created by Autor internal bootstrap extension. In this mode Autor generates a Flow Configuration with the acitivity_name.")
             default_name= self._activity_name_special
 
         elif group == ActivityGroupType.BEFORE_BLOCK:

@@ -262,7 +262,7 @@ class AutorTester():
         actual_ctx = Context.get_context_dict() # Context has a global dict
 
         expected_abs:dict = expected_ctx["_activityBlocks"]
-        Check.is_true(len(expected_abs.keys()) == 1, "Expected context should contain only one activity block")
+        Check.is_true(len(expected_abs.keys()) == 1, msg="Expected context should contain only one activity block")
 
         expected_ab_id:str =list(expected_abs.keys())[0]
         expected_ab:dict = expected_abs[expected_ab_id]

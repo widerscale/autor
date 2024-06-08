@@ -260,3 +260,30 @@ def test_mandatory_inputs_must_have_a_value_in_context():
 
 
 
+
+
+
+
+
+def test_sequence_rules():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRules1___FAIL.json')
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRules2___FAIL.json')
+
+def test_sequence_rules_defaults():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDefaults___SUCCESS.json')
+
+def test_sequence_rules_failing_MA():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesFailingMainActivity___FAIL.json')
+
+def test_sequence_rules_failing_BA():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesFailingBeforeActivity___FAIL.json')
+
+def test_sequence_rules_failing_BB():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesFailingBeforeBlockActivity___FAIL.json')
+
+def test_sequence_rules_failing_AB():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesFailingAfterBlockActivity___FAIL.json')
+
+def test_sequence_rules_dependency_on_BA():
+    #ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDependencyOnBeforeActivity1___SUCCESS.json')
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDependencyOnBeforeActivity2___SUCCESS.json')

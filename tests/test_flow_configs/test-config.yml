@@ -18,6 +18,24 @@ activityModules:
 #################################
 activityBlocks:
 
+  calculateMaxParallel:
+    activities:
+      - type: max
+        configuration:
+          val: 3
+      - type: max
+        configuration:
+          val: 1
+      - type: max
+        configuration:
+          val: 5
+      - type: max
+        configuration:
+          val: 4
+
+
+
+
   calculateMax:
     activities:
       - type: max
@@ -409,3 +427,571 @@ activityBlocks:
         name: third
         configuration:
           status_to_set: SUCCESS
+
+
+  sequenceRules1:
+    activities:
+      - type: configurable-status
+        configuration:
+          status_to_set: FAIL
+        continueOn:
+          - ALL                 # Will try to continue on ANY status
+
+      - type: configurable-status
+        configuration:
+          status_to_set: FAIL
+        continueOn:
+          - FAIL                # Will try to continue on FAIL
+
+      - type: configurable-status
+        configuration:
+          status_to_set: SUCCESS
+        continueOn:
+          - FAIL                # Will not continue, as it needs FAIL to continue.
+
+      - type: configurable-status # Will not be triggered.
+        configuration:
+          status_to_set: SUCCESS
+
+
+
+  sequenceRules2:
+    activities:
+      - type: configurable-status  # Action: RUN
+        name: first
+        configuration:
+          status_to_set: FAIL
+        continueOn:
+          - ALL                    # -> Continue, although fail
+
+      - type: configurable-status # Action: RUN
+        name: second
+        configuration:
+          status_to_set: ABORTED
+        continueOn:
+          - ALL                      # -> Continue, although aborted
+
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+        runOn:                    # Conditions are true -> Action: RUN
+          activityStatus:
+            first:
+              - FAIL
+            second:
+              - ABORTED           # SUCCESS -> continue by default
+
+
+      - type: configurable-status
+        name: fourth
+        configuration:
+          status_to_set: SUCCESS
+        runOn:                    # Condition fails -> SKIP_BY_CONFIG -> the activity will not be run and will have status SKIPPED -> continue
+          activityStatus:
+            first:
+              - FAIL
+            second:
+              - FAIL
+
+      - type: configurable-status # -> skipped by framework because of previous activity skip.
+        name: fifth
+        configuration:
+          status_to_set: SUCCESS
+        runOn:                        # Condition true -> Action: RUN
+          activityStatus:
+            third:
+              - SUCCESS
+
+      - type: configurable-status # Default conditions true -> Action: RUN
+        name: sixth
+        configuration:
+          status_to_set: SUCCESS
+
+
+      - type: configurable-status
+        name: seventh
+        configuration:
+          status_to_set: FAIL # Default config interrupts on FAIL -> Action: SKIP_BY_FRAMEWORK
+
+      - type: configurable-status # Previous SKIP_BY_FRAMEWORK -> next SKIP_BY_FRAMEWORK
+        name: eighth
+        configuration:
+          status_to_set: SUCCESS
+        runOn:
+          activityStatus:
+            seventh:
+              - FAIL # Will still not run as the previous activity continue_on condition will not allow to continue.
+
+      - type: configurable-status # Will not run, as the activity block has been interrupted. After SKIPPED_BY_FRAMEWORK no activities will be run.
+        name: ninth
+        configuration:
+          status_to_set: SUCCESS
+        runOn:
+          activityStatus:
+            eighth:
+              - ALL
+
+
+
+
+
+
+
+  sequenceRulesTest:
+    activities:
+      - type: configurable-status  # Action: RUN
+        name: first
+        configuration:
+          status_to_set: FAIL
+        continueOn:
+          - ALL                    # -> Continue, although fail
+
+      - type: configurable-status # Action: RUN
+        name: second
+        configuration:
+          status_to_set: ABORTED
+        continueOn:
+          - ALL                      # -> Continue, although aborted
+
+      - type: configurable-status
+        name: third
+        configuration:
+          status_to_set: SUCCESS
+        runOn:                    # Conditions are true -> Action: RUN
+          activityStatus:
+            first:
+              - FAIL
+            second:
+              - ABORTED           # SUCCESS -> continue by default
+          activityBlockStatus:
+            - SUCCESS
+
+
+
+
+
+
+# -------------------------- Defaults --------------------------------#
+  sequenceRulesDefaults:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: empty
+          name: BB1
+          runOn: # As this is the first activity in AB, the runOn condition will be ignored.
+            activityStatus:
+              _any:
+                - ALL
+
+        - type: empty
+          name: BB2
+          runOn:
+            activityStatus:
+              _any: # All previous activity statuses are ok.
+                - ALL
+
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+        - type: empty
+          name: BA1
+          runOn:
+            activityStatus:
+              _any: # All previous activity statuses are ok.
+                - ALL
+            activityBlockStatus:
+              - ALL
+
+        - type: empty
+          name: BA2
+          runOn:
+            activityStatus:
+              _any: # All previous activity statuses are ok.
+                - ALL
+            activityBlockStatus:
+              - ALL
+
+    activities: # main activities
+      - type: empty
+        name: MA1
+        runOn:
+          activityStatus:
+            _any: # All previous activity statuses are ok.
+              - ALL
+          activityBlockStatus:
+            - ALL
+
+      - type: empty
+        name: MA2
+        runOn:
+          activityStatus:
+            _any: # All previous activity statuses are ok.
+              - ALL
+          activityBlockStatus:
+            - ALL
+
+      - type: empty
+        name: MA3
+        runOn:
+          activityStatus:
+            _any: # All previous activity statuses are ok.
+              - ALL
+          activityBlockStatus:
+            - ALL
+
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: empty
+          name: AA1
+          runOn:
+            activityStatus:
+              _any: # All previous activity statuses are ok.
+                - ALL
+            mainActivityStatus:
+              - ALL
+            activityBlockStatus:
+              - ALL
+
+        - type: empty
+          name: AA2
+          runOn:
+            activityStatus:
+              _any: # All previous activity statuses are ok.
+                - ALL
+            mainActivityStatus:
+              - ALL
+            activityBlockStatus:
+              - ALL
+
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: empty
+          name: AB1
+          runOn:
+            activityStatus:
+              _any: # All previous activity statuses are ok.
+                - ALL
+            activityBlockStatus:
+              - ALL
+
+        - type: empty
+          name: AB2
+          runOn:
+            activityStatus:
+              _any: # All previous activity statuses are ok.
+                - ALL
+            activityBlockStatus:
+              - ALL
+
+  sequenceRulesFailingMainActivity:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: empty
+          name: BB1
+        - type: empty
+          name: BB2
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+        - type: empty
+          name: BA1
+        - type: empty
+          name: BA2
+
+    activities: # main activities
+      - type: empty
+        name: MA1
+
+      - type: configurable-status
+        name: MA2
+        configuration:
+          status_to_set: FAIL
+
+      - type: empty
+        name: MA3
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: empty
+          name: AA1
+        - type: empty
+          name: AA2
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: empty
+          name: AB1
+        - type: empty
+          name: AB2
+
+
+
+
+
+  sequenceRulesFailingBeforeActivity:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: empty
+          name: BB1
+        - type: empty
+          name: BB2
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+        - type: configurable-status
+          name: BA1
+          configuration:
+            status_to_set: FAIL
+        - type: empty
+          name: BA2
+
+    activities: # main activities
+      - type: empty
+        name: MA1
+      - type: empty
+        name: MA2
+      - type: empty
+        name: MA3
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: empty
+          name: AA1
+        - type: empty
+          name: AA2
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: empty
+          name: AB1
+        - type: empty
+          name: AB2
+
+
+
+
+  sequenceRulesFailingBeforeBlockActivity:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: configurable-status
+          name: BA1
+          configuration:
+            status_to_set: FAIL
+        - type: empty
+          name: BB2
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+        - type: empty
+          name: BA1
+        - type: empty
+          name: BA2
+
+    activities: # main activities
+      - type: empty
+        name: MA1
+      - type: empty
+        name: MA2
+      - type: empty
+        name: MA3
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: empty
+          name: AA1
+        - type: empty
+          name: AA2
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: empty
+          name: AB1
+        - type: empty
+          name: AB2
+
+
+
+  sequenceRulesFailingAfterBlockActivity:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: empty
+          name: BB1
+        - type: empty
+          name: BB2
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+        - type: empty
+          name: BA1
+        - type: empty
+          name: BA2
+
+    activities: # main activities
+      - type: empty
+        name: MA1
+      - type: empty
+        name: MA2
+      - type: empty
+        name: MA3
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: empty
+          name: AA1
+        - type: empty
+          name: AA2
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: configurable-status
+          name: AB1
+          configuration:
+            status_to_set: FAIL
+        - type: empty
+          name: AB2
+
+
+
+  sequenceRulesDependencyOnBeforeActivity1:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: empty
+          name: BB1
+        - type: empty
+          name: BB2
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+        - type: empty
+          name: BA1
+        - type: configurable-status
+          name: BA2
+          configuration:
+            status_to_set: SKIPPED
+
+    activities: # main activities
+      - type: empty
+        name: MA1
+      - type: empty
+        name: MA2
+        runOn:
+          activityStatus:
+            MA1-BA2:
+              - SUCCESS
+      - type: empty
+        name: MA3
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: empty
+          name: AA1
+        - type: empty
+          name: AA2
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: empty
+          name: AB1
+        - type: empty
+          name: AB2
+
+  sequenceRulesDependencyOnBeforeActivity2:
+    beforeBlock:
+      activities: # activities in this list are run before running the main activity block
+        - type: empty
+          name: BB1
+        - type: empty
+          name: BB2
+
+    beforeActivity:
+      activities: # activities in this list are run before EACH main activity
+
+        - type: empty
+          name: BA1
+        - type: configurable-status
+          name: BA2
+          configuration:
+            status_to_set: SKIPPED
+
+    activities: # main activities
+      - type: empty
+        name: MA1
+      - type: empty
+        name: MA2
+        runOn:
+          activityStatus:
+            MA2-BA2:
+              - SUCCESS
+      - type: empty
+        name: MA3
+
+    afterActivity:
+      activities: # activities in this list are run after EACH main activity
+        - type: empty
+          name: AA1
+        - type: empty
+          name: AA2
+
+    afterBlock:
+      activities: # activities in this list are run after the main block has run
+        - type: empty
+          name: AB1
+        - type: empty
+          name: AB2
+
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#  ____full_flow:
+#    beforeBlock:
+#      activities: # activities in this list are run before running the main activity block
+#        - type: empty
+#          name: BB1
+#        - type: empty
+#          name: BB2
+#
+#    beforeActivity:
+#      activities: # activities in this list are run before EACH main activity
+#        - type: empty
+#          name: BA1
+#        - type: empty
+#          name: BA2
+#
+#    activities: # main activities
+#      - type: empty
+#        name: MA1
+#      - type: empty
+#        name: MA2
+#      - type: empty
+#        name: MA3
+#
+#    afterActivity:
+#      activities: # activities in this list are run after EACH main activity
+#        - type: empty
+#          name: AA1
+#        - type: empty
+#          name: AA2
+#
+#    afterBlock:
+#      activities: # activities in this list are run after the main block has run
+#        - type: empty
+#          name: AB1
+#        - type: empty
+#          name: AB2

@@ -1,0 +1,156 @@
+{
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false,
+    "_activityBlocks": {
+        "sequenceRulesDependencyOnBeforeActivity": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "sequenceRulesDependencyOnBeforeActivity-BB1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-BB2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA1-BA1": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "SKIPPED",
+                        "out_provide__status": "SKIPPED"
+                    },
+                    "action": "RUN",
+                    "status": "SKIPPED"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA1-BA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA1-AA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA1-AA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA2-BA1": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "SKIPPED",
+                        "out_provide__status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_CONFIGURATION",
+                    "status": "SKIPPED"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA2-BA2": {
+                    "__props": {
+                        "out_provide__status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_CONFIGURATION",
+                    "status": "SKIPPED"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA2": {
+                    "__props": {
+                        "out_provide__status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_CONFIGURATION",
+                    "status": "SKIPPED"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA2-AA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA2-AA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA3-BA1": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "SKIPPED",
+                        "out_provide__status": "SKIPPED"
+                    },
+                    "action": "RUN",
+                    "status": "SKIPPED"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA3-BA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA3": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA3-AA1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-MA3-AA2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-AB1": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRulesDependencyOnBeforeActivity-AB2": {
+                    "__props": {
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false
+        }
+    }
+}

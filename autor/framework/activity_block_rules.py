@@ -77,37 +77,57 @@ class ActivityBlockRules:
     # ------------------------------- runOn -------------------------------------#
     # If runOn is not fulfilled, the activity will be SKIPPED_BY_CONFIGURATION.
 
+
+    # Examples of what it would look like if default runOn configuration was written out in Flow Configuration.
+    """
+      - type: max
+        name: first
+        
+      - type: max
+        name: second
+        runOn:
+          activityStatus:
+            first:
+              - SUCCESS
+              - SKIPPED
+              - ABORTED
+    
+    """
+
+
+
+
     DEFAULT_RUN_ON = {}
 
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_BLOCK] = d
     d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}
-    d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable
-    d[cfg.ACTIVITY_BLOCK_STATUS] = None # Not applicable
+    d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
+    d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_ACTIVITY] = d
     d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY:[Status.ALL]}
-    d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable
-    d[cfg.ACTIVITY_BLOCK_STATUS] = None # Not applicable
+    d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as the main activity has not run yet
+    d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.MAIN_ACTIVITY] = d
     d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}
-    d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable
-    d[cfg.ACTIVITY_BLOCK_STATUS] = None # Not applicable
+    d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to another main activity
+    d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_ACTIVITY] = d
     d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}
     d[cfg.MAIN_ACTIVITY_STATUS]  = [Status.ALL]
-    d[cfg.ACTIVITY_BLOCK_STATUS] = None # Not applicable
+    d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_BLOCK] = d
     d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}
-    d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable
+    d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     _rerun_activated = False # static attribute used for mode ACTIVITY_BLOCK_RERUN
@@ -234,7 +254,13 @@ class ActivityBlockRules:
         action_based_on_necessity = Action.RUN
 
         # Configuration (runOn) is relevant for all activity group types.
-        action_based_on_run_on_config = self._get_run_on_action(data, ignore_unrun)
+        # If this is the first activity in the ActivityBlock, the runOn
+        # conditions should be ignored.
+        if len(data.activities) == 0:
+            self._print("First activity in the ActivityBlock -> ignore runOn condition")
+            action_based_on_run_on_config = Action.RUN
+        else:
+            action_based_on_run_on_config = self._get_run_on_action(data, ignore_unrun)
 
         # ------------------ BEFORE-BLOCK -----------------#
         if activity_group_type == agt.BEFORE_BLOCK:
@@ -293,6 +319,7 @@ class ActivityBlockRules:
             self._print("(aaaa) runOn: None -> using defaults for group: " + str(group))
             run_on_config = ActivityBlockRules.DEFAULT_RUN_ON[group]
 
+
         # Evaluate the configurations.
         run_on_activity_status = self._run_on_activity_status(
             run_on_config[cfg.ACTIVITY_STATUS], data, ignore_unrun
@@ -324,15 +351,11 @@ class ActivityBlockRules:
             # Logger.print_dict(default_run_on, "runOn: complete")
             return default_run_on
 
-        Check.is_instance_of(run_on_config, dict, "runOn value should be a dctionary")
+        Check.is_instance_of(run_on_config, dict, "runOn value should be a dictionary")
 
         run_on_config = self._complete_run_on_activity_status_config(run_on_config, default_run_on)
-        run_on_config = self._complete_run_on_config(
-            run_on_config, default_run_on, cfg.MAIN_ACTIVITY_STATUS, data
-        )
-        run_on_config = self._complete_run_on_config(
-            run_on_config, default_run_on, cfg.ACTIVITY_BLOCK_STATUS, data
-        )
+        run_on_config = self._complete_run_on_config(run_on_config, default_run_on, cfg.MAIN_ACTIVITY_STATUS, data)
+        run_on_config = self._complete_run_on_config(run_on_config, default_run_on, cfg.ACTIVITY_BLOCK_STATUS, data)
 
         return run_on_config
 
@@ -369,17 +392,10 @@ class ActivityBlockRules:
                 # Loop through the elements in runOn.activityStatus and
                 # check that they are not empty and that they are lists
                 for key, value in items:
-                    assert value is not None
-                    Check.is_instance_of(
-                        value,
-                        list,
-                        "runOn." + cfg.ACTIVITY_STATUS + "." + key + " value should be a list",
-                    )
-                    assert len(value) > 0
+                    Check.not_empty_list(value, msg=f"runOn.{cfg.ACTIVITY_STATUS}.{key} value should be a non-empty list")
                     for val in value:
-                        Check.is_status(val)
-                        # assert self._is_status(val)
-
+                        Check.is_status(val, msg=f"Configuration: {original} contains an illegal value.")
+                        Check.is_status(val, msg=f"Configuration: {original} contains an illegal value.")
                 return original_config
 
     def _complete_run_on_config(
@@ -402,12 +418,7 @@ class ActivityBlockRules:
         if default is None:
             Check.is_true(
                 original is None or original == missing,
-                "runOn."
-                + on_config_type
-                + " is not allowed for activity group type: "
-                + str(data.activity_group_type)
-                + ". Activity: "
-                + str(data.activity_name),
+                msg = f"Activity: {data.activity_name}. Configuration option: 'runOn.{on_config_type}' is not available for {data.activity_group_type}."
             )
             original_config[on_config_type] = None
             return original_config
@@ -424,7 +435,7 @@ class ActivityBlockRules:
 
             # Check that the values are valid statuses
             for val in original:
-                assert Check.is_status(val)
+                Check.is_status(val)
 
             return original_config
 
@@ -465,7 +476,7 @@ class ActivityBlockRules:
         # If it is the first main activity that runs, then the configuration will be ignored.
         if len(data.main_activities) <= 0:
             logging.debug(
-                "first main activitiy -> ignoring runOn.mainActivityStatus -> return True"
+                "first main activity -> ignoring runOn.mainActivityStatus -> return True"
             )
 
         latest_main_activity = data.main_activities[-1]
@@ -473,6 +484,8 @@ class ActivityBlockRules:
 
         self._print("(aaaa) runOn.mainActivityStatus --->" + str(run))
         return run
+
+
 
     def _run_on_activity_status(self, config, data, ignore_unrun):
 
@@ -500,7 +513,7 @@ class ActivityBlockRules:
                 if activity is None:
                     Check.is_true(
                         ignore_unrun,
-                        "Exception in configuration for activity: "
+                        msg="Exception in configuration for activity: "
                         + data.activity_name
                         + ": Cannot check runOn.activityStatus for "
                         + activity_name
@@ -533,6 +546,8 @@ class ActivityBlockRules:
     # Returns None if not found.
     # pylint: disable-next=no-self-use
     def _get_activity_by_name(self, activity_name, data):
+        # activity_name - the activity that we expect to have run.
+        # data - belongs to the activity that is about to run
         if activity_name == Configuration.PREVIOUS:
             group = data.activity_group_type
             group_activities = data.get_activities(group)
@@ -550,35 +565,11 @@ class ActivityBlockRules:
 
         else:
             activity = data.activities_by_name.get(activity_name, None)
+            if activity is None:
+                self._print(f"could not find any activity with name '{activity_name}' -> check prefixed unique activity names")
+                activity = data.activities_by_unique_name.get(activity_name, None)
             return activity
 
-    # Only for after-block activities.
-    # Indicates on which activity block statuses the after-activity will be run.
-    def old__rr_(self, activity_block_status, after_activity_config):
-
-        run_on_activity_block_status = after_activity_config.configuration.get(
-            cfg.RUN_ON_ACTIVITY_BLOCK_STATUS, None
-        )
-        if run_on_activity_block_status is None:  # Value not obligatory -> use default
-            self._print(
-                (
-                    "(run-decision) runOnActivityBlockStatus = None"
-                    + " -> use DEFAULT_RUN_ON_ACTIVITY_BLOCK_STATUS"
-                )
-            )
-
-        self._print(
-            "(run-decision) runOnActivityBlockStatus = " + str(run_on_activity_block_status)
-        )
-        self._print("(run-decision) activity_block_status:   = " + str(activity_block_status))
-
-        ok_to_run_activity = False
-        if (Status.ALL in run_on_activity_block_status) or (
-            activity_block_status in run_on_activity_block_status
-        ):
-            ok_to_run_activity = True
-
-        return ok_to_run_activity
 
     def _main_was_skipped_by_framework(self, data):
         last_main_context = data.main_activities[-1].context
@@ -607,8 +598,8 @@ class ActivityBlockRules:
         )
         return all_skipped
 
-    # Look at the configuration of the main activity that this activity and return
-    # True if there is currently no reason for this activity not to run
+    # Look at the configuration of the main activity of this activity and return
+    # True if there is currently no reason for this activity to not run
     # False if we already now know that the activity will not be run.
     def _main_activity_will_be_skipped_by_config(self, data):
 
@@ -750,7 +741,7 @@ class ActivityBlockRules:
         if autor_aborted:
             Check.is_true(
                 current_block_status == Status.ABORTED,
-                (
+                msg=(
                     "Activity block status should always be {Status.ABORTED} once autor has been"
                     + " aborted by (due to framework or other unrecoverable errors). "
                     + "Current status: {current_block_status}"

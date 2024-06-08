@@ -40,6 +40,7 @@ class ActivityData:
         self.activity_id:str = None
         self.activity_run_id = None
         self.activity_name:str = None
+        self.activity_name_unique:str = None
         self.activity_group_type = None
         self.activity_config:ActivityConfiguration = None
         self.activity_type:str = None
@@ -56,6 +57,7 @@ class ActivityData:
 
         self.activities = []
         self.activities_by_name = {}
+        self.activities_by_unique_name = {}
 
         self.before_block_activities = []
         self.before_activities = []

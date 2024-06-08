@@ -126,21 +126,16 @@ class Check:
 
     @staticmethod
     def is_instance_of(value, expected_type, msg: str = ""):
-        description = (
-            str(msg)
-            + " [Check]: Expected type: "
-            + str(expected_type)
-            + " received: "
-            + str(type(value))
-        )
-        if not isinstance(value, expected_type):
+        description = f"{msg} [Check]: Expected type: {expected_type} received: {type(value)}"
+        if (value is None) or not isinstance(value, expected_type):
             raise AutorFrameworkException(description)
 
     @staticmethod
     def is_status(value, msg: str = ""):
-        description = f"{msg}. Valid status values are: {Status.get_valid_constants(Status)}"
+        description = f"{msg} Invalid status '{value}'. Valid status values are: {Status.get_valid_constants(Status)}"
         status = Status()
-        if not hasattr(status, value):
+
+        if (type(value) != str) or (not hasattr(status, value)):
             raise AutorFrameworkException(description)
 
   #  staticmethod

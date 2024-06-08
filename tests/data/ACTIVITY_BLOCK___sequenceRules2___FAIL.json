@@ -1,0 +1,92 @@
+{
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "SKIPPED",
+    "activityBlockStatus": "FAIL",
+    "activityBlockInterrupted": true,
+    "_activityBlocks": {
+        "sequenceRules2": {
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "sequenceRules2-first": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "FAIL",
+                        "out_provide__status": "FAIL"
+                    },
+                    "action": "RUN",
+                    "status": "FAIL"
+                },
+                "sequenceRules2-second": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "ABORTED",
+                        "out_provide__status": "ABORTED"
+                    },
+                    "action": "RUN",
+                    "status": "ABORTED"
+                },
+                "sequenceRules2-third": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRules2-fourth": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "SUCCESS",
+                        "out_provide__status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_CONFIGURATION",
+                    "status": "SKIPPED"
+                },
+                "sequenceRules2-fifth": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRules2-sixth": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "sequenceRules2-seventh": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "FAIL",
+                        "out_provide__status": "FAIL"
+                    },
+                    "action": "RUN",
+                    "status": "FAIL"
+                },
+                "sequenceRules2-eighth": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "SUCCESS",
+                        "out_provide__status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
+                },
+                "sequenceRules2-ninth": {
+                    "__props": {
+                        "cfg_provide__status_to_set": "SUCCESS",
+                        "out_provide__status": "SKIPPED"
+                    },
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "SKIPPED"
+                }
+            },
+            "action": "SKIP_BY_FRAMEWORK",
+            "status": "SKIPPED",
+            "activityBlockStatus": "FAIL",
+            "activityBlockInterrupted": true
+        }
+    }
+}

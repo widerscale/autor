@@ -47,43 +47,15 @@ class AutorFrameworkBootstrap(StateListener):
     def on_bootstrap(self, state: Bootstrap):  # Override
         self._bootstrap_state = state
 
-        # Mode: ACTIVITY
-        #
-        # The presence of either activity_module or activity_type
-        # indicates that Autor should create a flow configuration
-        # for that activity and run it.
-        #
-        # The context should also be managed, so that when autor
-        # will be called with the same flow_run_id, the context
-        # should be intact and a new run should create a new
-        # activity context (even if we run the exact same activity).
-        # Saving a counter in the context will help to create
-        # unique activity context keys for each run.
-        #
-        # Mandatory arguments:.
-        # --------------------
-        # activity-module
-        # activity-type
-        #
-        # Optional arguments:
-        # -------------------
-        # flow-run-id
-        # activity-input
-        # activity-config
-
         if state.mode == Mode.ACTIVITY:
-            Check.is_non_empty_string(state.activity_module, "activity_module is mandatory in mode ACTIVITY")
-            Check.is_non_empty_string(state.activity_type, "activity_type is mandatory in mode ACTIVITY")
+            Check.is_non_empty_string(state.activity_module, msg="activity_module is mandatory in mode ACTIVITY")
+            Check.is_non_empty_string(state.activity_type, msg="activity_type is mandatory in mode ACTIVITY")
 
-
-            # if state.activity_block_id is not None:
-            #     activity_block_id = state.activity_block_id  # Used for deterministic testing
-            # else:
-            #     activity_block_id = str(uuid.uuid4())        # Normal case
-
+            # Create a flow configuration stub. The full flow configuration can be created once the context is
+            # loaded and we can read autogen_activity_block_id_counter from the context.
             self._fc_helper.create_flow_configuration_without_activity_blocks (activity_module=state.activity_module)
             state.flow_config_path = self._fc_helper.flow_configuration_url
-            # state.activity_block_id = activity_block_id
+
 
 
     def _is_camel_case(self, string:str):
