@@ -200,7 +200,7 @@ def test_ACTIVITY_with_config_and_input_and_activity_block_id(): # without abid
 
 
 def test_ACTIVITY_BLOCK_err_misspelled_activity_block_name():
-    ab = test.run(activity_block_id='thisActivityBlockDoesNotExist', mode="ACTIVITY_BLOCK", status="ABORTED", err_msg="Could not create activity configurations: ValueError: No activity block named 'thisActivityBlockDoesNotExist' was found.")
+    ab = test.run(activity_block_id='thisActivityBlockDoesNotExist', mode="ACTIVITY_BLOCK", status="ABORTED", err_msg="No activity block named 'thisActivityBlockDoesNotExist' was found.")
 
 def test_ACTIVITY_BLOCK_err_misspelled_activity_type():
     err_msg = f"No activity with the type: 'max-misspelled' registered. \n          - Check the spelling of the 'type' int the activity decorator. \n          - Make sure the activity module has been added to the Flow Configuration (if it is used) or provided as a parameter to Autor."
@@ -285,5 +285,5 @@ def test_sequence_rules_failing_AB():
     ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesFailingAfterBlockActivity___FAIL.json')
 
 def test_sequence_rules_dependency_on_BA():
-    #ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDependencyOnBeforeActivity1___SUCCESS.json')
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDependencyOnBeforeActivity1___SUCCESS.json')
     ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDependencyOnBeforeActivity2___SUCCESS.json')

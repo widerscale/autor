@@ -685,6 +685,10 @@ activityBlocks:
             activityBlockStatus:
               - ALL
 
+
+
+
+
   sequenceRulesFailingMainActivity:
     beforeBlock:
       activities: # activities in this list are run before running the main activity block
