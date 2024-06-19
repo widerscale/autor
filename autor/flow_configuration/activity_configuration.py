@@ -37,6 +37,14 @@ class ActivityConfiguration(Configurable):
         return self.__configuration_dict.get("type", None)
 
     @property
+    def concurrency_group(self) -> dict:
+        return self.__configuration_dict.get("concurrencyGroup", None)
+
+    @property
+    def concurrency_track(self) -> dict:
+        return self.__configuration_dict.get("concurrencyTrack", None)
+
+    @property
     def run_on(self) -> dict:
         return self.__configuration_dict.get("runOn", None)
 

@@ -64,6 +64,11 @@ class ActivityGroupType(Constant):
     AFTER_ACTIVITY = "AFTER_ACTIVITY"               # AA
     AFTER_BLOCK = "AFTER_BLOCK"                     # ABA
 
+class NodeStatus(Constant):
+    BLOCKED = "BLOCKED"
+    READY_TO_RUN = "READY_TO_RUN"
+    RUNNING = "RUNNING"
+    FINISHED = "FINISHED"
 
 class Status(Constant):
     SUCCESS = 'SUCCESS'

@@ -102,31 +102,31 @@ class ActivityBlockRules:
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_BLOCK] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]} # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY:[Status.ALL]}
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY:[Status.ALL]}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as the main activity has not run yet
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.MAIN_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to another main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = [Status.ALL]
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_BLOCK] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
@@ -690,35 +690,7 @@ class ActivityBlockRules:
 
         return ok_to_run_activity
 
-    # Only for after-block activities. Indicates on which activity block statuses,
-    # the after-activity will be run.
-    def old___(self, activity_block_status, after_activity_config):
 
-        # pylint: disable=no-member
-        run_on_activity_block_status = after_activity_config.configuration.get(
-            cfg.RUN_ON_ACTIVITY_BLOCK_STATUS, None
-        )
-        # Value not obligatory -> use default
-        if run_on_activity_block_status is None:
-            self._print(
-                (
-                    "(run-decision) runOnActivityBlockStatus = None"
-                    + " -> use DEFAULT_RUN_ON_ACTIVITY_BLOCK_STATUS"
-                )
-            )
-
-        self._print(
-            "(run-decision) runOnActivityBlockStatus = " + str(run_on_activity_block_status)
-        )
-        self._print("(run-decision) activity_block_status:   = " + str(activity_block_status))
-
-        ok_to_run_activity = False
-        if (Status.ALL in run_on_activity_block_status) or (
-            activity_block_status in run_on_activity_block_status
-        ):
-            ok_to_run_activity = True
-
-        return ok_to_run_activity
 
     def get_activity_block_status(self, data, autor_aborted)->(str,str):
 

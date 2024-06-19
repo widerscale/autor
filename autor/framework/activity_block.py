@@ -51,17 +51,19 @@ from autor.framework.constants import (
     ActivityGroupType,
     ExceptionType,
     Mode,
-    Status, ContextPropertyPrefix, Inparam, Constants,
+    Status, ContextPropertyPrefix, Inparam, Constants, NodeStatus,
 )
 from autor.framework.context import Context
 from autor.framework.debug_config import DebugConfig
 from autor.framework.exception_handler import ExceptionHandler
 from autor.framework.file_context import FileContext
 from autor.framework.flags import Flags
+from autor.framework.graph import ActivityBlockGraph
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
 from autor.framework.keys import StateKeys as sta
 from autor.framework.logging_config import LoggingConfig
+from autor.framework.node import Node
 from autor.framework.state import State
 from autor.framework.state_handler import StateHandler
 from autor.framework.state_listener import StateListener
@@ -214,19 +216,8 @@ class ActivityBlock(StateProducer):
         # The id of the activity that should be treated in a special manner.
         # How it should be treated depends on Autor mode.
         self._activity_id_special = activity_id  # Can be overriden by extensions in state BOOTSTRAP
-        #if activity_id is None and activity_name is not None and activity_block_id is not None:
-         #   self._activity_id_special = f"{activity_block_id}-{activity_name}"
 
 
-        # Data that is collected about the special activity. Added to Autor output file in modes
-        # ACTIVITY and ACTIVITY_IN_BLOCK
-        self._activity_data_special:ActivityData = None
-
-        # Only for mode ACTIVITY_IN_BLOCK.
-        # Is set to true once the special activity has been found in configuration.
-        # Purpose: helps to detect situations when the provided special activity identification
-        # data is not correct and the activity is not found in the configuration file.
-        self._activity_found_special:bool = False
 
 
         # Autor mode - Initiated after state BOOTSTRAP
@@ -284,9 +275,9 @@ class ActivityBlock(StateProducer):
         self._activity_block_configs_after_activity  = None
 
         self._before_block_activities = []
-        self._before_activities = []  # Reset for each main-loop iteration
+        #self._before_activities = []  # Reset for each main-loop iteration
         self._main_activities = []
-        self._after_activities = []
+        #self._after_activities = []
         self._after_block_activities = []
         self._activities_by_name = {}
         self._activities_by_unique_name = {} # BeforeActivities and AfterActivities are prefixed with the MainActivity.
@@ -327,6 +318,9 @@ class ActivityBlock(StateProducer):
         # This value will be added to the state data for the extensions to play around with.
         # Key: DBG_EXTENSION_TEST_STR
         self._dbg_extension_test_str = ""
+
+
+
 
         # fmt: on
     def run(self) -> dict:
@@ -419,7 +413,7 @@ class ActivityBlock(StateProducer):
                 self._activity_block_context = Context(activity_block=self._activity_block_id)
 
 
-            self._create_activities_configurations()
+            #self._create_activities_configurations()
             self._activity_block_context.set(ctx.MODE, self._mode)
 
 
@@ -731,36 +725,22 @@ class ActivityBlock(StateProducer):
         # If we have a special activity run and Autor has not aborted, add the
         # special activity data to the output.
         if not self._autor_aborted:
-            # if self._mode == Mode.ACTIVITY or self._mode == Mode.ACTIVITY_IN_BLOCK:
-            #     data = self._activity_data_special
-            #     output["activity_id"] = data.activity_id
-            #     output["activity_name"] = data.activity_name
-            #     output["activity_outputs"] = {}
-            #
-            #     properties:dict = data.activity_context.get(ContextPropertyPrefix.props)
-            #
-            #     for (key,val) in properties.items():
-            #         if key.startswith(ContextPropertyPrefix.output):
-            #             prop_name = key[4:]
-            #             output["activity_outputs"][prop_name] = val
-            #
-            # else:
-                activities:List = []
-                output["activities"] = activities
+            activities:List = []
+            output["activities"] = activities
 
-                for data in self._activity_block_activities_data:
-                    activity = {}
-                    activities.append(activity)
-                    activity["activity_id"] = data.activity_id
-                    activity["activity_name"] = data.activity_name
-                    activity["activity_outputs"] = {}
+            for data in self._activity_block_activities_data:
+                activity = {}
+                activities.append(activity)
+                activity["activity_id"] = data.activity_id
+                activity["activity_name"] = data.activity_name
+                activity["activity_outputs"] = {}
 
-                    properties: dict = data.activity_context.get(ContextPropertyPrefix.props)
+                properties: dict = data.activity_context.get(ContextPropertyPrefix.props)
 
-                    for (key, val) in properties.items():
-                        if key.startswith(ContextPropertyPrefix.out_provide):
-                            prop_name = key[len(ContextPropertyPrefix.out_provide):]
-                            activity["activity_outputs"][prop_name] = val
+                for (key, val) in properties.items():
+                    if key.startswith(ContextPropertyPrefix.out_provide):
+                        prop_name = key[len(ContextPropertyPrefix.out_provide):]
+                        activity["activity_outputs"][prop_name] = val
 
 
 
@@ -1046,40 +1026,51 @@ class ActivityBlock(StateProducer):
             logging.info(f"{prefix}")
         # fmt: on
 
-    def _create_activities_configurations(self):
-        try:
-            # pylint: disable=line-too-long
-            # fmt: off
-            self._activity_block_config = self._flow_config.activity_block(self._activity_block_id)
-            self._activity_block_configs_main_activities = self._activity_block_config.activities
-            self._activity_block_configs_before_block    = self._activity_block_config.before_block
-            self._activity_block_configs_after_block     = self._activity_block_config.after_block
-            self._activity_block_configs_before_activity = self._activity_block_config.before_activity
-            self._activity_block_configs_after_activity  = self._activity_block_config.after_activity
+    # def _create_activities_configurations(self):
+    #     try:
+    #
+    #         ######################## new ###############################
+    #         graph:ActivityBlockGraph = ActivityBlockGraph()
+    #         graph.initiate(self._flow_config.activity_block(self._activity_block_id))
+    #         graph.print()
+    #         ######################## new ###############################
+    #
+    #         # pylint: disable=line-too-long
+    #         # fmt: off
+    #         self._activity_block_config = self._flow_config.activity_block(self._activity_block_id)
+    #         self._activity_block_configs_main_activities = self._activity_block_config.activities
+    #         self._activity_block_configs_before_block    = self._activity_block_config.before_block
+    #         self._activity_block_configs_after_block     = self._activity_block_config.after_block
+    #         self._activity_block_configs_before_activity = self._activity_block_config.before_activity
+    #         self._activity_block_configs_after_activity  = self._activity_block_config.after_activity
+    #
+    #         # fmt: on
+    #         # pylint: enable=line-too-long
+    #
+    #         if (
+    #             len(self._activity_block_configs_main_activities) == 0
+    #             and len(self._activity_block_configs_before_block) == 0
+    #             and len(self._activity_block_configs_after_block) == 0
+    #             and len(self._activity_block_configs_before_activity) == 0
+    #             and len(self._activity_block_configs_after_activity) == 0
+    #         ):
+    #             raise AutorFrameworkValueException(
+    #                 (
+    #                     "No activity configurations found in the configuration of the activity"
+    #                     + f" block: {str(self._activity_block_id)!r} -> no activities to run"
+    #                 )
+    #             )
+    #
+    #     except Exception as e:
+    #         raise AutorFrameworkException(
+    #             f"Could not create activity configurations: {e.__class__.__name__}: {str(e)}"
+    #         ) from e
 
-            # fmt: on
-            # pylint: enable=line-too-long
+    def _create_data(self, activity_node:Node):  # -> ActivityData
+        activity_id = activity_node.activity_id
+        activity_group_type = activity_node.activity_group_type
+        activity_config = activity_node.activity_config
 
-            if (
-                len(self._activity_block_configs_main_activities) == 0
-                and len(self._activity_block_configs_before_block) == 0
-                and len(self._activity_block_configs_after_block) == 0
-                and len(self._activity_block_configs_before_activity) == 0
-                and len(self._activity_block_configs_after_activity) == 0
-            ):
-                raise AutorFrameworkValueException(
-                    (
-                        "No activity configurations found in the configuration of the activity"
-                        + f" block: {str(self._activity_block_id)!r} -> no activities to run"
-                    )
-                )
-
-        except Exception as e:
-            raise AutorFrameworkException(
-                f"Could not create activity configurations: {e.__class__.__name__}: {str(e)}"
-            ) from e
-
-    def _create_data(self, activity_id, activity_group_type, activity_config:ActivityConfiguration):  # -> ActivityData
 
         self._print_activity_preparation_msg(
             activity_config.name, activity_id, activity_group_type, activity_config.activity_type
@@ -1094,25 +1085,30 @@ class ActivityBlock(StateProducer):
         data.activities_by_name        = self._activities_by_name
         data.activities_by_unique_name = self._activities_by_unique_name
         data.before_block_activities   = self._before_block_activities
-        data.before_activities         = self._before_activities
+
+        ban:Node = None
+        for ban in activity_node.before_activity_nodes:
+            if ban.status == NodeStatus.FINISHED:
+                Check.is_true(ban.activity is not None, "An activity node that has finished running must have an Activity attatched to it.")
+                data.before_activities.append(ban.activity)
+
+        #data.before_activities        = self._before_activities
         data.main_activities           = self._main_activities
-        data.after_activities          = self._after_activities
+        #data.after_activities          = self._after_activities
         data.after_block_activities    = self._after_block_activities
 
-        data.before_block_activities_configurations = self._activity_block_configs_before_block
-        data.before_activities_configurations       = self._activity_block_configs_before_activity
-        data.main_activities_configurations         = self._activity_block_configs_main_activities
-        data.after_activities_configurations        = self._activity_block_configs_after_activity
-        data.after_block_activities_configurations  = self._activity_block_configs_after_block
+        # data.before_block_activities_configurations = self._activity_block_configs_before_block
+        # data.before_activities_configurations       = self._activity_block_configs_before_activity
+        # data.main_activities_configurations         = self._activity_block_configs_main_activities
+        # data.after_activities_configurations        = self._activity_block_configs_after_activity
+        # data.after_block_activities_configurations  = self._activity_block_configs_after_block
 
         data.activity               = None
         data.activity_id            = activity_id
         data.activity_run_id        = str(uuid.uuid4())
         data.activity_name          = activity_config.name
-        if activity_id is not None: # Can be None in case of temporary configuration (created for the next main activity)
-            data.activity_name_unique   = activity_id.split(f"{self._activity_block_id}-")[1]
-        else:
-            data.activity_name_unique = "ljljljljljlj"
+        data.activity_name_unique   = activity_id.split(f"{self._activity_block_id}-")[1]
+
         data.activity_group_type    = activity_group_type
         data.activity_config        = activity_config
         data.activity_type          = activity_config.activity_type
@@ -1130,19 +1126,26 @@ class ActivityBlock(StateProducer):
 
         data.activity_context = ActivityContext(activity_block=data.activity_block_id, activity=data.activity_id)
 
+        # ---------------------------- OLD ---------------------------------
+        # if activity_group_type == ActivityGroupType.BEFORE_ACTIVITY:
+        #     Check.is_true(
+        #         len(self._activity_block_configs_main_activities) > self._next_main_index,
+        #         msg="No main activity configuration exists for the before activity.",
+        #     )
+        #     next_main_conf = self._activity_block_configs_main_activities[self._next_main_index]
+        #     temp = activity_id.split("-") # activity_id format: <activity block id>-<main activity name>-<before activity name>
+        #     next_main_activity_id = f"{temp[0]}-{temp[1]}" # <activity block id>-<main activity name>
+        #     data.next_main_activity_data = self._create_data(
+        #         next_main_activity_id,
+        #         ActivityGroupType.MAIN_ACTIVITY,
+        #         next_main_conf
+        #     )
+
+
         if activity_group_type == ActivityGroupType.BEFORE_ACTIVITY:
-            Check.is_true(
-                len(self._activity_block_configs_main_activities) > self._next_main_index,
-                msg="No main activity configuration exists for the before activity.",
-            )
-            next_main_conf = self._activity_block_configs_main_activities[self._next_main_index]
-            temp = activity_id.split("-")
-            next_main_activity_id = f"{temp[0]}-{temp[1]}"
-            data.next_main_activity_data = self._create_data(
-                next_main_activity_id,
-                ActivityGroupType.MAIN_ACTIVITY,
-                next_main_conf
-            )
+            Check.is_true(activity_node.main_activity_node is not None, "Cannot create before-activity configuration. Main activity node must be provided for each before-activity")
+
+            data.next_main_activity_data = self._create_data(activity_node.main_activity_node)
 
         return data
 
@@ -1158,12 +1161,16 @@ class ActivityBlock(StateProducer):
         if activity_group_type == ActivityGroupType.BEFORE_BLOCK:
             self._before_block_activities.append(activity)
         elif activity_group_type == ActivityGroupType.BEFORE_ACTIVITY:
-            self._before_activities.append(activity)
+            pass
+            #activity_data.before_activities.append(activity)
+            #self._before_activities.append(activity)
         elif activity_group_type == ActivityGroupType.MAIN_ACTIVITY:
             self._main_activities.append(activity)
         elif activity_group_type == ActivityGroupType.AFTER_ACTIVITY:
-            self._after_activities.append(activity)
-        elif activity_group_type == ActivityGroupType.AFTER_BLOCK:
+            pass
+            #activity_data.after_activities.append(activity)
+            #self._after_activities.append(activity)
+        elif activity_group_type == ActivityGroupType.AFTER_BLOCK: 
             self._after_block_activities.append(activity)
         else:
             raise AutorFrameworkException(
@@ -1204,13 +1211,12 @@ class ActivityBlock(StateProducer):
         if self._activity_data is not None:
             self._activity_data.activity_block_status = Status.ABORTED
 
-    def _run_activity(self, activity_id, activity_group_type, activity_config:ActivityConfiguration):
-        self._activity_data:ActivityData = self._create_data(activity_id, activity_group_type, activity_config)
+    def _run_activity(self, activity_node:Node):
+        activity_group_type = activity_node.activity_group_type
+        activity_config = activity_node.activity_config
 
-        if (self._mode == Mode.ACTIVITY) or (self._mode == Mode.ACTIVITY_IN_BLOCK and (self._activity_data.activity_id == self._activity_id_special)):
-            Check.is_true(self._activity_data_special is None, msg="Internal error: Special activity data may not be created twice.")
-            self._activity_data_special = self._activity_data
-            self._activity_found_special = True
+        self._activity_data:ActivityData = self._create_data(activity_node)
+
 
         # ---------------------------------------------------------------------#
         StateHandler.change_state(State.SELECT_ACTIVITY)
@@ -1237,6 +1243,7 @@ class ActivityBlock(StateProducer):
         if need_to_abort:
             self._abort_autor(abort_reason)
 
+        activity_node.activity = self._activity_data.activity
         self._update_activity_lists(self._activity_data, activity_config, activity_group_type)
         self._update_activity_block_status(need_to_abort)
         self._create_activity_skip_with_outputs_config(self._activity_data)
@@ -1263,7 +1270,6 @@ class ActivityBlock(StateProducer):
 
 
 
-
     def _run_activity_block(self):
 
         # Make sure activity block run id is present.
@@ -1280,125 +1286,23 @@ class ActivityBlock(StateProducer):
         if self._activity_block_status == Status.UNKNOWN: # First run of the activity block
             self._activity_block_status = Status.SUCCESS
 
+        ######################## new ###############################
+        graph:ActivityBlockGraph = ActivityBlockGraph()
+        graph.initiate(self._flow_config.activity_block(self._activity_block_id))
+        graph.print()
+        while not graph.graph_finished():
+            ready_to_run:List[Node] = graph.get_ready_to_run_nodes()
 
-        # --------------------- BEFORE-BLOCK ----------------------------#
-        for act_conf_before_block in self._activity_block_configs_before_block:
-            activity_id = (
-                self._activity_block_id
-                + "-"
-                + self._get_activity_name(act_conf_before_block, ActivityGroupType.BEFORE_BLOCK)
-            )
-            self._run_activity(
-                activity_id,
-                ActivityGroupType.BEFORE_BLOCK,
-                act_conf_before_block,
-            )
+            for node in ready_to_run:
+                graph.set_status_running(node.activity_id)
+                self._run_activity(node)
+            graph.set_status_finished(node.activity_id)
 
-        # -----------------------   M A I N - B L O C K   B E G I N   ---------------------------#
-        for act_conf_main in self._activity_block_configs_main_activities:
-            self._before_activities = []
-            self._after_activities = []
-            main_name = self._get_activity_name(act_conf_main, ActivityGroupType.MAIN_ACTIVITY)
 
-            # ----------------------- BEFORE-ACTIVITY --------------------------#
-            for act_conf_before in self._activity_block_configs_before_activity:
-                activity_id = (
-                    self._activity_block_id
-                    + "-"
-                    + main_name
-                    + "-"
-                    + self._get_activity_name(act_conf_before, ActivityGroupType.BEFORE_ACTIVITY)
-                )
-                self._run_activity(
-                    activity_id,
-                    ActivityGroupType.BEFORE_ACTIVITY,
-                    act_conf_before,
-                )
-
-            # ------------------------ MAIN-ACTIVITY ---------------------------#
-            activity_id = self._activity_block_id + "-" + main_name
-            self._run_activity(activity_id, ActivityGroupType.MAIN_ACTIVITY, act_conf_main
-            )
-            self._next_main_index = self._next_main_index + 1
-
-            # ------------------------ AFTER-ACTIVITY ---------------------------#
-            for act_conf_after in self._activity_block_configs_after_activity:
-                activity_id = (
-                    self._activity_block_id
-                    + "-"
-                    + main_name
-                    + "-"
-                    + self._get_activity_name(act_conf_after, ActivityGroupType.AFTER_ACTIVITY)
-                )
-                self._run_activity(
-                    activity_id,
-                    ActivityGroupType.AFTER_ACTIVITY,
-                    act_conf_after,
-                )
-
-        # ----------------------------   M A I N - B L O C K   E N D   ----------------------------#
-
-        # ----------------------- AFTER-BLOCK ------------------------------#
-        for act_conf_after_block in self._activity_block_configs_after_block:
-            activity_id = (
-                self._activity_block_id
-                + "-"
-                + self._get_activity_name(act_conf_after_block, ActivityGroupType.AFTER_BLOCK)
-            )
-            self._run_activity(
-                activity_id,
-                ActivityGroupType.AFTER_BLOCK,
-                act_conf_after_block,
-            )
+        ######################## new ###############################
 
 
 
-        if self._mode == Mode.ACTIVITY_IN_BLOCK:
-            try:
-                Check.is_true(self._activity_found_special, msg=f"Activity with id: {self._activity_id_special} not found.")
-            except Exception as ex:
-                descr = f"Activity with id: {self._activity_id_special} is not part of activity block: {self._activity_block_id} -> aborting activity block. Check the spelling of the activity id/name. Valid activity ids: {self._activity_block_activities_id}"
-                self._abort_and_register_exception(e=ex,description=descr,ex_type=ExceptionType.AUTOR_INPUT_PARAMETERS)
-
-
-
-
-
-
-    def _get_activity_name(self, conf, group):
-
-        if self._mode == Mode.ACTIVITY:
-            Check.is_non_empty_string(self._activity_name_special, msg="Internal error. Mode ACTIVITY requires activity_name, which should be created by Autor internal bootstrap extension. In this mode Autor generates a Flow Configuration with the acitivity_name.")
-            default_name= self._activity_name_special
-
-        elif group == ActivityGroupType.BEFORE_BLOCK:
-            self._bb_counter = self._bb_counter + 1
-            default_name = cfg.BEFORE_BLOCK + str(self._bb_counter)
-
-        elif group == ActivityGroupType.BEFORE_ACTIVITY:
-            self._ba_counter = self._ba_counter + 1
-            default_name = cfg.BEFORE_ACTIVITY + str(self._ba_counter)
-
-        elif group == ActivityGroupType.MAIN_ACTIVITY:
-            self._ma_counter = self._ma_counter + 1
-            default_name = cfg.ACTIVITY + str(self._ma_counter)
-
-        elif group == ActivityGroupType.AFTER_ACTIVITY:
-            self._aa_counter = self._aa_counter + 1
-            default_name = cfg.AFTER_ACTIVITY + str(self._aa_counter)
-
-        elif group == ActivityGroupType.AFTER_BLOCK:
-            self._ab_counter = self._ab_counter + 1
-            default_name = cfg.AFTER_BLOCK + str(self._ab_counter)
-        else:
-            raise AutorFrameworkException("Unhandled ActivityGroupType: " + str(group))
-
-        if conf.name is not None:
-            return conf.name
-
-        conf.name = default_name
-
-        return default_name
 
     def _run_activity_block_callbacks(self):
 
@@ -1527,30 +1431,6 @@ class ActivityBlock(StateProducer):
             logging.info(f'{prefix}{no_extensions_found_msg}')
         logging.info(f'{prefix}')
 
-
-
-    def ___old_register_extensions_from_flow_configuration(self, config: FlowConfiguration):
-        loaded_extension_names = []  # for debug prints
-
-        extensions = config.extensions
-        if extensions:
-            for extension in extensions:
-                [module_name, class_name] = extension.rsplit(".", 1)
-                module = importlib.import_module(module_name)
-                class_ = getattr(module, class_name)
-                instance = class_()
-                StateHandler.add_state_listener(instance)
-                loaded_extension_names.append(extension)
-
-        # ----------------- Debug prints -------------------------#
-        if DebugConfig.print_loaded_extensions or DebugConfig.print_autor_info:
-            Util.print_header(prefix=DebugConfig.autor_info_prefix, text="L O A D E D   E X T E N S I O N S   F R O M   C O N F I G U R A T I O N", level="info")
-            if len(loaded_extension_names) > 0:
-                for extension in loaded_extension_names:
-                    logging.info(extension)
-            else:
-                logging.info("No extensions found in the flow configuration - OK,")
-            logging.info("")
 
     def _unregister_extensions(self):
         StateHandler.remove_all_listeners()

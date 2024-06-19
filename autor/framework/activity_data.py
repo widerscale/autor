@@ -66,11 +66,11 @@ class ActivityData:
         self.after_block_activities = []
 
 
-        self.before_block_activities_configurations = []
-        self.before_activities_configurations       = []
-        self.main_activities_configurations         = []
-        self.after_activities_configurations        = []
-        self.after_block_activities_configurations  = []
+        # self.before_block_activities_configurations = []
+        # self.before_activities_configurations       = []
+        # self.main_activities_configurations         = []
+        # self.after_activities_configurations        = []
+        # self.after_block_activities_configurations  = []
 
         self.next_main_activity_data = None
         # fmt: on
@@ -100,15 +100,15 @@ class ActivityData:
         self._print(f"activities: {self.activities}")
         self._print(f"activities_by_name: {self.activities_by_name}")
         self._print(f"before_block_activities: {self.before_block_activities}")
-        self._print(f"before_activities: {self.before_activities}")
+        # self._print(f"before_activities: {self.before_activities}")
         self._print(f"main_activities: {self.main_activities}")
-        self._print(f"after_activities: {self.after_activities}")
+        # self._print(f"after_activities: {self.after_activities}")
         self._print(f"after_block_activities: {self.after_block_activities}")
-        self._print(f"before_block_activities_configurations: {self.before_block_activities_configurations}")
-        self._print(f"before_activities_configurations: {self.before_activities_configurations}")
-        self._print(f"main_activities_configurations: {self.main_activities_configurations}")
-        self._print(f"after_activities_configurations: {self.after_activities_configurations}")
-        self._print(f"after_block_activities_configurations: {self.after_block_activities_configurations}")
+        # self._print(f"before_block_activities_configurations: {self.before_block_activities_configurations}")
+        # self._print(f"before_activities_configurations: {self.before_activities_configurations}")
+        # self._print(f"main_activities_configurations: {self.main_activities_configurations}")
+        # self._print(f"after_activities_configurations: {self.after_activities_configurations}")
+        # self._print(f"after_block_activities_configurations: {self.after_block_activities_configurations}")
         self._print(f"next_main_activity_data: {self.next_main_activity_data}")
 
 
