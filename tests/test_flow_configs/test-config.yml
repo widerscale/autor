@@ -266,6 +266,16 @@ activityBlocks:
 
 
 
+  sleepySleepers:
+    activities:
+      - type: sleepy-sleeper
+        configuration:
+          sleep_seconds: 2.0
+
+      - type: sleepy-sleeper
+        configuration:
+          sleep_seconds: 1.0
+
 
   unknownActivityType:
     activities:

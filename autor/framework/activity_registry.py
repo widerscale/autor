@@ -148,8 +148,8 @@ class ActivityRegistry:
             raise AutorFrameworkValueException(
                 (
                     f"No activity with the type: '{str(type)}' registered. \n"
-                    f"          - Check the spelling of the 'type' int the activity decorator. \n"
-                    f"          - Make sure the activity module has been added to the Flow Configuration (if it is used) or provided as a parameter to Autor."
+                    f"          - Check the spelling of the 'type' in the activity decorator. \n"
+                    f"          - Make sure the activity module has been added to the Flow Configuration (if Flow Configuration is used) or provided as a parameter to Autor."
                 )
             )
 

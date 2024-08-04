@@ -67,7 +67,7 @@ class ActivityBlockGraph:
     def graph_finished(self)->bool:
         return len(list(self._nodes.values())) == self._nbr_finished
 
-    def get_ready_to_run_nodes(self)->List[Node]:
+    def get_nodes_that_are_ready_to_run(self)->List[Node]:
         return self._ready_to_run
 
     def set_status_running(self, activity_id:str):

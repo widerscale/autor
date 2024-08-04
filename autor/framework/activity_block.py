@@ -63,6 +63,7 @@ from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
 from autor.framework.keys import StateKeys as sta
 from autor.framework.logging_config import LoggingConfig
+from autor.framework.monitor import ActivityBlockMonitor
 from autor.framework.node import Node
 from autor.framework.state import State
 from autor.framework.state_handler import StateHandler
@@ -1078,6 +1079,7 @@ class ActivityBlock(StateProducer):
 
         # fmt: off
         data = ActivityData()
+        data.activity_node = activity_node
         # list of all activities that have run
         data.activities              = self._activity_block_activities
         # A dictionary of all activities that have run with their name (not id!) as key.
@@ -1211,7 +1213,7 @@ class ActivityBlock(StateProducer):
         if self._activity_data is not None:
             self._activity_data.activity_block_status = Status.ABORTED
 
-    def _run_activity(self, activity_node:Node):
+    def _run_node(self, activity_node:Node):
         activity_group_type = activity_node.activity_group_type
         activity_config = activity_node.activity_config
 
@@ -1240,7 +1242,7 @@ class ActivityBlock(StateProducer):
         # ---------------------------------------------------------------------#
         # ---------------------------------------------------------------------#
 
-        if need_to_abort:
+        if need_to_abort and self._autor_aborted is not True:
             self._abort_autor(abort_reason)
 
         activity_node.activity = self._activity_data.activity
@@ -1290,16 +1292,22 @@ class ActivityBlock(StateProducer):
         graph:ActivityBlockGraph = ActivityBlockGraph()
         graph.initiate(self._flow_config.activity_block(self._activity_block_id))
         graph.print()
-        while not graph.graph_finished():
-            ready_to_run:List[Node] = graph.get_ready_to_run_nodes()
 
-            for node in ready_to_run:
-                graph.set_status_running(node.activity_id)
-                self._run_activity(node)
-            graph.set_status_finished(node.activity_id)
+        monitor = ActivityBlockMonitor(activity_block=self, graph=graph)
+        logging.error("Before monitor.run_nodes()")
+        monitor.run_nodes()
+        logging.error("After monitor.run_nodes()")
+        # while not graph.graph_finished():
+        #     ready_to_run:List[Node] = graph.get_ready_to_run_nodes()
+        #
+        #     for node in ready_to_run:
+        #         graph.set_status_running(node.activity_id)
+        #         self._run_node(node)
+        #     graph.set_status_finished(node.activity_id)
 
 
         ######################## new ###############################
+
 
 
 

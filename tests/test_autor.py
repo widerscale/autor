@@ -287,3 +287,7 @@ def test_sequence_rules_failing_AB():
 def test_sequence_rules_dependency_on_BA():
     ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDependencyOnBeforeActivity1___SUCCESS.json')
     ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDependencyOnBeforeActivity2___SUCCESS.json')
+
+
+def test_sleepers():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sleepySleepers___SUCCESS.json')

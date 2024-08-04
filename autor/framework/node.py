@@ -14,7 +14,7 @@
 import logging
 from typing import List
 
-from autor import Activity
+#from autor import Activity
 from autor.flow_configuration.activity_configuration import ActivityConfiguration
 from autor.framework.constants import ActivityGroupType, NodeStatus
 
@@ -29,7 +29,7 @@ class Node:
         self._status:NodeStatus = NodeStatus.BLOCKED
         self._main_activity_node = None # Used for before-activities. Needed for rules.
         self._before_activity_nodes:List = [] # Used for main and after-activities. Needed for rules.
-        self._activity:Activity = None # Added when the activity is created
+        self._activity = None # Added when the activity is created #type:Activity
 
     def print(self):
         logging.info(f"_activity_id:         {self._activity_id}")
@@ -62,11 +62,11 @@ class Node:
         self._before_activity_nodes = value
 
     @property
-    def activity(self) -> Activity:
+    def activity(self):
         return self._activity
 
     @activity.setter
-    def activity(self, value:Activity):
+    def activity(self, value):
         self._activity = value
 
     @property

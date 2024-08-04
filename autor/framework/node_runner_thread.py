@@ -1,0 +1,27 @@
+from threading import Thread
+
+from autor.framework.constants import ExceptionType
+from autor.framework.exception_handler import ExceptionHandler
+from autor.framework.node import Node
+
+
+class NodeRunnerThread(Thread):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._activity_block = None
+        self._node: Node = None
+        self._monitor = None
+
+    def init(self, activity_block, node: Node, monitor):
+        self._activity_block = activity_block
+        self._node = node
+        self._monitor = monitor
+
+    def run(self):
+        try:
+            self._activity_block._run_node(self._node)
+        except Exception as ex:
+            descr = "Node runner thread got an exception:"
+            ExceptionHandler.register_exception(ex=ex, description=f"{descr}: {ex.message}", ex_type=ExceptionType.INTERNAL)
+        finally:
+            self._monitor.node_finished(self._node)

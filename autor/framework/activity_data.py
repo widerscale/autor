@@ -20,6 +20,7 @@ from autor.framework.constants import ActivityGroupType
 from autor.framework.context import Context
 from autor.framework.context_properties_handler import ContextPropertiesHandler
 from autor.framework.debug_config import DebugConfig
+from autor.framework.node import Node
 
 
 class ActivityData:
@@ -41,6 +42,7 @@ class ActivityData:
         self.activity_run_id = None
         self.activity_name:str = None
         self.activity_name_unique:str = None
+        self.activity_node:Node = None
         self.activity_group_type = None
         self.activity_config:ActivityConfiguration = None
         self.activity_type:str = None

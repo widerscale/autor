@@ -15,10 +15,7 @@ import logging
 from copy import deepcopy
 from typing import Dict
 
-import humps
-
 from autor.activity import Activity
-import autor.framework.autor_framework_activities
 from autor.framework.activity_data import ActivityData
 from autor.framework.activity_factory import ActivityFactory
 from autor.framework.check import Check
@@ -31,8 +28,7 @@ from autor.framework.keys import FlowContextKeys as ctx
 from autor.framework.logging_config import LoggingConfig
 from autor.framework.state_handler import StateHandler
 from autor.framework.state_listener import State
-from autor.framework.util import Util
-
+from autor.framework.autor_framework_activities import ExceptionActivity 
 # Keys are populated dynamically
 # pylint: disable=no-member
 
@@ -54,10 +50,13 @@ class ActivityRunner:
         self._context_properties_handler = None
 
     def run_activity(self, data: ActivityData):
-        self._data = data
-        self._preprocess()
-        self._run()
-        self._postprocess()
+        try:
+            self._data = data
+            self._preprocess()
+            self._run()
+            self._postprocess()
+        except Exception as e:
+            self._register_error(e, ex_type=ExceptionType.INTERNAL, description="Unhandled internal error during activity run procedure.")
 
         return self._need_to_abort, self._need_to_abort_reason
 
@@ -346,6 +345,11 @@ class ActivityRunner:
             self._activity_run_exception_occurred = True
         elif ex_type == ExceptionType.ACTIVITY_CONFIGURATION or ex_type == ExceptionType.ACTIVITY_INPUT or ex_type == ExceptionType.ACTIVITY_OUTPUT:
             self._activity_processing_error_occurred = True
+        elif ex_type == ExceptionType.ACTIVITY_CREATION:
+            self._activity_processing_error_occurred = True
+            if self._need_to_abort is not True:
+                self._need_to_abort = True
+                self._need_to_abort_reason = description
         else:
             if self._need_to_abort is not True:
                 self._need_to_abort = True
@@ -369,10 +373,8 @@ class ActivityRunner:
             self._data.activity = ActivityFactory.create(self._data.activity_type)
         except Exception as e:
             self._register_error(e, ExceptionType.ACTIVITY_CREATION,description=f"Failed to create activity of type: {self._data.activity_type}")
-            try:
-                self._data.activity = ActivityFactory.create("exception")
-            except Exception as e:
-                self._register_error(e, ExceptionType.INTERNAL, description="Could not create a special 'exception' activity to handle a previous exception.")
+            self._data.activity = ExceptionActivity()
+
 
     def _load_activity_properties(self):
         #handler = ContextPropertiesHandler(self._data.activity, context=self._data.input_context, config=self._data.activity_config.configuration)

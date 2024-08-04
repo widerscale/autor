@@ -14,6 +14,8 @@
 #    under the License.
 import inspect
 import logging
+import threading
+import time
 
 from autor import Activity
 from autor.framework.activity_registry import ActivityRegistry
@@ -67,6 +69,29 @@ class Max(Activity):
 
 
 
+@ActivityRegistry.activity(type="sleepy-sleeper")
+class SleepySleeper(Activity):
+
+    # region property: sleep_seconds @config(mandatory=True, type=float)
+    @property
+    @config(mandatory=True, type=float)
+    def sleep_seconds(self) -> float:
+        return self._sleep_seconds
+    
+    @sleep_seconds.setter
+    def sleep_seconds(self, value: float) -> None:
+        self._sleep_seconds = value
+    # endregion
+    
+    
+
+    def run(self):
+        logging.info(f"{threading.current_thread().ident}: {self.name}: going to sleep {self.sleep_seconds} seconds")
+        time.sleep(self.sleep_seconds)
+        logging.info(f"{threading.current_thread().ident}: {self.name}: woke up after  {self.sleep_seconds} seconds")
+
+
+
 @ActivityRegistry.activity(type="max-flex")
 class MaxFlex(Activity):
 
@@ -116,6 +141,7 @@ class MaxFlex(Activity):
     def my_status(self, value: str) -> None:
         self._my_status = value
     # endregion
+
 
 
 
