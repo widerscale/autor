@@ -268,13 +268,50 @@ activityBlocks:
 
   sleepySleepers:
     activities:
+
       - type: sleepy-sleeper
+        name: first
+        configuration:
+          sleep_seconds: 1.0
+
+      - type: sleepy-sleeper
+        name: second
         configuration:
           sleep_seconds: 2.0
 
       - type: sleepy-sleeper
+        name: third
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
         configuration:
-          sleep_seconds: 1.0
+          sleep_seconds: 5.0
+
+      - type: sleepy-sleeper
+        name: fourth
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 3.0
+
+
+      - type: sleepy-sleeper
+        name: fifth
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 5.0
+
+      - type: sleepy-sleeper
+        name: sixth
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 3.0
+
+      - type: sleepy-sleeper
+        name: seventh
+        configuration:
+          sleep_seconds: 3.0
 
 
   unknownActivityType:

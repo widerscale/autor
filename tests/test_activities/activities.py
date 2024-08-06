@@ -72,6 +72,11 @@ class Max(Activity):
 @ActivityRegistry.activity(type="sleepy-sleeper")
 class SleepySleeper(Activity):
 
+    def __init__(self):
+        super().__init__()
+        self._condition = threading.Condition()
+        self._time_to_wake_up = False
+
     # region property: sleep_seconds @config(mandatory=True, type=float)
     @property
     @config(mandatory=True, type=float)
@@ -82,13 +87,39 @@ class SleepySleeper(Activity):
     def sleep_seconds(self, value: float) -> None:
         self._sleep_seconds = value
     # endregion
+
+    def thread_print(self, msg:str):
+        logging.info(f"{threading.current_thread().ident}: {msg}")
     
-    
+    # def callme(self, msg:str):
+    #     self.thread_print(f"{msg}, I have been called")
+
+    def wake_up(self):
+        with self._condition:
+            self._time_to_wake_up = True
+            self.thread_print("Timer: Time to wake up! Calling notify_all()")
+            self._condition.notify_all()
+
+
+
 
     def run(self):
-        logging.info(f"{threading.current_thread().ident}: {self.name}: going to sleep {self.sleep_seconds} seconds")
-        time.sleep(self.sleep_seconds)
-        logging.info(f"{threading.current_thread().ident}: {self.name}: woke up after  {self.sleep_seconds} seconds")
+        self.thread_print(f"{self.name}: going to sleep {self.sleep_seconds} seconds")
+        #time.sleep(self.sleep_seconds)
+        t = threading.Timer(self.sleep_seconds, self.wake_up)
+        t.start()
+        self.thread_print("timer started")
+        with self._condition:
+            while self._time_to_wake_up is not True:
+                self.thread_print("Going to wait......")
+                self._condition.wait()
+                self.thread_print("I've been notified -> waking up!")
+            self.thread_print("Leaving the waiting loop.")
+        #t.join()
+        self.thread_print("leaving run()")
+        #self.thread_print(f"{self.name}: woke up after  {self.sleep_seconds} seconds")
+
+
 
 
 

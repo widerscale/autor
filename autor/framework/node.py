@@ -33,10 +33,13 @@ class Node:
 
     def print(self):
         logging.info(f"_activity_id:         {self._activity_id}")
-        logging.info(f"_activity_group_type: {self._activity_group_type}")
-        logging.info(f"_children:            {self._children}")
-        logging.info(f"_parents:             {self._parents}")
-        logging.info(f"_activity_group_type: {self._activity_group_type}")
+       # logging.info(f"_activity_group_type: {self._activity_group_type}")
+        logging.info(f"_parents:")
+        for parent in self._parents:
+            logging.info(f"                      {parent._activity_id}")
+        logging.info(f"_children:")
+        for child in self._children:
+            logging.info(f"                      {child._activity_id}")
         logging.info("----------------------------------------------------------------")
 
     @property

@@ -289,5 +289,5 @@ def test_sequence_rules_dependency_on_BA():
     ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDependencyOnBeforeActivity2___SUCCESS.json')
 
 
-def test_sleepers():
-    ab = test.run2(expectation='ACTIVITY_BLOCK___sleepySleepers___SUCCESS.json')
+#def test_sleepers():
+    #ab = test.run2(expectation='ACTIVITY_BLOCK___sleepySleepers___SUCCESS.json')

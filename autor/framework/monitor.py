@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import logging
 import threading
 from typing import List
 
@@ -43,12 +44,14 @@ class ActivityBlockMonitor:
             self._finished = []
 
             # Run all the nodes that are not blocked.
-            nodes_to_run: List[Node] = self._graph.get_nodes_that_are_ready_to_run()
+            nodes_to_run: List[Node] = list(self._graph.get_nodes_that_are_ready_to_run())
             for node in nodes_to_run:
                 self._graph.set_status_running(node.activity_id)
                 node_runner = NodeRunnerThread()
                 node_runner.init(activity_block=self._activity_block, node=node, monitor=self)
+                logging.info(f"{threading.current_thread().ident}: Monitor: calling thread start()")
                 node_runner.start()
+                logging.info(f"{threading.current_thread().ident}: Monitor: after calling thread start()")
                 self._nbr_running = self._nbr_running + 1
 
             if self._nbr_running > 0:
@@ -56,6 +59,6 @@ class ActivityBlockMonitor:
 
     def _wait_for_a_node_to_finish(self):
         with self._condition:
-
+            logging.info(f"{threading.current_thread().ident}: Monitor: waiting for a node to finish")
             self._condition.wait()  # Only 1 thread will be waiting here -> no need for a while loop with a condition check.
             self.run_nodes()

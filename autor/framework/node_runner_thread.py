@@ -21,7 +21,8 @@ class NodeRunnerThread(Thread):
         try:
             self._activity_block._run_node(self._node)
         except Exception as ex:
-            descr = "Node runner thread got an exception:"
+            descr = "Node runner thread got an exception."
             ExceptionHandler.register_exception(ex=ex, description=f"{descr}: {ex.message}", ex_type=ExceptionType.INTERNAL)
+
         finally:
             self._monitor.node_finished(self._node)
