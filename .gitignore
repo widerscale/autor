@@ -143,11 +143,13 @@ cython_debug/
 # Autor-generated files and directories
 autor-config.yml
 file_context.json
+file_context_backup.json
 context/
 output/
 skip_with_outputs/
 tests/autor-config.yml
 tests/file_context.json
+tests/file_context_backup.json
 tests/tests/output/
 tests/skip_with_outputs/
 
