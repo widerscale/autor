@@ -1279,14 +1279,23 @@ class ActivityBlock(StateProducer):
         elif self._activity_data.action == Action.SKIP_WITH_OUTPUT_VALUES:
             self._activity_data.activity_type = "skip-with-output-values"
 
+
+        activity_runner = ActivityRunner(data=activity_node.activity_data)
+        activity_node.activity_runner = activity_runner
+        activity_runner.preprocess()
+
         return self._activity_data
 
     def _postprocess_node_run(self, activity_node:Node):
+        activity_runner:ActivityRunner = activity_node.activity_runner
+        activity_runner.postprocess()
+
         self._nodes_finished_order.append(activity_node)
-        activity_data = activity_node.activity_data
-        self._activity_data:ActivityData = activity_data # Needed for state callbacks and prints.
-        need_to_abort = activity_data.need_to_abort
-        abort_reason = activity_data.abort_reason
+
+        self._activity_data:ActivityData = activity_node.activity_data # Needed for state callbacks and prints.
+
+        need_to_abort = activity_runner.need_to_abort
+        abort_reason = activity_runner.need_to_abort_reason
 
         if need_to_abort and self._autor_aborted is not True:
             self._abort_autor(abort_reason)
@@ -1307,9 +1316,8 @@ class ActivityBlock(StateProducer):
 
         # ---------------------------------------------------------------------#
         # -----------------   R U N   A C T I V I T Y   ---------------------- #
-        need_to_abort, abort_reason = ActivityRunner().run_activity(activity_node.activity_data)
-        activity_node.activity_data.need_to_abort = need_to_abort
-        activity_node.activity_data.abort_reason = abort_reason
+
+        activity_node.activity_runner.run()
         self._monitor.node_finished(activity_node)
 
         # ---------------------------------------------------------------------#

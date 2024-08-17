@@ -40,25 +40,60 @@ class ActivityRunner:
     It creates the activity, runs it.
     """
 
-    def __init__(self):
-        self._data:ActivityData = None
-        self._need_to_abort = False  # If Autor cannot be run in a meaningful way after an exception, set this to True
-        self._need_to_abort_reason = ""
+    def __init__(self, data: ActivityData):
+        self._data:ActivityData = data
+        self._need_to_abort:bool = False  # If Autor cannot be run in a meaningful way after an exception, set this to True
+        self._need_to_abort_reason:str = ""
         self._activity_processing_error_occurred = False # An exception outside Activity.run() due to problem with activity.
         self._activity_run_exception_occurred = False  # An exception inside Activity.run()
-        self._data:ActivityData = None
         self._context_properties_handler = None
 
-    def run_activity(self, data: ActivityData):
+    @property
+    def need_to_abort(self)->bool:
+        return self._need_to_abort
+
+    @need_to_abort.setter
+    def need_to_abort(self, value:bool):
+        self._need_to_abort = value
+
+    @property
+    def need_to_abort_reason(self) -> str:
+        return self._need_to_abort_reason
+
+    @need_to_abort_reason.setter
+    def need_to_abort_reason(self, value: str):
+        self._need_to_abort_reason = value
+
+
+    def preprocess(self):
         try:
-            self._data = data
             self._preprocess()
+        except Exception as e:
+            self._register_error(e, ExceptionType.INTERNAL, description="Unhandled exception during activity pre-processing")
+
+    def run(self):
+        try:
             self._run()
+        except Exception as e:
+            self._register_error(e, ExceptionType.INTERNAL, description="Unhandled exception during activity run")
+
+
+    def postprocess(self):
+        try:
             self._postprocess()
         except Exception as e:
-            self._register_error(e, ex_type=ExceptionType.INTERNAL, description="Unhandled internal error during activity run procedure.")
+            self._register_error(e, ExceptionType.INTERNAL, description="Unhandled exception during activity post-processing")
 
-        return self._need_to_abort, self._need_to_abort_reason
+
+    # def run_activity(self):
+    #     try:
+    #         self.preprocess()
+    #         self.run()
+    #         self.postprocess()
+    #     except Exception as e:
+    #         self._register_error(e, ex_type=ExceptionType.INTERNAL, description="Unhandled internal error during activity run procedure.")
+    #
+    #     return self._need_to_abort, self._need_to_abort_reason
 
     def _correct_properties_expected(self)->bool:
         # An activity will be run only if it is allowed by the framework and by the configuration
@@ -155,6 +190,8 @@ class ActivityRunner:
 
 
 
+
+
     def _print_activity_started(self):
         arrow = "> "
         logging.info(f'{DebugConfig.autor_info_prefix}Activity Started')
@@ -191,7 +228,9 @@ class ActivityRunner:
                 LoggingConfig.activate_activity_logging()
                 if DebugConfig.print_activity:
                     self._data.activity.print()
+                ############# -- RUN -- ###############
                 self._data.activity.run()
+                ############# -- RUN -- ###############
                 LoggingConfig.activate_framework_logging()
 
                 #logging.info(f'{DebugConfig.autor_info_prefix}')
@@ -298,6 +337,8 @@ class ActivityRunner:
             return string
 
 
+
+
     def _postprocess(self):
         try:
             # Reuse activity outputs, if needed.
@@ -337,6 +378,13 @@ class ActivityRunner:
             # ----------------------------------------------------------------#
             StateHandler.change_state(State.AFTER_ACTIVITY_POSTPROCESS)
             # ----------------------------------------------------------------#
+
+
+
+
+
+
+
 
 
     def _register_error(self, exception, ex_type: ExceptionType, description: str, context=None):
