@@ -265,13 +265,122 @@ activityBlocks:
           val: 4
 
 
+  lastMultiparentToFinishFails:
+    activities:
+      - type: sleepy-sleeper
+        name: A1
+        configuration:
+          sleep_seconds: 0.1
+
+      - type: sleepy-sleeper
+        name: A2.1
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 0.5
+          outcome: SUCCESS
+
+      - type: sleepy-sleeper
+        name: A2.2
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 1.5
+          outcome: FAIL
+
+      - type: sleepy-sleeper
+        name: A2.3
+        concurrencyGroup: group_1
+        concurrencyTrack: track_C
+        configuration:
+          sleep_seconds: 0.2
+          outcome: SUCCESS
+
+      - type: sleepy-sleeper # Should not be run
+        name: A3
+        configuration:
+          sleep_seconds: 0.5
+
+  lastMultiparentToRunFails:
+    activities:
+      - type: sleepy-sleeper
+        name: A1
+        configuration:
+          sleep_seconds: 0.1
+
+      - type: sleepy-sleeper
+        name: A2.1
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 0.5
+          outcome: SUCCESS
+
+      - type: sleepy-sleeper
+        name: A2.2
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 1.5
+          outcome: SUCCESS
+
+      - type: sleepy-sleeper
+        name: A2.3
+        concurrencyGroup: group_1
+        concurrencyTrack: track_C
+        configuration:
+          sleep_seconds: 0.2
+          outcome: FAIL
+
+      - type: sleepy-sleeper # Should not be run
+        name: A3
+        configuration:
+          sleep_seconds: 0.5
+
+
+  lastMultiparentToRunAcceptsFail:
+    activities:
+      - type: sleepy-sleeper
+        name: A1
+        configuration:
+          sleep_seconds: 0.1
+
+      - type: sleepy-sleeper
+        name: A2.1
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 0.5
+          outcome: SUCCESS
+
+      - type: sleepy-sleeper
+        name: A2.2
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 1.5
+          outcome: SUCCESS
+
+      - type: sleepy-sleeper
+        name: A2.3
+        concurrencyGroup: group_1
+        concurrencyTrack: track_C
+        configuration:
+          sleep_seconds: 0.2
+          outcome: FAIL
+        continueOn:
+          - ALL
+
+      - type: sleepy-sleeper # Should not be run
+        name: A3
+        configuration:
+          sleep_seconds: 0.5
+
+
 
   sleepySleepers:
 
-
-
     activities:
-
       - type: sleepy-sleeper
         name: first
         configuration:

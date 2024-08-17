@@ -88,6 +88,19 @@ class SleepySleeper(Activity):
         self._sleep_seconds = value
     # endregion
 
+    # region property: outcome @config(mandatory=False, type=str, default='SUCCESS')
+    @property
+    @config(mandatory=False, type=str, default='SUCCESS')
+    def outcome(self) -> str:
+        return self._outcome
+
+    @outcome.setter
+    def outcome(self, value: str) -> None:
+        self._outcome = value
+    # endregion
+
+
+
     def thread_print(self, msg:str):
         logging.info(f"{threading.current_thread().ident}: {msg}")
     
@@ -114,7 +127,8 @@ class SleepySleeper(Activity):
                 #self.thread_print("Going to wait......")
                 self._condition.wait()
                 #self.thread_print("I've been notified -> waking up!")
-            self.thread_print("Waking up!")
+            #self.thread_print("Waking up!")
+        self.status = self.outcome
 
         #t.join()
         #self.thread_print("leaving run()")

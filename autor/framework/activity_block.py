@@ -1293,6 +1293,7 @@ class ActivityBlock(StateProducer):
         self._nodes_finished_order.append(activity_node)
 
         self._activity_data:ActivityData = activity_node.activity_data # Needed for state callbacks and prints.
+        self._activity_data.activity_block_status = self._activity_block_status
 
         need_to_abort = activity_runner.need_to_abort
         abort_reason = activity_runner.need_to_abort_reason

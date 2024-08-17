@@ -62,6 +62,6 @@ class ActivityBlockMonitor:
 
     def _wait_for_a_node_to_finish(self):
         with self._condition:
-            logging.info(f"{threading.current_thread().ident}: Monitor: waiting for a node to finish")
+            #logging.info(f"{threading.current_thread().ident}: Monitor: waiting for a node to finish")
             self._condition.wait()  # Only 1 thread will be waiting here -> no need for a while loop with a condition check.
             self.run_nodes()

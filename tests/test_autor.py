@@ -344,4 +344,13 @@ def test_sleepers():
 
     _check_activity_started_and_finished_order(activities_started_order, activities_finished_order, ab)
 
+def test_lastMultiparentToFinishFails():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___lastMultiparentToFinishFails___FAIL.json')
 
+
+def test_lastMultiparentToRunFails():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___lastMultiparentToRunFails___FAIL.json')
+
+
+def test_lastMultiparentToRunAcceptsFail():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___lastMultiparentToRunAcceptsFail___FAIL.json')

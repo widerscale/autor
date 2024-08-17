@@ -3,68 +3,50 @@
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
-    "activityBlockStatus": "SUCCESS",
+    "activityBlockStatus": "FAIL",
     "activityBlockInterrupted": false,
     "_activityBlocks": {
-        "sleepySleepers": {
+        "lastMultiparentToRunAcceptsFail": {
             "mode": "ACTIVITY_BLOCK",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
-                "sleepySleepers-first": {
+                "lastMultiparentToRunAcceptsFail-A1": {
                     "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
+                        "cfg_provide__sleep_seconds": 0.1,
                         "cfg_default__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
-                "sleepySleepers-second": {
+                "lastMultiparentToRunAcceptsFail-A2.1": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 0.5,
-                        "cfg_default__outcome": "SUCCESS",
+                        "cfg_provide__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
-                "sleepySleepers-third": {
+                "lastMultiparentToRunAcceptsFail-A2.2": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 1.5,
-                        "cfg_default__outcome": "SUCCESS",
+                        "cfg_provide__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
-                "sleepySleepers-fifth": {
+                "lastMultiparentToRunAcceptsFail-A2.3": {
                     "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                        "cfg_provide__sleep_seconds": 0.2,
+                        "cfg_provide__outcome": "FAIL",
+                        "out_provide__status": "FAIL"
                     },
                     "action": "RUN",
-                    "status": "SUCCESS"
+                    "status": "FAIL"
                 },
-                "sleepySleepers-sixth": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
-                    },
-                    "action": "RUN",
-                    "status": "SUCCESS"
-                },
-                "sleepySleepers-fourth": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
-                    },
-                    "action": "RUN",
-                    "status": "SUCCESS"
-                },
-                "sleepySleepers-seventh": {
+                "lastMultiparentToRunAcceptsFail-A3": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 0.5,
                         "cfg_default__outcome": "SUCCESS",
@@ -76,7 +58,7 @@
             },
             "action": "RUN",
             "status": "SUCCESS",
-            "activityBlockStatus": "SUCCESS",
+            "activityBlockStatus": "FAIL",
             "activityBlockInterrupted": false
         }
     }
