@@ -41,17 +41,20 @@ class ActivityBlockMonitor:
             for node in self._finished:
                 self._graph.set_status_finished(node.activity_id)
                 self._nbr_running = self._nbr_running - 1
+                self._activity_block._postprocess_node_run(node)
             self._finished = []
 
             # Run all the nodes that are not blocked.
             nodes_to_run: List[Node] = list(self._graph.get_nodes_that_are_ready_to_run())
             for node in nodes_to_run:
+
                 self._graph.set_status_running(node.activity_id)
                 node_runner = NodeRunnerThread()
                 node_runner.init(activity_block=self._activity_block, node=node, monitor=self)
-                logging.info(f"{threading.current_thread().ident}: Monitor: calling thread start()")
-                node_runner.start()
-                logging.info(f"{threading.current_thread().ident}: Monitor: after calling thread start()")
+                self._activity_block._preprocess_node_run(node)
+                #logging.info(f"{threading.current_thread().ident}: Monitor: calling thread start()")
+                node_runner.start() # Calls self._activity_block._run_node(node)
+                #logging.info(f"{threading.current_thread().ident}: Monitor: after calling thread start()")
                 self._nbr_running = self._nbr_running + 1
 
             if self._nbr_running > 0:

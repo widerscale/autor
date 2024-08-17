@@ -30,6 +30,7 @@ class Node:
         self._main_activity_node = None # Used for before-activities. Needed for rules.
         self._before_activity_nodes:List = [] # Used for main and after-activities. Needed for rules.
         self._activity = None # Added when the activity is created #type:Activity
+        self._activity_data = None # Added when the activity data is created. # type:ActivityData
 
     def print(self):
         logging.info(f"_activity_id:         {self._activity_id}")
@@ -73,13 +74,20 @@ class Node:
         self._activity = value
 
     @property
+    def activity_data(self):
+        return self._activity_data
+
+    @activity_data.setter
+    def activity_data(self, value):
+        self._activity_data = value
+
+    @property
     def children(self) -> List:
         return self._children
 
     @property
     def parents(self) -> List:
         return self._parents
-
 
     @property
     def activity_id(self) -> str:

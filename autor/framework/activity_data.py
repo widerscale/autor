@@ -68,9 +68,14 @@ class ActivityData:
         self.after_block_activities = []
 
 
+        self.need_to_abort:bool = False
+        self.abort_reason:str =""
+
+
+
         # self.before_block_activities_configurations = []
         # self.before_activities_configurations       = []
-        # self.main_activities_configurations         = []
+        # self.main_activities_configurations          = []
         # self.after_activities_configurations        = []
         # self.after_block_activities_configurations  = []
 

@@ -307,6 +307,9 @@ class ActivityBlock(StateProducer):
 
         self._rules = ActivityBlockRules()
 
+        # Concurrency-safe area.
+        self._monitor:ActivityBlockMonitor = None
+
 
 
 
@@ -319,6 +322,12 @@ class ActivityBlock(StateProducer):
         # This value will be added to the state data for the extensions to play around with.
         # Key: DBG_EXTENSION_TEST_STR
         self._dbg_extension_test_str = ""
+
+        # Nodes listed in the order that they started running. For writing concurrency tests.
+        self._nodes_started_order:List[Node] = []
+
+        # Nodes listed in the order that they finished running. For writing concurrency tests.
+        self._nodes_finished_order:List[Node] = []
 
 
 
@@ -713,7 +722,33 @@ class ActivityBlock(StateProducer):
                 self._dbg_save_context()
 
 
+            if Flags.print_activity_started_and_finished_order:
+                self._print_activities_started_and_finished_order()
 
+
+    def _print_activities_started_and_finished_order(self):
+        Util.print_header(DebugConfig.autor_info_prefix, 'Activities started order',
+                          level='info', line_below=False)
+        i = 0
+        for n in self._nodes_started_order:
+            i = i + 1
+            logging.info(f'{DebugConfig.autor_info_prefix}{i}. {n.activity_id}')
+
+        Util.print_header(DebugConfig.autor_info_prefix, 'Activities finished order',
+                          level='info', line_below=False)
+        i = 0
+        for n in self._nodes_finished_order:
+            i = i + 1
+            logging.info(f'{DebugConfig.autor_info_prefix}{i}. {n.activity_id}')
+
+
+        # Print as python code for copy-pasting into tests.
+        print("activities_started_order:List[str] = []")
+        for n in self._nodes_started_order:
+            print(f'activities_started_order.append("{n.activity_id}")')
+        print("activities_finished_order:List[str] = []")
+        for n in self._nodes_finished_order:
+            print(f'activities_finished_order.append("{n.activity_id}")')
 
     def _print_output_to_file(self, file_name):
         output: dict = {}
@@ -744,12 +779,22 @@ class ActivityBlock(StateProducer):
                         activity["activity_outputs"][prop_name] = val
 
 
-
         # datetime object containing current date and time
         now = str(datetime.now())
         now = now.replace(' ', '_')
         now = now.replace('.', '_')
         now = now.replace(':', '_')
+
+
+        if Flags.print_activity_started_and_finished_order:
+            output['activities_started_order'] = []
+            for n in self._nodes_started_order:
+                output['activities_started_order'].append(n.activity_id)
+
+            output['activities_finished_order'] = []
+            for n in self._nodes_finished_order:
+                output['activities_finished_order'].append(n.activity_id)
+
 
 
 
@@ -768,7 +813,6 @@ class ActivityBlock(StateProducer):
         #with open( f"{file_name}_{now}.yml", 'w') as outfile:
         with open(file_path_yaml, 'w') as outfile:
             yaml.dump(output, outfile, default_flow_style=False, sort_keys=False)
-
 
 
 
@@ -1213,45 +1257,67 @@ class ActivityBlock(StateProducer):
         if self._activity_data is not None:
             self._activity_data.activity_block_status = Status.ABORTED
 
-    def _run_node(self, activity_node:Node):
-        activity_group_type = activity_node.activity_group_type
-        activity_config = activity_node.activity_config
 
-        self._activity_data:ActivityData = self._create_data(activity_node)
-
+    def _preprocess_node_run(self, activity_node:Node):
+        self._nodes_started_order.append(activity_node)
+        self._activity_data: ActivityData = self._create_data(activity_node)
+        activity_node.activity_data = self._activity_data
 
         # ---------------------------------------------------------------------#
         StateHandler.change_state(State.SELECT_ACTIVITY)
         # ---------------------------------------------------------------------#
 
         # Run the activities in the activity block according to Autor rules.
-        #if self._mode == Mode.ACTIVITY_BLOCK or self._mode == Mode.ACTIVITY:
-        self._activity_data.action = self._rules.get_action(data=self._activity_data, mode=self._mode, activity_id_special=self._activity_id_special)
-
+        # if self._mode == Mode.ACTIVITY_BLOCK or self._mode == Mode.ACTIVITY:
+        self._activity_data.action = self._rules.get_action(data=self._activity_data, mode=self._mode,
+                                                            activity_id_special=self._activity_id_special)
 
         # TODO - reuse-remove
         if self._activity_data.action == Action.REUSE:
             pass
-            #self._activity_data.activity_type = "reuse"
+            # self._activity_data.activity_type = "reuse"
         elif self._activity_data.action == Action.SKIP_WITH_OUTPUT_VALUES:
             self._activity_data.activity_type = "skip-with-output-values"
 
-        # ---------------------------------------------------------------------#
-        # -----------------   R U N   A C T I V I T Y   ---------------------- #
-        need_to_abort, abort_reason = ActivityRunner().run_activity(self._activity_data)
-        # ---------------------------------------------------------------------#
-        # ---------------------------------------------------------------------#
+        return self._activity_data
+
+    def _postprocess_node_run(self, activity_node:Node):
+        self._nodes_finished_order.append(activity_node)
+        activity_data = activity_node.activity_data
+        self._activity_data:ActivityData = activity_data # Needed for state callbacks and prints.
+        need_to_abort = activity_data.need_to_abort
+        abort_reason = activity_data.abort_reason
 
         if need_to_abort and self._autor_aborted is not True:
             self._abort_autor(abort_reason)
 
         activity_node.activity = self._activity_data.activity
-        self._update_activity_lists(self._activity_data, activity_config, activity_group_type)
+        self._update_activity_lists(self._activity_data, activity_node.activity_config, activity_node.activity_group_type)
         self._update_activity_block_status(need_to_abort)
         self._create_activity_skip_with_outputs_config(self._activity_data)
 
         if DebugConfig.print_default_config_conditions:
             self._rules.print_default_config_conditions()
+
+
+
+
+    def _run_node(self, activity_node:Node):
+        #activity_data = self._preprocess_node_run(activity_node)
+
+        # ---------------------------------------------------------------------#
+        # -----------------   R U N   A C T I V I T Y   ---------------------- #
+        need_to_abort, abort_reason = ActivityRunner().run_activity(activity_node.activity_data)
+        activity_node.activity_data.need_to_abort = need_to_abort
+        activity_node.activity_data.abort_reason = abort_reason
+        self._monitor.node_finished(activity_node)
+
+        # ---------------------------------------------------------------------#
+        # ---------------------------------------------------------------------#
+
+        #self._postprocess_node_run(activity_node)
+
+
 
 
     def _create_activity_skip_with_outputs_config(self, data:ActivityData):
@@ -1291,12 +1357,14 @@ class ActivityBlock(StateProducer):
         ######################## new ###############################
         graph:ActivityBlockGraph = ActivityBlockGraph()
         graph.initiate(self._flow_config.activity_block(self._activity_block_id))
-        graph.print()
+        if Flags.print_graph:
+            graph.print()
 
         monitor = ActivityBlockMonitor(activity_block=self, graph=graph)
-        logging.error("Before monitor.run_nodes()")
+        self._monitor = monitor
+        #logging.error("Before monitor.run_nodes()")
         monitor.run_nodes()
-        logging.error("After monitor.run_nodes()")
+        #logging.error("After monitor.run_nodes()")
         # while not graph.graph_finished():
         #     ready_to_run:List[Node] = graph.get_ready_to_run_nodes()
         #
@@ -1615,6 +1683,13 @@ class ActivityBlock(StateProducer):
 
     def get_status(self) -> str:
         return self._activity_block_status
+
+    def get_node_started_order(self) -> List:
+        return self._nodes_started_order
+
+    def get_node_finished_order(self) -> List:
+        return self._nodes_finished_order
+
 
 
     def _create_debug_input_string(self, args, values):

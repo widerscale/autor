@@ -19,7 +19,14 @@ import logging
 class Flags():
     # A class that helps to switch on/off functionality. Flags can be provided by users.
 
-    allow_flow_run_id_in_mode_activity = False
+    allow_flow_run_id_in_mode_activity = False # Flow run id can be sent as an input to Autor.
+
+    # At the end of the activity block Autor will create a file activity_order.json. The file
+    # contains two json lists:activity_started_order and activity_finished_order.
+    # The file is useful for writing concurrency tests.
+    print_activity_started_and_finished_order = False
+
+    print_graph = False
 
     @staticmethod
     def reset_static_data():

@@ -1,7 +1,10 @@
 
 import os.path
+from typing import List
 
 from autor import __version__
+from autor.framework.activity_block import ActivityBlock
+from autor.framework.node import Node
 from tests.autor_tester import AutorTester as test
 
 
@@ -289,5 +292,56 @@ def test_sequence_rules_dependency_on_BA():
     ab = test.run2(expectation='ACTIVITY_BLOCK___sequenceRulesDependencyOnBeforeActivity2___SUCCESS.json')
 
 
-#def test_sleepers():
-    #ab = test.run2(expectation='ACTIVITY_BLOCK___sleepySleepers___SUCCESS.json')
+
+
+
+def _check_activity_started_and_finished_order(expected_started_order:List[str], expected_finished_order:List[str], ab:ActivityBlock):
+    actual_started_order:List[str] = []
+    started_nodes:List[Node] = ab.get_node_started_order()
+    for n in started_nodes:
+        actual_started_order.append(n.activity_id)
+
+    actual_finished_order:List[str] = []
+    finished_nodes:List[Node] = ab.get_node_finished_order()
+    for n in finished_nodes:
+        actual_finished_order.append(n.activity_id)
+
+    _check_equal_lists(expected_started_order, actual_started_order, "Activity starting order")
+    _check_equal_lists(expected_finished_order, actual_finished_order, "Activity finishing order")
+
+
+
+def _check_equal_lists(l1:List, l2:List, msg:str=""):
+
+    l1_str = ""
+    l2_str = ""
+    for elem in l1:
+        l1_str = f"{l1_str},{elem}"
+    for elem in l2:
+        l2_str = f"{l2_str},{elem}"
+
+    assert l1_str == l2_str
+
+
+def test_sleepers():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___sleepySleepers___print_activity_started_and_finished_order=True___SUCCESS.json', flags={'print_activity_started_and_finished_order':True})
+    activities_started_order:List[str] = []
+    activities_started_order.append("sleepySleepers-first")
+    activities_started_order.append("sleepySleepers-second")
+    activities_started_order.append("sleepySleepers-third")
+    activities_started_order.append("sleepySleepers-fifth")
+    activities_started_order.append("sleepySleepers-sixth")
+    activities_started_order.append("sleepySleepers-fourth")
+    activities_started_order.append("sleepySleepers-seventh")
+    activities_finished_order:List[str] = []
+    activities_finished_order.append("sleepySleepers-first")
+    activities_finished_order.append("sleepySleepers-second")
+    activities_finished_order.append("sleepySleepers-fifth")
+    activities_finished_order.append("sleepySleepers-sixth")
+    activities_finished_order.append("sleepySleepers-third")
+    activities_finished_order.append("sleepySleepers-fourth")
+    activities_finished_order.append("sleepySleepers-seventh")
+
+    _check_activity_started_and_finished_order(activities_started_order, activities_finished_order, ab)
+
+

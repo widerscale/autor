@@ -262,7 +262,16 @@ Autor can be run in three modes:
             )
         )
 
-
+        parser.add_argument(
+            # pylint: disable-next=no-member
+            "--" + cln.FLAGS,
+            required=False,
+            action="store",
+            type=json_string_or_simple_format,
+            help=(
+                "Debug flags. Format: JSON string or simple format: 'key1=1,key2=2,..,keyN=N'."
+            )
+        )
 
         parser.add_argument(
             # pylint: disable-next=no-member

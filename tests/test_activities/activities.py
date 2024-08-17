@@ -97,26 +97,27 @@ class SleepySleeper(Activity):
     def wake_up(self):
         with self._condition:
             self._time_to_wake_up = True
-            self.thread_print("Timer: Time to wake up! Calling notify_all()")
+            #self.thread_print("Timer: Time to wake up! Calling notify_all()")
             self._condition.notify_all()
 
 
 
 
     def run(self):
-        self.thread_print(f"{self.name}: going to sleep {self.sleep_seconds} seconds")
+        self.thread_print(f"{self.name}: Going to sleep {self.sleep_seconds} seconds")
         #time.sleep(self.sleep_seconds)
         t = threading.Timer(self.sleep_seconds, self.wake_up)
         t.start()
-        self.thread_print("timer started")
+        #self.thread_print("timer started")
         with self._condition:
             while self._time_to_wake_up is not True:
-                self.thread_print("Going to wait......")
+                #self.thread_print("Going to wait......")
                 self._condition.wait()
-                self.thread_print("I've been notified -> waking up!")
-            self.thread_print("Leaving the waiting loop.")
+                #self.thread_print("I've been notified -> waking up!")
+            self.thread_print("Waking up!")
+
         #t.join()
-        self.thread_print("leaving run()")
+        #self.thread_print("leaving run()")
         #self.thread_print(f"{self.name}: woke up after  {self.sleep_seconds} seconds")
 
 
