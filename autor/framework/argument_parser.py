@@ -185,7 +185,7 @@ Autor can be run in three modes:
             required=False,
             action="store",
             type=str,
-            help="The unique identifier of the activity run within an activity block run."
+            help="The unique identifier of the activity within activity block run."
         )
 
         # An argument type for a list of strings
@@ -204,6 +204,24 @@ Autor can be run in three modes:
                   " listed in the flow configuration. The additional extensions" +
                   " have access to BOOTSTRAP state in Autor."
                   )
+        )
+
+        parser.add_argument(
+            # pylint: disable-next=no-member
+            "--" + cln.ACTIVITY_IDS,
+            required=False,
+            action="store",
+            type=list_of_strings,
+            help="The unique identifiers of the activities within activity block run."
+        )
+
+        parser.add_argument(
+            # pylint: disable-next=no-member
+            "--" + cln.ACTIVITY_NAMES,
+            required=False,
+            action="store",
+            type=list_of_strings,
+            help="The unique identifiers of the activities within Flow Configuration."
         )
 
         def json_string_or_simple_format(arg)->dict:

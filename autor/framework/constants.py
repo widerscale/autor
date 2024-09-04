@@ -105,13 +105,15 @@ class Configuration(Constant):
 # Autor in-parameter names
 class Inparam(Constant):
     MODE                    = "mode"
-    FLOW_CONFIG_PATH         = "flow-config-path"
+    FLOW_CONFIG_PATH        = "flow-config-path"
     ACTIVITY_BLOCK_ID       = "activity-block-id"
     ACTIVITY_CONFIG         = "activity-config"
     ACTIVITY_ID             = "activity-id"
+    ACTIVITY_IDS            = "activity-ids"
     INPUT                   = "input"
     ACTIVITY_MODULE         = "activity-module"
     ACTIVITY_NAME           = "activity-name"
+    ACTIVITY_NAMES          = "activity-names"
     ACTIVITY_TYPE           = "activity-type"
     CUSTOM_DATA             = "custom-data"
     FLOW_RUN_ID             = "flow-run-id"

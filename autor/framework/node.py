@@ -20,10 +20,11 @@ from autor.framework.constants import ActivityGroupType, NodeStatus
 
 
 class Node:
-    def __init__(self, activity_id:str, activity_group_type:ActivityGroupType, activity_config:ActivityConfiguration):
+    def __init__(self, activity_id:str, activity_group_type:ActivityGroupType, activity_config:ActivityConfiguration, rerun:bool):
         self._activity_id = activity_id
         self._activity_config = activity_config
         self._activity_group_type = activity_group_type
+        self._rerun:bool = rerun # Indicates if the node should be re-run
         self._children:List[Node] = []
         self._parents:List[Node] = []
         self._status:NodeStatus = NodeStatus.BLOCKED
@@ -32,6 +33,7 @@ class Node:
         self._activity = None # Added when the activity is created #type:Activity
         self._activity_data = None # Added when the activity data is created. # type:ActivityData
         self._activity_runner = None # Added when the activity is being run. # type:ActivityRunner
+
 
     def print(self):
         logging.info(f"_activity_id:         {self._activity_id}")
@@ -73,6 +75,14 @@ class Node:
     @activity.setter
     def activity(self, value):
         self._activity = value
+
+    @property
+    def rerun(self)->bool:
+        return self._rerun
+
+    @rerun.setter
+    def rerun(self, value:bool):
+        self._rerun = value
 
     @property
     def activity_data(self):

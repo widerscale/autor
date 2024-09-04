@@ -153,9 +153,11 @@ class AutorTester():
             activity_block_id: str = None,
             activity_config: dict = None,
             activity_id: str = None,
+            activity_ids: List[str] = None,
             input: dict = None,
             activity_module: str = None,
             activity_name: str = None,
+            activity_names: List[str] = None,
             activity_type: str = None,
             custom_data: dict = None,
             expectation: str = None,
@@ -196,9 +198,11 @@ class AutorTester():
             activity_block_id=activity_block_id,
             activity_config=activity_config,
             activity_id=activity_id,
+            activity_ids=activity_ids,
             input=input,
             activity_module=activity_module,
             activity_name=activity_name,
+            activity_names=activity_names,
             activity_type=activity_type,
             custom_data=custom_data,
             flags=flags,
@@ -214,9 +218,11 @@ class AutorTester():
             activity_block_id = activity_block_id,
             activity_config = activity_config,
             activity_id = activity_id,
+            activity_ids = activity_ids,
             input = input,
             activity_module = activity_module,
             activity_name = activity_name,
+            activity_names= activity_names,
             activity_type = activity_type,
             custom_data = custom_data,
             flags = flags,
@@ -302,13 +308,15 @@ class AutorTester():
 
     @staticmethod
     def _create_commands(
-            additional_extensions: list = None,
+            additional_extensions: List = None,
             activity_block_id: str = None,
             activity_config: dict = None,
             activity_id: str = None,
+            activity_ids: List = None,
             input: dict = None,
             activity_module: str = None,
             activity_name: str = None,
+            activity_names: List = None,
             activity_type: str = None,
             custom_data: dict = None,
             flags :dict = None,
@@ -330,9 +338,11 @@ class AutorTester():
         command = AutorTester._add_dict_to_command(activity_config, "activity-config", command)
         command = AutorTester._add_dict_to_command(flags, "flags", command)
         command = AutorTester._add_to_command(activity_id, "activity-id", command)
+        command = AutorTester._add_list_to_command(activity_ids, "activity-ids", command)
         command = AutorTester._add_dict_to_command(input, "input", command)
         command = AutorTester._add_to_command(activity_module, "activity-module", command)
         command = AutorTester._add_to_command(activity_name, "activity-name", command)
+        command = AutorTester._add_list_to_command(activity_names, "activity-names", command)
         command = AutorTester._add_to_command(activity_type, "activity-type", command)
         command = AutorTester._add_dict_to_command(custom_data, "custom-data", command)
         command = AutorTester._add_to_command(flow_run_id, "flow-run-id", command)

@@ -27,6 +27,7 @@ from autor.framework.context import Context
 from autor.framework.debug_config import DebugConfig
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
+from autor.framework.node import Node
 from autor.framework.transition_summary import TransitionSummary
 from autor.framework.util import Util
 
@@ -202,12 +203,9 @@ class ActivityBlockRules:
 
         # ______________________________ ACTIVITY_BLOCK_RERUN _________________________________#
         elif mode == Mode.ACTIVITY_BLOCK_RERUN:
-            if data.activity_id == activity_id_special: # The activity from which the re-run starts
-                Check.is_false(self._rerun_activated, "rerun_activated should not be activated twice")
-                ActivityBlockRules._rerun_activated = True
-                logging.info("Re-run initiated")
+            node:Node = data.activity_node
 
-            if ActivityBlockRules._rerun_activated:
+            if node.rerun:
                 if skip_with_outputs:
                     return Action.SKIP_WITH_OUTPUT_VALUES
                 else:
@@ -215,10 +213,24 @@ class ActivityBlockRules:
                     if action == Action.RUN and data.activity_id == activity_id_special:
                         action = Action.RUN_REUSE_INPUT
                     return action
-
-
             else:
                 return Action.REUSE
+
+            # if data.activity_id == activity_id_special: # The activity from which the re-run starts
+            #     Check.is_false(self._rerun_activated, "rerun_activated should not be activated twice")
+            #     ActivityBlockRules._rerun_activated = True
+            #     logging.info("Re-run initiated")
+            #
+            # if ActivityBlockRules._rerun_activated:
+            #     if skip_with_outputs:
+            #         return Action.SKIP_WITH_OUTPUT_VALUES
+            #     else:
+            #         action = self._get_action(data, ignore_unrun=ignore_unrun)
+            #         if action == Action.RUN and data.activity_id == activity_id_special:
+            #             action = Action.RUN_REUSE_INPUT
+            #         return action
+            # else:
+            #     return Action.REUSE
 
         # ______________________________ ACTIVITY_BLOCK _________________________________#
         elif mode == Mode.ACTIVITY_BLOCK:

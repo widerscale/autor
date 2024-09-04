@@ -91,9 +91,11 @@ class ActivityBlock(StateProducer):
         activity_block_id: str = None,
         activity_config: dict = None,  # mode: ACTIVITY
         activity_id: str = None,
+        activity_ids: List = None,
         input: dict = None,  # mode: ACTIVITY
         activity_module: str = None,   # mode: ACTIVITY
         activity_name: str = None,
+        activity_names: List = None,
         activity_type: str = None,     # mode: ACTIVITY
         custom_data: dict = None,
         flags: dict = None,
@@ -167,6 +169,10 @@ class ActivityBlock(StateProducer):
             custom_data = {}
         if flags is None:
             flags = {}
+        if activity_names is None:
+            activity_names = []
+        if activity_ids is None:
+            activity_ids = []
 
 
         # Check that the expected values are correct
@@ -213,10 +219,14 @@ class ActivityBlock(StateProducer):
         # sure that we have a unique activity occurrence within the activity block (as an activity
         # can be a before/after activity etc).
         self._activity_name_special = activity_name  # Can be overriden by extensions in state BOOTSTRAP
+        self._activity_names_special = activity_names
 
         # The id of the activity that should be treated in a special manner.
         # How it should be treated depends on Autor mode.
         self._activity_id_special = activity_id  # Can be overriden by extensions in state BOOTSTRAP
+        self._activity_ids_special = activity_ids
+
+
 
 
 
@@ -463,11 +473,15 @@ class ActivityBlock(StateProducer):
                 self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_ID:           # No
                 self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_IDS:          # No
+                self._assure_absence(name, val)
             elif name == Inparam.INPUT:                 # Optional
                 pass
             elif name == Inparam.ACTIVITY_MODULE:       # No
                 self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_NAME:         # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_NAMES:        # No
                 self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_TYPE:         # No
                 self._assure_absence(name, val)
@@ -500,8 +514,12 @@ class ActivityBlock(StateProducer):
                 self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_NAME:         # Mandatory within group
                 activity_name_value = val
+            elif name == Inparam.ACTIVITY_NAMES:        # No
+                self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_ID:           # Mandatory within group
                 activity_id_value = val
+            elif name == Inparam.ACTIVITY_IDS:          # No
+                self._assure_absence(name, val)
             elif name == Inparam.INPUT:                 # Optional
                 pass
             elif name == Inparam.ACTIVITY_MODULE:       # No
@@ -525,7 +543,12 @@ class ActivityBlock(StateProducer):
     def _check_mode_ACTIVITY_BLOCK_RERUN_params(self, params:dict):
         all_possible_params = Inparam.get_valid_constants(Inparam)
         activity_id_value:str = None
+        activity_id_values:str = None
         activity_name_value:str = None
+        activity_name_values:str = None
+
+
+
 
         for name in all_possible_params:
             val = params[name]
@@ -536,9 +559,13 @@ class ActivityBlock(StateProducer):
             elif name == Inparam.ACTIVITY_CONFIG:       # No
                 self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_NAME:         # Mandatory within group
-                activity_name_value = val
+                activity_name_value
+            elif name == Inparam.ACTIVITY_NAMES:        # Mandatory within group
+                activity_name_values = val
             elif name == Inparam.ACTIVITY_ID:           # Mandatory within group
                 activity_id_value = val
+            elif name == Inparam.ACTIVITY_IDS:          # Mandatory within group
+                activity_id_values = val
             elif name == Inparam.INPUT:                 # Optional
                 pass
             elif name == Inparam.ACTIVITY_MODULE:       # No
@@ -557,7 +584,7 @@ class ActivityBlock(StateProducer):
                 raise AutorFrameworkException(f"Internal error: Unhandled parameter name: {name} -> add to implementation!")
 
         # Checking mandatory within group values
-        self._confirm_activity_name_or_id(name=activity_name_value, id=activity_id_value)
+        self._confirm_activity_names_or_ids(name=activity_name_value, names=activity_name_values, id=activity_id_value, ids=activity_id_values)
 
     def _check_mode_ACTIVITY_params(self, params:dict):
 
@@ -577,7 +604,11 @@ class ActivityBlock(StateProducer):
                 self._confirm_string(name, val)
             elif name == Inparam.ACTIVITY_NAME:         # No
                 self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_NAMES:        # No
+                self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_ID:           # No
+                self._assure_absence(name, val)
+            elif name == Inparam.ACTIVITY_IDS:          # No
                 self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_TYPE:         # Mandatory
                 self._confirm_string(name, val)
@@ -596,6 +627,30 @@ class ActivityBlock(StateProducer):
 
 
 
+    def _confirm_activity_names_or_ids(self, name:str, names:List, id:str, ids:List):
+        valid_name = Util.is_non_empty_string(name)
+        valid_id = Util.is_non_empty_string(id)
+
+        valid_names = True
+        valid_ids = True
+        for n in names:
+            valid_names = valid_names and Util.is_non_empty_string(n)
+        for i in ids:
+            valid_ids = valid_ids and Util.is_non_empty_string(i)
+
+
+        if valid_names and valid_name:
+            if name not in names: # ok to have both name and names as long as the name is contained in names.
+                logging.warning(
+                    f"{DebugConfig.autor_info_prefix}Both {Inparam.ACTIVITY_NAMES} and {Inparam.ACTIVITY_NAME} were provided. Autor will ignore {Inparam.ACTIVITY_NAME}:{name} and use {Inparam.ACTIVITY_NAMES} {' '.join(names)}")
+
+        if valid_ids and valid_id:
+            if id not in ids: # ok to have both id and ids as long the id is contained in ids.
+                logging.warning(
+                    f"{DebugConfig.autor_info_prefix}Both {Inparam.ACTIVITY_IDS} and {Inparam.ACTIVITY_ID} were provided. Autor will ignore {Inparam.ACTIVITY_ID}:{id} and use {Inparam.ACTIVITY_IDS} {' '.join(ids)}")
+
+        elif not valid_names and not valid_ids and not valid_name and not valid_id:
+            raise ValueError(f"Parameter not found. Expected either: {Inparam.ACTIVITY_IDS} or {Inparam.ACTIVITY_NAMES} or {Inparam.ACTIVITY_ID} or {Inparam.ACTIVITY_NAME}")
 
 
 
@@ -615,6 +670,9 @@ class ActivityBlock(StateProducer):
 
 
     def _check_and_trim_inputs(self):
+
+
+
         # Create a temporary dict for parameter validation. The dict contains
         # pairs (parameter,checked:bool)
         params:dict = {}
@@ -625,7 +683,9 @@ class ActivityBlock(StateProducer):
         params[Inparam.ACTIVITY_CONFIG] = self._activity_config
         params[Inparam.ACTIVITY_MODULE] = self._activity_module
         params[Inparam.ACTIVITY_NAME] = self._activity_name_special
+        params[Inparam.ACTIVITY_NAMES] = self._activity_names_special
         params[Inparam.ACTIVITY_ID] = self._activity_id_special
+        params[Inparam.ACTIVITY_IDS] = self._activity_ids_special
         params[Inparam.ACTIVITY_TYPE] = self._activity_type
         params[Inparam.INPUT] = self._input
         params[Inparam.CUSTOM_DATA] = self._custom_data
@@ -648,6 +708,20 @@ class ActivityBlock(StateProducer):
         if self._activity_name_special is not None and self._activity_id_special is None:
             Check.is_non_empty_string(self._activity_block_id, msg=f"Missing activity_block_id. Cannot create special activity-id from special activity name: {self._activity_name_special}.")
             self._activity_id_special = f"{self._activity_block_id}-{self._activity_name_special}"
+
+        if len(self._activity_names_special) > 0 and len(self._activity_ids_special) == 0:
+            Check.is_non_empty_string(self._activity_block_id, msg=f"Missing activity_block_id. Cannot create special activity-ids from special activity names: {','.join(self._activity_name_special)}.")
+            for name in self._activity_names_special:
+                self._activity_ids_special.append(name)
+
+        if len(self._activity_names_special) == 0:
+            if self._activity_name_special is not None:
+                self._activity_names_special.append(self._activity_name_special)
+
+        if len(self._activity_ids_special) == 0:
+            if self._activity_id_special is not None:
+                self._activity_ids_special.append(self._activity_id_special)
+
 
     def _add_additional_context(self):
         for key,val in self._input.items():
@@ -993,29 +1067,33 @@ class ActivityBlock(StateProducer):
         prefix = DebugConfig.autor_info_prefix
         Util.print_header(prefix, title, 'info')
         attr = self._mode
-        self._print_attribute(attr, "mode:                  ")
+        self._print_attribute(attr, "mode:                   ")
         attr = self._additional_extensions
-        self._print_attribute(attr, "additional_extensions: ")
+        self._print_attribute(attr, "additional_extensions:  ")
         attr = self._activity_block_id
-        self._print_attribute(attr, "activity_block_id:     ")
+        self._print_attribute(attr, "activity_block_id:      ")
         attr = self._activity_config
-        self._print_attribute(attr, "activity_config:       ")
+        self._print_attribute(attr, "activity_config:        ")
         attr = self._activity_id_special
-        self._print_attribute(attr, "activity_id_special:   ")
+        self._print_attribute(attr, "activity_id_special:    ")
+        attr = ','.join(self._activity_ids_special)
+        self._print_attribute(attr, "activity_ids_special:   ")
         attr = self._input
-        self._print_attribute(attr, "input:                 ")
+        self._print_attribute(attr, "input:                  ")
         attr = self._activity_module
-        self._print_attribute(attr, "activity_module:       ")
+        self._print_attribute(attr, "activity_module:        ")
         attr = self._activity_name_special
-        self._print_attribute(attr, "activity_name_special: ")
+        self._print_attribute(attr, "activity_name_special:  ")
+        attr = ','.join(self._activity_names_special)
+        self._print_attribute(attr, "activity_names_special: ")
         attr = self._activity_type
-        self._print_attribute(attr, "activity_type:         ")
+        self._print_attribute(attr, "activity_type:          ")
         attr = self._custom_data
-        self._print_attribute(attr, "custom_data:           ")
+        self._print_attribute(attr, "custom_data:            ")
         attr = self._flow_run_id
-        self._print_attribute(attr, "flow_run_id:           ")
+        self._print_attribute(attr, "flow_run_id:            ")
         attr = self._flow_config_path
-        self._print_attribute(attr, "flow_config_path:      ")
+        self._print_attribute(attr, "flow_config_path:       ")
 
 
         logging.info(f'{prefix}')
@@ -1365,7 +1443,7 @@ class ActivityBlock(StateProducer):
 
         ######################## new ###############################
         graph:ActivityBlockGraph = ActivityBlockGraph()
-        graph.initiate(self._flow_config.activity_block(self._activity_block_id))
+        graph.initiate(self._flow_config.activity_block(self._activity_block_id), rerun_activity_ids=self._activity_ids_special)
         if Flags.print_graph:
             graph.print()
 

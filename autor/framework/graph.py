@@ -137,11 +137,24 @@ class ActivityBlockGraph:
             node.add_parent(prev_node)
             self._tracks_last_node[track] = node # node becomes the last node
 
+            # Nodes can inherit the need to re-run from their parents.
+            # But the parent cannot remove the childs need to rerun.
+            if prev_node.rerun:
+                node.rerun = True
+
+
+
         # New track. Group parents become the node parents.
         else:
             for parent in self._group_parents:
                 parent.add_child(node)
                 node.add_parent(parent)
+
+                # Nodes can inherit the need to re-run from their parents.
+                # But the parent cannot remove the childs need to rerun.
+                if parent.rerun:
+                    node.rerun = parent.rerun
+
             self._tracks_last_node[track] = node
             if self._is_first_group:
                 self._first_nodes_of_first_group.append(node)
@@ -178,7 +191,7 @@ class ActivityBlockGraph:
 
 
 
-    def initiate(self, activity_block_config:ActivityBlockConfiguration):
+    def initiate(self, activity_block_config:ActivityBlockConfiguration,rerun_activity_ids:List=[]):
         self._prepare_config(activity_block_config)
 
 
@@ -189,10 +202,12 @@ class ActivityBlockGraph:
                 + "-"
                 + self._get_activity_name(act_conf_before_block, ActivityGroupType.BEFORE_BLOCK)
             )
+            rerun = activity_id in rerun_activity_ids
             node = Node(
                 activity_id,
                 ActivityGroupType.BEFORE_BLOCK,
                 act_conf_before_block,
+                rerun
             )
             self._add_node(node)
 
@@ -213,11 +228,12 @@ class ActivityBlockGraph:
                     + "-"
                     + self._get_activity_name(act_conf_before, ActivityGroupType.BEFORE_ACTIVITY)
                 )
-
+                rerun = activity_id in rerun_activity_ids
                 ba_node = Node(
                     activity_id,
                     ActivityGroupType.BEFORE_ACTIVITY,
                     act_conf_before,
+                    rerun
                 )
                 self._add_node(ba_node)
                 before_activity_nodes.append(ba_node)
@@ -230,7 +246,8 @@ class ActivityBlockGraph:
 
             # ------------------------ MAIN-ACTIVITY ---------------------------#
             activity_id = self._activity_block_id + "-" + main_name
-            ma_node = Node(activity_id, ActivityGroupType.MAIN_ACTIVITY, act_conf_main)
+            rerun = activity_id in rerun_activity_ids
+            ma_node = Node(activity_id, ActivityGroupType.MAIN_ACTIVITY, act_conf_main, rerun)
             self._add_node(ma_node)
             self._next_main_index = self._next_main_index + 1
 
@@ -243,10 +260,12 @@ class ActivityBlockGraph:
                     + "-"
                     + self._get_activity_name(act_conf_after, ActivityGroupType.AFTER_ACTIVITY)
                 )
+                rerun = activity_id in rerun_activity_ids
                 aa_node = Node(
                     activity_id,
                     ActivityGroupType.AFTER_ACTIVITY,
                     act_conf_after,
+                    rerun
                 )
                 self._add_node(aa_node)
                 after_activity_nodes.append(aa_node)
@@ -272,10 +291,12 @@ class ActivityBlockGraph:
                 + "-"
                 + self._get_activity_name(act_conf_after_block, ActivityGroupType.AFTER_BLOCK)
             )
+            rerun = activity_id in rerun_activity_ids
             node = Node(
                 activity_id,
                 ActivityGroupType.AFTER_BLOCK,
                 act_conf_after_block,
+                rerun
             )
             self._add_node(node)
 

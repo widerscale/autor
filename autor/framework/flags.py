@@ -24,7 +24,7 @@ class Flags():
     # At the end of the activity block Autor will create a file activity_order.json. The file
     # contains two json lists:activity_started_order and activity_finished_order.
     # The file is useful for writing concurrency tests.
-    print_activity_started_and_finished_order = False
+    print_activity_started_and_finished_order = True
 
     print_graph = False
 
