@@ -178,9 +178,15 @@ class ActivityBlockRules:
             return action1
 
 
-    def get_action(self, data:ActivityData, mode: Mode, ignore_unrun=False, activity_id_special:str=None):
+    def get_action(self, data:ActivityData, mode: Mode, ignore_unrun=False, activity_ids_special:List=None):
         # pylint: disable=no-else-raise
+        activity_id_special = None
 
+        if activity_ids_special is None:
+            activity_ids_special = []
+
+        if len(activity_ids_special)>0:
+            activity_id_special=activity_ids_special[0] # Used for modes where only one activity can be special
 
         skip_with_outputs = data.activity_config.skip_with_outputs
 
@@ -210,7 +216,7 @@ class ActivityBlockRules:
                     return Action.SKIP_WITH_OUTPUT_VALUES
                 else:
                     action = self._get_action(data, ignore_unrun=ignore_unrun)
-                    if action == Action.RUN and data.activity_id == activity_id_special:
+                    if action == Action.RUN and data.activity_id in activity_ids_special:
                         action = Action.RUN_REUSE_INPUT
                     return action
             else:

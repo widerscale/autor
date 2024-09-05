@@ -357,7 +357,63 @@ def test_lastMultiparentToRunAcceptsFail():
 
 
 
+def test_concurrency_graph_order():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_1___print_activity_started_and_finished_order=True___SUCCESS.json', flags={'print_activity_started_and_finished_order':True})
+    activities_started_order: List[str] = []
+    activities_started_order.append("concurrency_1-one")
+    activities_started_order.append("concurrency_1-two")
+    activities_started_order.append("concurrency_1-three")
+    activities_started_order.append("concurrency_1-four")
+    activities_started_order.append("concurrency_1-seven")
+    activities_started_order.append("concurrency_1-ten")
+    activities_started_order.append("concurrency_1-five")
+    activities_started_order.append("concurrency_1-eight")
+    activities_started_order.append("concurrency_1-nine")
+    activities_started_order.append("concurrency_1-six")
+    activities_started_order.append("concurrency_1-eleven")
+    activities_started_order.append("concurrency_1-twelve")
+    activities_finished_order: List[str] = []
+    activities_finished_order.append("concurrency_1-one")
+    activities_finished_order.append("concurrency_1-two")
+    activities_finished_order.append("concurrency_1-ten")
+    activities_finished_order.append("concurrency_1-four")
+    activities_finished_order.append("concurrency_1-seven")
+    activities_finished_order.append("concurrency_1-eight")
+    activities_finished_order.append("concurrency_1-nine")
+    activities_finished_order.append("concurrency_1-five")
+    activities_finished_order.append("concurrency_1-three")
+    activities_finished_order.append("concurrency_1-six")
+    activities_finished_order.append("concurrency_1-twelve")
+    activities_finished_order.append("concurrency_1-eleven")
 
-#def test_concurrency_1():
-    #ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_1___SUCCESS.json')
+    _check_activity_started_and_finished_order(activities_started_order, activities_finished_order, ab)
 
+def test_concurrency_rerun_1():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_1___SUCCESS.json')
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="eight", expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___eight___flow_run_id___SUCCESS.json')
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="three", expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___three___flow_run_id___SUCCESS.json')
+
+    # Multiple re-run activities provided
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["six","eight"],expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___six_eight___flow_run_id___SUCCESS.json')
+
+
+
+def test_concurrency_input_modifier():
+   # ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_quick___SUCCESS.json')
+
+    custom_data:dict = {}
+    data:dict = {}
+    custom_data["AutorFrameworkActivityInputModifier"] = data
+
+    data["eight"] = {}
+    data["eight"]["outcome"] = "FAIL"
+
+    ab = test.run2(custom_data=custom_data, expectation='ACTIVITY_BLOCK___concurrency_1___AutorFrameworkActivityInputModifier=eight=outcome=FAIL___FAIL.json')
+
+    data["three"] = {}
+    data["three"]["outcome"] = "FAIL"
+    data["five"] = {}
+    data["five"]["outcome"] = "FAIL"
+
+
+    ab = test.run2(custom_data=custom_data, expectation='ACTIVITY_BLOCK___concurrency_1___AutorFrameworkActivityInputModifier=eight=outcome=FAIL_three=outcome=FAIL_five=outcome=FAIL___FAIL.json')

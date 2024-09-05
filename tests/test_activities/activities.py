@@ -103,19 +103,11 @@ class SleepySleeper(Activity):
     def run(self):
         self.thread_print(f"{self.name}: Going to sleep {self.sleep_seconds} seconds")
         time.sleep(self.sleep_seconds)
-
-        # t = threading.Timer(self.sleep_seconds, self.wake_up)
-        # t.start()
-        # #self.thread_print("timer started")
-        # with self._condition:
-        #     while self._time_to_wake_up is not True:
-        #         #self.thread_print("Going to wait......")
-        #         self._condition.wait()
-        #         #self.thread_print("I've been notified -> waking up!")
-        #     #self.thread_print("Waking up!")
-
         self.thread_print("Waking up!")
         self.status = self.outcome
+
+
+
 
 
 

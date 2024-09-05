@@ -1,0 +1,132 @@
+{
+    "mode": "ACTIVITY_BLOCK_RERUN",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false,
+    "sleep_seconds": null,
+    "outcome": null,
+    "_activityBlocks": {
+        "concurrency_1": {
+            "mode": "ACTIVITY_BLOCK_RERUN",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "concurrency_1-one": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 1.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-two": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 1.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-three": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 9.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN_REUSE_INPUT",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-four": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 2.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-seven": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 3.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-ten": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 1.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-five": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 5.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-eight": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 1.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-nine": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 1.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-six": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 3.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-eleven": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 3.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                },
+                "concurrency_1-twelve": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 1.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS"
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false,
+            "sleep_seconds": null,
+            "outcome": null
+        }
+    }
+}

@@ -39,6 +39,7 @@ from autor.framework.activity_block_rules import ActivityBlockRules
 from autor.framework.activity_context import ActivityContext
 from autor.framework.activity_data import ActivityData
 from autor.framework.activity_runner import ActivityRunner
+from autor.framework.autor_framework_activity_input_modifier import AutorFrameworkActivityInputModifier
 from autor.framework.autor_framework_bootstrap import AutorFrameworkBootstrap
 from autor.framework.autor_framework_exception import (
     AutorFrameworkException,
@@ -710,9 +711,9 @@ class ActivityBlock(StateProducer):
             self._activity_id_special = f"{self._activity_block_id}-{self._activity_name_special}"
 
         if len(self._activity_names_special) > 0 and len(self._activity_ids_special) == 0:
-            Check.is_non_empty_string(self._activity_block_id, msg=f"Missing activity_block_id. Cannot create special activity-ids from special activity names: {','.join(self._activity_name_special)}.")
+            Check.is_non_empty_string(self._activity_block_id, msg=f"Missing activity_block_id. Cannot create special activity-ids from special activity names: {','.join(self._activity_names_special)}.")
             for name in self._activity_names_special:
-                self._activity_ids_special.append(name)
+                self._activity_ids_special.append(f"{self._activity_block_id}-{name}")
 
         if len(self._activity_names_special) == 0:
             if self._activity_name_special is not None:
@@ -1348,7 +1349,7 @@ class ActivityBlock(StateProducer):
         # Run the activities in the activity block according to Autor rules.
         # if self._mode == Mode.ACTIVITY_BLOCK or self._mode == Mode.ACTIVITY:
         self._activity_data.action = self._rules.get_action(data=self._activity_data, mode=self._mode,
-                                                            activity_id_special=self._activity_id_special)
+                                                            activity_ids_special=self._activity_ids_special)
 
         # TODO - reuse-remove
         if self._activity_data.action == Action.REUSE:
@@ -1555,6 +1556,10 @@ class ActivityBlock(StateProducer):
 
         # Register Autor bootstrap
         StateHandler.add_state_listener(AutorFrameworkBootstrap())
+        # Register Activity input injector (used for testing)
+        StateHandler.add_state_listener(AutorFrameworkActivityInputModifier())
+
+
 
         # Load bootstrap extensions.
         if extensions is not None:

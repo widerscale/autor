@@ -1111,39 +1111,39 @@ activityBlocks:
       - type: sleepy-sleeper
         name: one
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 1.0
 
       - type: sleepy-sleeper
         name: two
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 1.0
       # --------------------- group 1 ----------------------#
       - type: sleepy-sleeper
         name: three
         concurrencyGroup: group_1
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 9.0
       # --------------------- TRACK A ----------------------#
       - type: sleepy-sleeper
         name: four
         concurrencyGroup: group_1
         concurrencyTrack: track_A
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 2.0
 
       - type: sleepy-sleeper
         name: five
         concurrencyGroup: group_1
         concurrencyTrack: track_A
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 5.0
 
       - type: sleepy-sleeper
         name: six
         concurrencyGroup: group_1
         concurrencyTrack: track_A
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 3.0
 
       # --------------------- TRACK B ----------------------#
       - type: sleepy-sleeper
@@ -1151,21 +1151,21 @@ activityBlocks:
         concurrencyGroup: group_1
         concurrencyTrack: track_B
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 3.0
 
       - type: sleepy-sleeper
         name: eight
         concurrencyGroup: group_1
         concurrencyTrack: track_B
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 1.0
 
       - type: sleepy-sleeper
         name: nine
         concurrencyGroup: group_1
         concurrencyTrack: track_B
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 1.0
 
       # ----------------------------------------------------#
 
@@ -1173,20 +1173,109 @@ activityBlocks:
         name: ten
         concurrencyGroup: group_1
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 1.0
 
       # --------------------- group 2 ----------------------#
       - type: sleepy-sleeper
         name: eleven
         concurrencyGroup: group_2
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 3.0
 
       - type: sleepy-sleeper
         name: twelve
         concurrencyGroup: group_2
         configuration:
-          sleep_seconds: 0.1
+          sleep_seconds: 1.0
+
+
+
+  concurrency_quick:
+    activities:
+      - type: sleepy-sleeper
+        name: one
+        configuration:
+          sleep_seconds: 0.01
+
+      - type: sleepy-sleeper
+        name: two
+        configuration:
+          sleep_seconds: 0.01
+      # --------------------- group 1 ----------------------#
+      - type: sleepy-sleeper
+        name: three
+        concurrencyGroup: group_1
+        configuration:
+          sleep_seconds: 0.01
+      # --------------------- TRACK A ----------------------#
+      - type: sleepy-sleeper
+        name: four
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 0.01
+
+      - type: sleepy-sleeper
+        name: five
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 0.01
+
+      - type: sleepy-sleeper
+        name: six
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 0.01
+
+      # --------------------- TRACK B ----------------------#
+      - type: sleepy-sleeper
+        name: seven
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 0.01
+
+      - type: sleepy-sleeper
+        name: eight
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 0.01
+
+      - type: sleepy-sleeper
+        name: nine
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 0.01
+
+      # ----------------------------------------------------#
+
+      - type: sleepy-sleeper
+        name: ten
+        concurrencyGroup: group_1
+        configuration:
+          sleep_seconds: 0.01
+
+      # --------------------- group 2 ----------------------#
+      - type: sleepy-sleeper
+        name: eleven
+        concurrencyGroup: group_2
+        configuration:
+          sleep_seconds: 0.01
+
+      - type: sleepy-sleeper
+        name: twelve
+        concurrencyGroup: group_2
+        configuration:
+          sleep_seconds: 0.01
+
+
+
+
+
 
 
 
