@@ -85,15 +85,6 @@ class ActivityRunner:
             self._register_error(e, ExceptionType.INTERNAL, description="Unhandled exception during activity post-processing")
 
 
-    # def run_activity(self):
-    #     try:
-    #         self.preprocess()
-    #         self.run()
-    #         self.postprocess()
-    #     except Exception as e:
-    #         self._register_error(e, ex_type=ExceptionType.INTERNAL, description="Unhandled internal error during activity run procedure.")
-    #
-    #     return self._need_to_abort, self._need_to_abort_reason
 
     def _correct_properties_expected(self)->bool:
         # An activity will be run only if it is allowed by the framework and by the configuration
@@ -108,7 +99,11 @@ class ActivityRunner:
         )
         return ok
 
-    def _ok_to_run(self)->bool:
+
+    def ok_to_run(self)->bool:
+        """
+        Returns true if the Activity.run() will be called when ActivityRunner.run() is called.
+        """
         ok = (
             not self._need_to_abort
             and not self._activity_processing_error_occurred
@@ -122,11 +117,6 @@ class ActivityRunner:
 
     def _preprocess(self):
         try:
-            # self._data.activity = Activity()  # Default value in case the activity creation fails
-
-            # ----------------------------------------------------------------#
-            StateHandler.change_state(State.BEFORE_ACTIVITY_PREPROCESS)
-            # ----------------------------------------------------------------#
 
             Check.not_none(self._data.action, "Action not provided in the activity data.")
 
@@ -205,7 +195,7 @@ class ActivityRunner:
 
 
 
-        if not self._ok_to_run():
+        if not self.ok_to_run():
             if self._data.action == Action.REUSE:
                 logging.info(f'{DebugConfig.autor_info_prefix}')
                 logging.info(f'{DebugConfig.autor_info_prefix}')
@@ -214,9 +204,6 @@ class ActivityRunner:
 
         else:
             try:
-                # ----------------------------------------------------------------#
-                StateHandler.change_state(State.BEFORE_ACTIVITY_RUN)
-                # ----------------------------------------------------------------#
                 logging.info(f'{DebugConfig.autor_info_prefix}')
                 logging.info(f'{DebugConfig.autor_info_prefix}')
                 self._print_activity_inputs_and_configs()
@@ -228,9 +215,9 @@ class ActivityRunner:
                 LoggingConfig.activate_activity_logging()
                 if DebugConfig.print_activity:
                     self._data.activity.print()
-                ############# -- RUN -- ###############
+                #------------------------------ RUN -----------------------------#
                 self._data.activity.run()
-                ############# -- RUN -- ###############
+                #------------------------------ RUN -----------------------------#
                 LoggingConfig.activate_framework_logging()
 
                 #logging.info(f'{DebugConfig.autor_info_prefix}')
@@ -242,11 +229,7 @@ class ActivityRunner:
                 logging.warning(f"Exception caught during activity run: {e.__class__.__name__}: {str(e)}")
                 self._activity_run_exception_occurred = True
                 self._register_error(e, ExceptionType.ACTIVITY_RUN, description=f"Exception caught during activity run: {e.__class__.__name__}: {str(e)}")
-            finally:
 
-                # ----------------------------------------------------------------#
-                StateHandler.change_state(State.AFTER_ACTIVITY_RUN)
-                # ----------------------------------------------------------------#
 
 
 
@@ -374,10 +357,6 @@ class ActivityRunner:
         except Exception as e:
             self._register_error(e, ExceptionType.ACTIVITY_POSTPROCESS, description="Exception during activity post-processing")
 
-        finally:
-            # ----------------------------------------------------------------#
-            StateHandler.change_state(State.AFTER_ACTIVITY_POSTPROCESS)
-            # ----------------------------------------------------------------#
 
 
 

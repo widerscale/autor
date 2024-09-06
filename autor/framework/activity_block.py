@@ -1339,6 +1339,9 @@ class ActivityBlock(StateProducer):
 
     def _preprocess_node_run(self, activity_node:Node):
         self._nodes_started_order.append(activity_node)
+
+        # Setting self._activity_data makes it possible for state listeners
+        # to know which activity that is being prepared for running.
         self._activity_data: ActivityData = self._create_data(activity_node)
         activity_node.activity_data = self._activity_data
 
@@ -1361,18 +1364,62 @@ class ActivityBlock(StateProducer):
 
         activity_runner = ActivityRunner(data=activity_node.activity_data)
         activity_node.activity_runner = activity_runner
+
+        # ----------------------------------------------------------------#
+        StateHandler.change_state(State.BEFORE_ACTIVITY_PREPROCESS)
+        # ----------------------------------------------------------------#
         activity_runner.preprocess()
+
+        # BEFORE_ACTIVITY_RUN callback is given only if the Activity.run() method
+        # will be called.
+        if activity_runner.ok_to_run():
+            # ----------------------------------------------------------------#
+            StateHandler.change_state(State.BEFORE_ACTIVITY_RUN)
+            # ----------------------------------------------------------------#
 
         return self._activity_data
 
+
+
+    def _run_node(self, activity_node:Node):
+        #activity_data = self._preprocess_node_run(activity_node)
+
+        # ---------------------------------------------------------------------#
+        # -----------------   R U N   A C T I V I T Y   ---------------------- #
+        activity_node.activity_runner.run()
+        self._monitor.node_finished(activity_node)
+        # ---------------------------------------------------------------------#
+        # ---------------------------------------------------------------------#
+
+        #self._postprocess_node_run(activity_node)
+
+
+
     def _postprocess_node_run(self, activity_node:Node):
-        activity_runner:ActivityRunner = activity_node.activity_runner
-        activity_runner.postprocess()
 
-        self._nodes_finished_order.append(activity_node)
-
-        self._activity_data:ActivityData = activity_node.activity_data # Needed for state callbacks and prints.
+        # Setting self._activity_data makes it possible for state listeners
+        # to know which activity that is being post-processed.
+        self._activity_data:ActivityData = activity_node.activity_data
         self._activity_data.activity_block_status = self._activity_block_status
+        self._nodes_finished_order.append(activity_node)
+        activity_node.activity = self._activity_data.activity
+        self._update_activity_lists(self._activity_data, activity_node.activity_config, activity_node.activity_group_type)
+
+
+        # AFTER_ACTIVITY_RUN callback is given only if the Activity.run() method
+        # was be called.
+        activity_runner: ActivityRunner = activity_node.activity_runner
+
+        if activity_runner.ok_to_run():
+            # ----------------------------------------------------------------#
+            StateHandler.change_state(State.AFTER_ACTIVITY_RUN)
+            # ----------------------------------------------------------------#
+
+
+        activity_runner.postprocess()
+        # ----------------------------------------------------------------#
+        StateHandler.change_state(State.AFTER_ACTIVITY_POSTPROCESS)
+        # ----------------------------------------------------------------#
 
         need_to_abort = activity_runner.need_to_abort
         abort_reason = activity_runner.need_to_abort_reason
@@ -1380,8 +1427,7 @@ class ActivityBlock(StateProducer):
         if need_to_abort and self._autor_aborted is not True:
             self._abort_autor(abort_reason)
 
-        activity_node.activity = self._activity_data.activity
-        self._update_activity_lists(self._activity_data, activity_node.activity_config, activity_node.activity_group_type)
+
         self._update_activity_block_status(need_to_abort)
         self._create_activity_skip_with_outputs_config(self._activity_data)
 
@@ -1391,19 +1437,7 @@ class ActivityBlock(StateProducer):
 
 
 
-    def _run_node(self, activity_node:Node):
-        #activity_data = self._preprocess_node_run(activity_node)
 
-        # ---------------------------------------------------------------------#
-        # -----------------   R U N   A C T I V I T Y   ---------------------- #
-
-        activity_node.activity_runner.run()
-        self._monitor.node_finished(activity_node)
-
-        # ---------------------------------------------------------------------#
-        # ---------------------------------------------------------------------#
-
-        #self._postprocess_node_run(activity_node)
 
 
 
