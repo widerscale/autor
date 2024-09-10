@@ -1,7 +1,7 @@
 {
     "mode": "ACTIVITY_BLOCK_RERUN",
     "flowConfigPath": "test_flow_configs/doc-config.yml",
-    "action": "RUN_REUSE_INPUT",
+    "action": "RUN",
     "status": "SUCCESS",
     "max": 5,
     "__generatedFlowConfig": null,
@@ -53,12 +53,12 @@
                         "out_provide__status": "SUCCESS",
                         "out_provide__max": 5
                     },
-                    "action": "RUN_REUSE_INPUT",
+                    "action": "RUN",
                     "status": "SUCCESS",
                     "max": 5
                 }
             },
-            "action": "RUN_REUSE_INPUT",
+            "action": "RUN",
             "status": "SUCCESS",
             "max": 5,
             "activityBlockStatus": "SUCCESS",

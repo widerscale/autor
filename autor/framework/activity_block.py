@@ -22,6 +22,7 @@ import json
 import logging
 import os.path
 import shutil
+import time
 import uuid
 from copy import deepcopy
 from datetime import datetime
@@ -321,13 +322,18 @@ class ActivityBlock(StateProducer):
         # Concurrency-safe area.
         self._monitor:ActivityBlockMonitor = None
 
-
+        # Context from the latest run. Used for extracting activity
+        # results in case of REUSE.
+        self._rerun_context_dict:dict = None
 
 
         # ---------------------------------  A C T I V I T Y   D A T A   --------------------------#
         self._activity_data:ActivityData = None  # Contains activity data and the activity instance
 
-
+        # Activity ID. Needed for handling activity order during re-run.
+        # Activities that do not generate output are activities with status ERROR or SKIPPED_BY_FRAMEWORK or SKIPPED_BY_CONFIGURATION.
+        # Status is not considered as an output.
+        self._latest_activity_that_finished_running:str = None
 
         #---------------------------------- DEBUGGING SUPPORT -------------------------------------#
         # This value will be added to the state data for the extensions to play around with.
@@ -422,6 +428,34 @@ class ActivityBlock(StateProducer):
             StateHandler.change_state(State.FRAMEWORK_START)
             # ---------------------------------------------------------------#
             self._flow_context.sync_remote()
+
+            # If this activity block is being run for the first time within this flow run
+            # (no snapshot of the initial state of the activity block run has been saved)
+            # then create and save a snapshot of the context. This can be later used for
+            # re-runs.
+            initial_context_snapshot:dict = self._activity_block_context.get("initial_context_snapshot", default=None, search=False)
+            if initial_context_snapshot is None:
+                initial_context_snapshot: dict = Context.get_context_dict_copy()
+                self._activity_block_context.set("initial_context_snapshot", initial_context_snapshot)
+                logging.warning("Saved initial context.")
+            else:
+                logging.warning("Initial context found.")
+
+
+
+            if self._mode == Mode.ACTIVITY_BLOCK_RERUN:
+                # Save the context from the previous run. Will be used to extract parameters to reuse.
+                self._rerun_context_dict = Context.get_context_dict_copy()
+                # Reset the official context to the initial snapshot.
+                Context.set_context(initial_context_snapshot)
+                # Make sure to save the initial snapshot again.
+                initial_context_snapshot: dict = Context.get_context_dict_copy()
+                self._activity_block_context.set("initial_context_snapshot", initial_context_snapshot)
+
+                logging.warning("Mode ACTIVITY-BLOCK-RERUN -> resetting context to initial snapshot")
+
+
+
             self._add_additional_context()
 
             # ---------------------------------------------------------------#
@@ -790,9 +824,21 @@ class ActivityBlock(StateProducer):
                 self._dbg_save_skip_with_outputs_flow_config()  # creates a flow config with skip configuration with results from the current run.
             if DebugConfig.print_activity_block_finished_summary:
                 self._dbg_print_activity_block_finished()
-                Util.print_header(DebugConfig.autor_info_prefix, 'A C T I V I T Y   B L O C K   R U N   S U M M A R Y', level='info', line_below=False)
+                Util.print_header(DebugConfig.autor_info_prefix, 'A C T I V I T Y   B L O C K   R U N   S U M M A R Y (started order)', level='info', line_below=False)
+
                 logging.info(DebugConfig.autor_info_prefix)
-                ActivityBlockRules.get_transition_summary().print(DebugConfig.autor_info_prefix)
+                started_order_activity_ids = []
+                for n in self._nodes_started_order:
+                    started_order_activity_ids.append(n.activity_id)
+                ActivityBlockRules.get_transition_summary().print(DebugConfig.autor_info_prefix, print_in_activity_order=started_order_activity_ids)
+
+                Util.print_header(DebugConfig.autor_info_prefix, 'A C T I V I T Y   B L O C K   R U N   S U M M A R Y (finished order)', level='info', line_below=False)
+                logging.info(DebugConfig.autor_info_prefix)
+                finished_order_activity_ids = []
+                for n in self._nodes_finished_order:
+                    finished_order_activity_ids.append(n.activity_id)
+
+                ActivityBlockRules.get_transition_summary().print(DebugConfig.autor_info_prefix, print_in_activity_order=finished_order_activity_ids)
             if DebugConfig.save_activity_block_context_locally:  # can be used for test cases
                 self._dbg_save_context()
 
@@ -1130,7 +1176,7 @@ class ActivityBlock(StateProducer):
             Check.is_true(self._activity_block_status == Status.ABORTED, msg=f"An activity block that has been aborted by the framework should always have status: {Status.ABORTED}. Current block status: {self._activity_block_status}")
 
         if not self._autor_aborted:
-            self._abort_autor(str(description))
+            self.abort_autor(str(description))
 
         ExceptionHandler.register_exception(ex=e, description=description, ex_type=ex_type)
 
@@ -1249,23 +1295,18 @@ class ActivityBlock(StateProducer):
         data.output_context = Context(activity_block=data.activity_block_id, activity=data.activity_id) # Output is written to Activity level (and propagated upwards)
         #data.output_context_properties_handler = None # Initiated in ActivityRunner when activity object is created
 
+        #------------------ rerun preparations -------------------------
+        # To prepare for rerun mode save the rerun context and the id of the activity that ran before this activity
+        # during the previous run.
+        data.rerun_context_dict = self._rerun_context_dict
+        orig_dict:dict = Context.get_context_dict()
+        Context.set_context(self._rerun_context_dict)
+        temp_context:Context = Context(activity_block=data.activity_block_id, activity=data.activity_id)
+        data.previous_activity_in_running_order = temp_context.get(ctx.PREVIOUS_ACTIVITY_IN_RUNNING_ORDER,default=None)
+        Context.set_context(orig_dict)
+        # -------------------------------------------------------------
+
         data.activity_context = ActivityContext(activity_block=data.activity_block_id, activity=data.activity_id)
-
-        # ---------------------------- OLD ---------------------------------
-        # if activity_group_type == ActivityGroupType.BEFORE_ACTIVITY:
-        #     Check.is_true(
-        #         len(self._activity_block_configs_main_activities) > self._next_main_index,
-        #         msg="No main activity configuration exists for the before activity.",
-        #     )
-        #     next_main_conf = self._activity_block_configs_main_activities[self._next_main_index]
-        #     temp = activity_id.split("-") # activity_id format: <activity block id>-<main activity name>-<before activity name>
-        #     next_main_activity_id = f"{temp[0]}-{temp[1]}" # <activity block id>-<main activity name>
-        #     data.next_main_activity_data = self._create_data(
-        #         next_main_activity_id,
-        #         ActivityGroupType.MAIN_ACTIVITY,
-        #         next_main_conf
-        #     )
-
 
         if activity_group_type == ActivityGroupType.BEFORE_ACTIVITY:
             Check.is_true(activity_node.main_activity_node is not None, "Cannot create before-activity configuration. Main activity node must be provided for each before-activity")
@@ -1325,7 +1366,7 @@ class ActivityBlock(StateProducer):
     #   as expected framework usage errors and are handled by the framework rules.
     # Once the activity block status is set to ABORTED due to Autor being aborted,
     #  the status should not be changed afterward.
-    def _abort_autor(self, abort_reason):
+    def abort_autor(self, abort_reason):
         self._autor_aborted = True
         self._autor_aborted_reason = abort_reason
         self._activity_block_status = Status.ABORTED
@@ -1351,14 +1392,12 @@ class ActivityBlock(StateProducer):
 
         # Run the activities in the activity block according to Autor rules.
         # if self._mode == Mode.ACTIVITY_BLOCK or self._mode == Mode.ACTIVITY:
-        self._activity_data.action = self._rules.get_action(data=self._activity_data, mode=self._mode,
+        self._activity_data.action = self._rules.get_action(data=self._activity_data,
+                                                            mode=self._mode,
                                                             activity_ids_special=self._activity_ids_special)
 
-        # TODO - reuse-remove
-        if self._activity_data.action == Action.REUSE:
-            pass
-            # self._activity_data.activity_type = "reuse"
-        elif self._activity_data.action == Action.SKIP_WITH_OUTPUT_VALUES:
+
+        if self._activity_data.action == Action.SKIP_WITH_OUTPUT_VALUES:
             self._activity_data.activity_type = "skip-with-output-values"
 
 
@@ -1381,13 +1420,44 @@ class ActivityBlock(StateProducer):
 
 
 
+    def _activity_id_found(self, activity_id:str, nodes:List[Node])->bool:
+        for node in nodes:
+            if node.activity_id == activity_id:
+                return True
+        return False
+
     def _run_node(self, activity_node:Node):
         #activity_data = self._preprocess_node_run(activity_node)
 
         # ---------------------------------------------------------------------#
         # -----------------   R U N   A C T I V I T Y   ---------------------- #
         activity_node.activity_runner.run()
-        self._monitor.node_finished(activity_node)
+        # activity_data = activity_node.activity_data
+        # if self._mode == Mode.ACTIVITY_BLOCK_RERUN and activity_data.action == Action.REUSE:
+        #     # In rerun mode we need to make sure that the reused activities finish running
+        #     # in the same order as during the original run.
+        #
+        #     # The id of the activity that run before this activity during the
+        #     # previous run.
+        #     prev_activity_id = activity_data.previous_activity_in_running_order
+        #
+        #     if prev_activity_id is not None: # this activity was not first to run
+        #
+        #         # check with graph is the previous node is going to be re-run. If not, do the same with previous-previous until you either can wait for an
+        #         # activity or you can run.
+        #
+        #         logging.warning(f"{activity_data.activity_id} checking if {prev_activity_id} has finished")
+        #         sleep_sec = 0.1
+        #         while not self._activity_id_found(prev_activity_id, self._nodes_finished_order):
+        #             logging.warning(f"Sleeping ----- {activity_data.activity_id} waiting for {prev_activity_id} to finish. Going to sleep {sleep_sec} seconds")
+        #             time.sleep(sleep_sec)
+        #
+        #         logging.warning(f"Continue +++++ {activity_data.activity_id} constraint: {prev_activity_id} has run")
+        #
+        #     else:
+        #         logging.warning(f"Continue +++++ {activity_data.activity_id} has no constraint")
+        # #self._monitor.node_finished(activity_node)
+
         # ---------------------------------------------------------------------#
         # ---------------------------------------------------------------------#
 
@@ -1401,6 +1471,17 @@ class ActivityBlock(StateProducer):
         # to know which activity that is being post-processed.
         self._activity_data:ActivityData = activity_node.activity_data
         self._activity_data.activity_block_status = self._activity_block_status
+
+        # If this is not the first activity to finish running, save the id to the
+        # previous activity that finished. Needed for rerun reuse.
+        # if len(self._nodes_finished_order) > 0:
+        #     temp_context:Context = Context(activity_block=self._activity_block_id,activity=activity_node.activity_id)
+        #     temp_context.set(ctx.PREVIOUS_ACTIVITY_IN_RUNNING_ORDER, self._nodes_finished_order[-1].activity_id)
+
+
+
+
+
         self._nodes_finished_order.append(activity_node)
         activity_node.activity = self._activity_data.activity
         self._update_activity_lists(self._activity_data, activity_node.activity_config, activity_node.activity_group_type)
@@ -1417,6 +1498,16 @@ class ActivityBlock(StateProducer):
 
 
         activity_runner.postprocess()
+
+        # # Save the latest activity that generated output in the context of the current activity. Needed for rerun reuse.
+        # if self._latest_activity_that_finished_running is not None:
+        #     temp_context:Context = Context(activity_block=self._activity_block_id,activity=activity_node.activity_id)
+        #     temp_context.set(ctx.PREVIOUS_ACTIVITY_IN_RUNNING_ORDER, self._latest_activity_that_finished_running)
+        #
+        #
+        # if activity_node.activity_runner._correct_properties_expected():
+        #     self._latest_activity_that_finished_running = activity_node.activity_id
+
         # ----------------------------------------------------------------#
         StateHandler.change_state(State.AFTER_ACTIVITY_POSTPROCESS)
         # ----------------------------------------------------------------#
@@ -1425,7 +1516,7 @@ class ActivityBlock(StateProducer):
         abort_reason = activity_runner.need_to_abort_reason
 
         if need_to_abort and self._autor_aborted is not True:
-            self._abort_autor(abort_reason)
+            self.abort_autor(abort_reason)
 
 
         self._update_activity_block_status(need_to_abort)

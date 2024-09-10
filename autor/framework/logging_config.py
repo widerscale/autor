@@ -14,6 +14,8 @@
 
 
 import logging
+import threading
+
 
 class LoggingConfig():
     framework_log_level = logging.INFO
@@ -24,18 +26,18 @@ class LoggingConfig():
     @staticmethod
     def activate_external_logging():
         LoggingConfig.__remove_current_logging()
-        logging.basicConfig(level=LoggingConfig.framework_log_level, format="%(levelname)8s: <external> %(message)s")
+        logging.basicConfig(level=LoggingConfig.framework_log_level, format=f"%(levelname)8s: <external> %(message)s")
 
 
     @staticmethod
     def activate_framework_logging():
         LoggingConfig.__remove_current_logging()
-        logging.basicConfig(level=LoggingConfig.framework_log_level, format="%(levelname)8s: %(message)s")
+        logging.basicConfig(level=LoggingConfig.framework_log_level, format=f"%(levelname)8s: %(message)s")
 
     @staticmethod
     def activate_activity_logging():
         LoggingConfig.__remove_current_logging()
-        logging.basicConfig(level=LoggingConfig.activity_log_level, format="%(levelname)8s: <act>: %(message)s")
+        logging.basicConfig(level=LoggingConfig.activity_log_level, format=f"%(levelname)8s: <act>: %(message)s")
 
     @staticmethod
     def activate_extension_logging(extension_name:str= ""):

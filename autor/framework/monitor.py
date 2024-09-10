@@ -26,16 +26,20 @@ class ActivityBlockMonitor:
         self._finished: List[Node] = []
         self._activity_block = activity_block
         self._graph = graph
-        self._condition = threading.Condition()
+        self._main_thread_condition = threading.Condition()
+        #self._activity_thread_condition = threading.Condition()
         self._nbr_running = 0
 
+
+
+
     def node_finished(self, node: Node):
-        with self._condition:
+        with self._main_thread_condition:
             self._finished.append(node)
-            self._condition.notify_all()
+            self._main_thread_condition.notify_all()
 
     def run_nodes(self):
-        with self._condition:
+        with self._main_thread_condition:
 
             # Finalize all nodes that have run.
             for node in self._finished:
@@ -61,7 +65,7 @@ class ActivityBlockMonitor:
                 self._wait_for_a_node_to_finish()
 
     def _wait_for_a_node_to_finish(self):
-        with self._condition:
+        with self._main_thread_condition:
             #logging.info(f"{threading.current_thread().ident}: Monitor: waiting for a node to finish")
-            self._condition.wait()  # Only 1 thread will be waiting here -> no need for a while loop with a condition check.
+            self._main_thread_condition.wait()  # Only 1 thread will be waiting here -> no need for a while loop with a condition check.
             self.run_nodes()

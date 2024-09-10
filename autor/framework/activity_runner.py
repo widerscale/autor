@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import logging
+import threading
 from copy import deepcopy
 from typing import Dict
 
@@ -121,12 +122,21 @@ class ActivityRunner:
             Check.not_none(self._data.action, "Action not provided in the activity data.")
 
             # Prepare for REUSE
-            if self._data.action == Action.REUSE or self._data.action == Action.RUN_REUSE_INPUT:
+            #if self._data.action == Action.REUSE or self._data.action == Action.RUN_REUSE_INPUT:
+            if self._data.action == Action.REUSE:
+
+                original_dict = Context.get_context_dict()
+                Context.set_context(self._data.rerun_context_dict)
                 self._original_props = deepcopy(self._data.output_context.get(ContextPropertyPrefix.props))
+                Context.set_context(original_dict)
 
                 #Util.print_dict(Context.get_context_dict(), "Whole context", level="info")
                 #Util.print_dict(self._original_props, "ORIGINAL PROPS", level="info")
-                self._prepare_input_reuse(self._original_props, self._data.input_context)
+
+
+                ####self._prepare_input_reuse(self._original_props, self._data.input_context)
+
+
                 #Util.print_dict(Context.get_context_dict(), "AFTER INPUT-REUSE PREPARATIONS", level="info")
 
 
@@ -199,16 +209,16 @@ class ActivityRunner:
             if self._data.action == Action.REUSE:
                 logging.info(f'{DebugConfig.autor_info_prefix}')
                 logging.info(f'{DebugConfig.autor_info_prefix}')
-                logging.info(f'{DebugConfig.autor_info_prefix}ACTION: {self._data.action}')
-                logging.info(f"{DebugConfig.autor_info_prefix}=========> Reusing activity: [Name:{self._data.activity_name_unique} Type:{self._data.activity_type}, Class:{activity_full_class_name}] <========")
+                logging.info(f'{DebugConfig.autor_info_prefix}{threading.current_thread().ident} ACTION: {self._data.action}')
+                logging.info(f"{DebugConfig.autor_info_prefix}{threading.current_thread().ident} =========> Reusing activity: [Name:{self._data.activity_name_unique} Type:{self._data.activity_type}, Class:{activity_full_class_name}] <========")
 
         else:
             try:
                 logging.info(f'{DebugConfig.autor_info_prefix}')
                 logging.info(f'{DebugConfig.autor_info_prefix}')
                 self._print_activity_inputs_and_configs()
-                logging.info(f'{DebugConfig.autor_info_prefix}ACTION: {self._data.action}')
-                logging.info(f"{DebugConfig.autor_info_prefix}---------> Started activity: [Name:{self._data.activity_name_unique} Type:{self._data.activity_type}, Class:{activity_full_class_name}] -------->")
+                logging.info(f'{DebugConfig.autor_info_prefix}{threading.current_thread().ident} ACTION: {self._data.action}')
+                logging.info(f"{DebugConfig.autor_info_prefix}{threading.current_thread().ident} ---------> Started activity: [Name:{self._data.activity_name_unique} Type:{self._data.activity_type}, Class:{activity_full_class_name}] -------->")
 
 
 
@@ -221,7 +231,7 @@ class ActivityRunner:
                 LoggingConfig.activate_framework_logging()
 
                 #logging.info(f'{DebugConfig.autor_info_prefix}')
-                logging.info(f"{DebugConfig.autor_info_prefix}<-------- Finished activity: [Name:{self._data.activity_name_unique} Type:{self._data.activity_type}, Class:{activity_full_class_name}] <--------")
+                logging.info(f"{DebugConfig.autor_info_prefix}{threading.current_thread().ident} <-------- Finished activity: [Name:{self._data.activity_name_unique} Type:{self._data.activity_type}, Class:{activity_full_class_name}] <--------")
 
 
             except Exception as e:
@@ -297,13 +307,13 @@ class ActivityRunner:
                 self._trim_string(val)
 
             if key.startswith(ContextPropertyPrefix.inp_default):
-                logging.info(f"{DebugConfig.autor_info_prefix}input   (default): {key.replace(ContextPropertyPrefix.inp_default,'')}={val}")
+                logging.info(f"{DebugConfig.autor_info_prefix}{threading.current_thread().ident} input   (default): {key.replace(ContextPropertyPrefix.inp_default,'')}={val}")
             if key.startswith(ContextPropertyPrefix.inp_provide):
-                logging.info(f"{DebugConfig.autor_info_prefix}input  (provided): {key.replace(ContextPropertyPrefix.inp_provide,'')}={val}")
+                logging.info(f"{DebugConfig.autor_info_prefix}{threading.current_thread().ident} input  (provided): {key.replace(ContextPropertyPrefix.inp_provide,'')}={val}")
             if key.startswith(ContextPropertyPrefix.cfg_default):
-                logging.info(f"{DebugConfig.autor_info_prefix}config  (default): {key.replace(ContextPropertyPrefix.cfg_default,'')}={val}")
+                logging.info(f"{DebugConfig.autor_info_prefix}{threading.current_thread().ident} config  (default): {key.replace(ContextPropertyPrefix.cfg_default,'')}={val}")
             if key.startswith(ContextPropertyPrefix.cfg_provide):
-                logging.info(f"{DebugConfig.autor_info_prefix}config (provided): {key.replace(ContextPropertyPrefix.cfg_provide,'')}={val}")
+                logging.info(f"{DebugConfig.autor_info_prefix}{threading.current_thread().ident} config (provided): {key.replace(ContextPropertyPrefix.cfg_provide,'')}={val}")
 
     def _print_activity_outputs(self):
         props: dict = self._data.output_context.get(ContextPropertyPrefix.props)
@@ -337,7 +347,7 @@ class ActivityRunner:
                 self._adjust_activity_status()
 
             if self._correct_properties_expected():
-                logging.info(f'{DebugConfig.autor_info_prefix}Activity status: {self._data.activity.status}')
+                logging.info(f'{DebugConfig.autor_info_prefix}{threading.current_thread().ident} Activity status: {self._data.activity.status} ({self._data.activity_id})')
                 #logging.info(DebugConfig.autor_info_prefix)
 
 

@@ -31,7 +31,7 @@
                         "out_provide__status": "SUCCESS",
                         "out_provide__max": 3
                     },
-                    "action": "RUN_REUSE_INPUT",
+                    "action": "RUN",
                     "status": "SUCCESS",
                     "max": 3
                 },

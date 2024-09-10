@@ -216,27 +216,13 @@ class ActivityBlockRules:
                     return Action.SKIP_WITH_OUTPUT_VALUES
                 else:
                     action = self._get_action(data, ignore_unrun=ignore_unrun)
-                    if action == Action.RUN and data.activity_id in activity_ids_special:
-                        action = Action.RUN_REUSE_INPUT
+                    # if action == Action.RUN and data.activity_id in activity_ids_special:
+                    #     action = Action.RUN_REUSE_INPUT
                     return action
             else:
                 return Action.REUSE
 
-            # if data.activity_id == activity_id_special: # The activity from which the re-run starts
-            #     Check.is_false(self._rerun_activated, "rerun_activated should not be activated twice")
-            #     ActivityBlockRules._rerun_activated = True
-            #     logging.info("Re-run initiated")
-            #
-            # if ActivityBlockRules._rerun_activated:
-            #     if skip_with_outputs:
-            #         return Action.SKIP_WITH_OUTPUT_VALUES
-            #     else:
-            #         action = self._get_action(data, ignore_unrun=ignore_unrun)
-            #         if action == Action.RUN and data.activity_id == activity_id_special:
-            #             action = Action.RUN_REUSE_INPUT
-            #         return action
-            # else:
-            #     return Action.REUSE
+
 
         # ______________________________ ACTIVITY_BLOCK _________________________________#
         elif mode == Mode.ACTIVITY_BLOCK:
@@ -785,6 +771,7 @@ class ActivityBlockRules:
         state_transition_summary = self._create_state_transition_summary(activity, current_block_status, new_block_status)
         action_str: str = activity.context.get_from_activity(key=ctx.ACTION)
         ActivityBlockRules._transition_summary.add(activity.id,activity.status,action_str,current_block_status,new_block_status)
+        logging.warning(f"Activity Block Status: {new_block_status}")
         return new_block_status, state_transition_summary
 
 

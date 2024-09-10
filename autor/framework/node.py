@@ -25,6 +25,7 @@ class Node:
         self._activity_config = activity_config
         self._activity_group_type = activity_group_type
         self._rerun:bool = rerun # Indicates if the node should be re-run
+        self._rerun_initiated_by:str = None # Activity id of the node that has initiated the re-run of this node.
         self._children:List[Node] = []
         self._parents:List[Node] = []
         self._status:NodeStatus = NodeStatus.BLOCKED
@@ -33,6 +34,7 @@ class Node:
         self._activity = None # Added when the activity is created #type:Activity
         self._activity_data = None # Added when the activity data is created. # type:ActivityData
         self._activity_runner = None # Added when the activity is being run. # type:ActivityRunner
+        self._previous_activity_in_running_order_during_last_run = None # Activity ID
 
 
     def print(self):
@@ -45,6 +47,14 @@ class Node:
         for child in self._children:
             logging.info(f"                      {child._activity_id}")
         logging.info("----------------------------------------------------------------")
+
+    @property
+    def previous_activity_in_running_order_during_last_run(self) -> str:
+        return self._previous_activity_in_running_order_during_last_run
+
+    @previous_activity_in_running_order_during_last_run.setter
+    def previous_activity_in_running_order_during_last_run(self, value:str):
+        self._previous_activity_in_running_order_during_last_run = value
 
     @property
     def status(self) -> NodeStatus:
@@ -83,6 +93,15 @@ class Node:
     @rerun.setter
     def rerun(self, value:bool):
         self._rerun = value
+
+    @property
+    def rerun_initiated_by(self)->str:
+        return self._rerun_initiated_by
+
+    @rerun_initiated_by.setter
+    def rerun_initiated_by(self, value:str):
+        self._rerun_initiated_by = value
+
 
     @property
     def activity_data(self):

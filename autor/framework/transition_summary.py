@@ -31,7 +31,10 @@ class TransitionSummary:
         self._new_block_status.append(new_block_status)
 
 
-    def print(self, prefix:str = ""):
+    def print(self, prefix:str = "", print_in_activity_order:List[str] = None):
+
+        if print_in_activity_order is None:
+            print_in_activity_order = self._activity_names
 
         longest_activity_name_length = self.longest_length(self._activity_names)
         longest_activity_status_length = self.longest_length(self._activity_status)
@@ -60,13 +63,22 @@ class TransitionSummary:
         logging.info(f'{prefix}{name_title}   {status_title}   {action_title}   {activity_block_status_title}')
         logging.info(f"{prefix}{'-'*line_len}")
 
-        for i in range(len(self._activity_names)):
+        for activity in print_in_activity_order:
+            i = self._activity_names.index(activity)
             name_str = self._activity_names[i].ljust(longest_activity_name_length)
             status_str = self._activity_status[i].ljust(longest_activity_status_length)
             action_str = self._activity_action[i].ljust(longest_activity_action_length)
             curr_str = self._current_block_status[i].ljust(longest_current_block_length)
             new_str = self._new_block_status[i].ljust(longest_new_block_length)
             logging.info(f'{prefix}{name_str}   {status_str}   {action_str}   {new_str}')
+
+        # for i in range(len(self._activity_names)):
+        #     name_str = self._activity_names[i].ljust(longest_activity_name_length)
+        #     status_str = self._activity_status[i].ljust(longest_activity_status_length)
+        #     action_str = self._activity_action[i].ljust(longest_activity_action_length)
+        #     curr_str = self._current_block_status[i].ljust(longest_current_block_length)
+        #     new_str = self._new_block_status[i].ljust(longest_new_block_length)
+        #     logging.info(f'{prefix}{name_str}   {status_str}   {action_str}   {new_str}')
 
         logging.info(f"{prefix}{'-' * line_len}")
 

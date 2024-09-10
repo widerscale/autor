@@ -1,18 +1,17 @@
 {
-    "throw_ex": true,
+    "initial_context_snapshot": {},
+    "throw_ex": false,
     "mode": "ACTIVITY_BLOCK_RERUN",
     "flowConfigPath": "test_flow_configs/test-config.yml",
-    "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
-    "max": 3,
-    "__generatedFlowConfig": null,
-    "activityBlockStatus": "ERROR",
-    "activityBlockInterrupted": true,
-    "my_value": null,
-    "my_status": null,
+    "action": "RUN",
+    "status": "SUCCESS",
+    "max": 5,
+    "activityBlockStatus": "SUCCESS",
+    "activityBlockInterrupted": false,
     "_activityBlocks": {
         "flexMaxWithInput": {
-            "throw_ex": true,
+            "initial_context_snapshot": {},
+            "throw_ex": false,
             "mode": "ACTIVITY_BLOCK_RERUN",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
@@ -46,32 +45,34 @@
                     "__props": {
                         "cfg_provide__my_value": 5,
                         "inp_provide__max": 3,
-                        "inp_provide__throw_ex": true,
+                        "inp_provide__throw_ex": false,
                         "inp_default__my_status": "SUCCESS",
-                        "out_provide__status": "ERROR"
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 5
                     },
-                    "action": "RUN_REUSE_INPUT",
-                    "status": "ERROR"
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
                 },
                 "flexMaxWithInput-fourth": {
                     "__props": {
                         "cfg_provide__my_value": 4,
                         "cfg_default__throw_ex": false,
                         "cfg_default__my_status": null,
-                        "inp_provide__max": 3,
-                        "out_provide__status": "SKIPPED"
+                        "inp_provide__max": 5,
+                        "out_provide__status": "SUCCESS",
+                        "out_provide__max": 5
                     },
-                    "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "max": 5
                 }
             },
-            "action": "SKIP_BY_FRAMEWORK",
-            "status": "SKIPPED",
-            "max": 3,
-            "activityBlockStatus": "ERROR",
-            "activityBlockInterrupted": true,
-            "my_value": null,
-            "my_status": null
+            "action": "RUN",
+            "status": "SUCCESS",
+            "max": 5,
+            "activityBlockStatus": "SUCCESS",
+            "activityBlockInterrupted": false
         }
     }
 }

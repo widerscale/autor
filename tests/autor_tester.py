@@ -294,7 +294,8 @@ class AutorTester():
                 Check.is_in(expected_key, actual_activity, f"Expected to find key: {expected_key} in activity: {expected_activity_id}.\n{Util.dict_to_str(actual_activity)}")
                 actual_val = actual_activity[expected_key]
                 err_msg = (
-                    f"Expected {expected_key}={expected_val}, got {expected_key}={actual_val}." +
+                    f"Expected: {expected_key}={expected_val}"
+                    f"\nReceived: {expected_key}={actual_val}" +
                     f"\nActivity id: {expected_activity_id}" +
                     f"\n\nExpected activity context: " +
                     f"\n{Util.dict_to_str(expected_activity)}" +

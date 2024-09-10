@@ -1,3 +1,4 @@
+import logging
 from threading import Thread
 
 from autor.framework.constants import ExceptionType
@@ -21,5 +22,8 @@ class NodeRunnerThread(Thread):
         try:
             self._activity_block._run_node(self._node)
         except Exception as ex:
-            descr = "Node runner thread got an exception."
-            ExceptionHandler.register_exception(ex=ex, description=f"{descr}: {ex.message}", ex_type=ExceptionType.INTERNAL)
+            descr = f"Node runner thread caught an exception: {str(ex)}"
+            ExceptionHandler.register_exception(ex=ex, description=descr, ex_type=ExceptionType.INTERNAL)
+            self._activity_block.abort_autor(descr)
+        finally:
+            self._monitor.node_finished(self._node)

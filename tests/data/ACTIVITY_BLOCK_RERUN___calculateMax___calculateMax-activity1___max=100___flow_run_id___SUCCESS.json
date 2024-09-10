@@ -1,69 +1,68 @@
 {
+    "initial_context_snapshot": {},
+    "max": 100,
     "mode": "ACTIVITY_BLOCK_RERUN",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "RUN",
     "status": "SUCCESS",
-    "max": 5,
-    "__generatedFlowConfig": null,
     "activityBlockStatus": "SUCCESS",
     "activityBlockInterrupted": false,
-    "val": null,
     "_activityBlocks": {
         "calculateMax": {
+            "initial_context_snapshot": {},
+            "max": 100,
             "mode": "ACTIVITY_BLOCK_RERUN",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "calculateMax-activity1": {
                     "__props": {
                         "cfg_provide__val": 3,
-                        "inp_default__max": 0,
+                        "inp_provide__max": 100,
                         "out_provide__status": "SUCCESS",
-                        "out_provide__max": 3
+                        "out_provide__max": 100
                     },
-                    "action": "REUSE",
+                    "action": "RUN",
                     "status": "SUCCESS",
-                    "max": 3
+                    "max": 100
                 },
                 "calculateMax-activity2": {
                     "__props": {
                         "cfg_provide__val": 1,
-                        "inp_provide__max": 3,
+                        "inp_provide__max": 100,
                         "out_provide__status": "SUCCESS",
-                        "out_provide__max": 3
+                        "out_provide__max": 100
                     },
-                    "action": "REUSE",
+                    "action": "RUN",
                     "status": "SUCCESS",
-                    "max": 3
+                    "max": 100
                 },
                 "calculateMax-activity3": {
                     "__props": {
                         "cfg_provide__val": 5,
-                        "inp_provide__max": 3,
+                        "inp_provide__max": 100,
                         "out_provide__status": "SUCCESS",
-                        "out_provide__max": 5
+                        "out_provide__max": 100
                     },
-                    "action": "REUSE",
+                    "action": "RUN",
                     "status": "SUCCESS",
-                    "max": 5
+                    "max": 100
                 },
                 "calculateMax-activity4": {
                     "__props": {
                         "cfg_provide__val": 4,
-                        "inp_provide__max": 5,
+                        "inp_provide__max": 100,
                         "out_provide__status": "SUCCESS",
-                        "out_provide__max": 5
+                        "out_provide__max": 100
                     },
                     "action": "RUN",
                     "status": "SUCCESS",
-                    "max": 5
+                    "max": 100
                 }
             },
             "action": "RUN",
             "status": "SUCCESS",
-            "max": 5,
             "activityBlockStatus": "SUCCESS",
-            "activityBlockInterrupted": false,
-            "val": null
+            "activityBlockInterrupted": false
         }
     }
 }

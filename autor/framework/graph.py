@@ -97,7 +97,7 @@ class ActivityBlockGraph:
 
 
     def _add_node(self, node:Node):
-
+        #logging.warning(f"Adding node: {node.activity_id} with rerun: {node.rerun}")
         self._nodes[node.activity_id] = node
 
         group:str = node.activity_config.concurrency_group
@@ -132,28 +132,47 @@ class ActivityBlockGraph:
                 #else:
         # If the track already exists -> add the node to the end of the track
         if track in self._tracks_last_node:
+            #logging.warning(f"222 Adding node: {node.activity_id} with rerun: {node.rerun}")
             prev_node:Node = self._tracks_last_node[track]
             prev_node.add_child(node)
             node.add_parent(prev_node)
             self._tracks_last_node[track] = node # node becomes the last node
 
             # Nodes can inherit the need to re-run from their parents.
-            # But the parent cannot remove the childs need to rerun.
+            # But the parent cannot remove the child's need to rerun.
             if prev_node.rerun:
+                if node.rerun:
+                    logging.warning(f"(*)Activity: {node.activity_id} explicitly requested to re-run, "
+                                    f"while the re-run of this activity is already activated by "
+                                    f"one of the previous activities.")
                 node.rerun = True
 
 
 
         # New track. Group parents become the node parents.
         else:
+            #logging.warning(f"333 Adding node: {node.activity_id} with rerun: {node.rerun}")
+            at_lest_one_parent_reruns = False
             for parent in self._group_parents:
+                #logging.warning(f"1 node: {node.activity_id} rerun: {node.rerun}, parent: {parent.activity_id} rerun: {parent.rerun}")
                 parent.add_child(node)
+                #logging.warning(f"2 node: {node.activity_id} rerun: {node.rerun}, parent: {parent.activity_id} rerun: {parent.rerun}")
                 node.add_parent(parent)
+                #logging.warning(f"3 node: {node.activity_id} rerun: {node.rerun}, parent: {parent.activity_id} rerun: {parent.rerun}")
 
                 # Nodes can inherit the need to re-run from their parents.
-                # But the parent cannot remove the childs need to rerun.
+                # But the parent cannot remove the child's need to rerun.
                 if parent.rerun:
-                    node.rerun = parent.rerun
+                    at_lest_one_parent_reruns = True
+                    if node.rerun:
+                        #logging.warning(f"3332 Adding node: {node.activity_id} with rerun: {node.rerun}, parent {parent.activity_id} with rerun: {parent.rerun}")
+
+                        logging.warning(f"(**)Activity: {node.activity_id} explicitly requested to re-run, "
+                                        f"while the re-run of this activity is already activated by "
+                                        f"one of the previous activities.")
+
+            if not node.rerun:
+                node.rerun = at_lest_one_parent_reruns
 
             self._tracks_last_node[track] = node
             if self._is_first_group:
@@ -194,6 +213,7 @@ class ActivityBlockGraph:
     def initiate(self, activity_block_config:ActivityBlockConfiguration,rerun_activity_ids:List=[]):
         self._prepare_config(activity_block_config)
 
+        #logging.warning(f"rerun activity list: {','.join(rerun_activity_ids)}")
 
         # --------------------- BEFORE-BLOCK ----------------------------#
         for act_conf_before_block in self._activity_block_configs_before_block:
@@ -248,6 +268,7 @@ class ActivityBlockGraph:
             activity_id = self._activity_block_id + "-" + main_name
             rerun = activity_id in rerun_activity_ids
             ma_node = Node(activity_id, ActivityGroupType.MAIN_ACTIVITY, act_conf_main, rerun)
+            #logging.warning(f"Adding node: {activity_id} with rerun: {rerun}")
             self._add_node(ma_node)
             self._next_main_index = self._next_main_index + 1
 

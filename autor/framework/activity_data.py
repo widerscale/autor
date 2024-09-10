@@ -52,6 +52,9 @@ class ActivityData:
         self.output_context:Context = None # To write output props to (Activity level)
         #self.output_context_properties_handler:ContextPropertiesHandler = None
 
+        self.rerun_context_dict:dict = None # Context dictionary from the previous run.
+        self.rerun_previous_activity_id:str = None
+
 
         self.inputs: dict = None # Set when activity is created
         self.configs: dict = None # Set when activity is created

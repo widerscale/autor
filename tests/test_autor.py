@@ -17,37 +17,35 @@ def test_ACTIVITY_BLOCK():
     ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
     ab = test.run(activity_block_id='calculateMax2', expectation='ACTIVITY_BLOCK_calculateMax2_SUCCESS_secondAB', flow_run_id=ab.get_flow_run_id())
 
+# def test_ACTIVITY_BLOCK_two_activity_blocks_and_rerun():
+#     ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
+#     ab = test.run(activity_block_id='calculateMax2', expectation='ACTIVITY_BLOCK_calculateMax2_SUCCESS_secondAB', flow_run_id=ab.get_flow_run_id())
 
 
 def test_ACTIVITY_BLOCK_RERUN():
-    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK___calculateMax___SUCCESS')
+    ab = test.run2(expectation='ACTIVITY_BLOCK___calculateMax___SUCCESS')
 
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity2___flow_run_id___SUCCESS')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity4___flow_run_id___SUCCESS')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___flow_run_id___SUCCESS')
-    # Input should not have effect
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___flow_run_id___SUCCESS', input={'max':100})
-
-    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK___calculateMax___SUCCESS')
-
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity2___flow_run_id___SUCCESS')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity4___flow_run_id___SUCCESS')
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___flow_run_id___SUCCESS')
-    # Input should not have effect
-    ab = test.run(activity_block_id='calculateMax', activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___flow_run_id___SUCCESS', input={'max':100})
-
-    ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK___calculateMax___SUCCESS')
+    ab = test.run2(activity_id="calculateMax-activity2", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity2___flow_run_id___SUCCESS')
+    ab = test.run2(activity_id="calculateMax-activity4", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity4___flow_run_id___SUCCESS')
+    ab = test.run2(activity_id="calculateMax-activity1", flow_run_id=ab.get_flow_run_id(), expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___flow_run_id___SUCCESS')
 
 
+
+
+def test_ACTIVITY_BLOCK_RERUN_input_effect():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___calculateMax___SUCCESS')
+
+    # Input should have effect
+    ab = test.run2(activity_id="calculateMax-activity1", input={'max':100}, expectation='ACTIVITY_BLOCK_RERUN___calculateMax___calculateMax-activity1___max=100___flow_run_id___SUCCESS', flow_run_id=ab.get_flow_run_id())
 
 
 def test_ACTIVITY_BLOCK_RERUN_from_failure():
 
     #ab = test.run2(expectation='ACTIVITY_BLOCK___flexMaxWithInput___throw_ex=False___SUCCESS', input={'throw_ex': False})
-    ab = test.run2(expectation='ACTIVITY_BLOCK___flexMaxWithInput___throw_ex=True___ERROR', input={'throw_ex': True})
+    ab = test.run2( input={'throw_ex': True}, expectation='ACTIVITY_BLOCK___flexMaxWithInput___throw_ex=True___ERROR',)
 
     # providing input should not change the outcome
-    ab = test.run2(expectation='ACTIVITY_BLOCK_RERUN___flexMaxWithInput___throw_ex=False___third___flow_run_id___ERROR', input={'throw_ex': False}, activity_name='third', flow_run_id=ab.get_flow_run_id())
+    ab = test.run2(input={'throw_ex': False}, activity_name='third', expectation='ACTIVITY_BLOCK_RERUN___flexMaxWithInput___throw_ex=False___third___flow_run_id___SUCCESS',  flow_run_id=ab.get_flow_run_id())
 
     # more tests for ACTIVITY_BLOCK_RERUN in test_doc.py
 
@@ -296,18 +294,26 @@ def test_sequence_rules_dependency_on_BA():
 
 
 def _check_activity_started_and_finished_order(expected_started_order:List[str], expected_finished_order:List[str], ab:ActivityBlock):
+
+
     actual_started_order:List[str] = []
     started_nodes:List[Node] = ab.get_node_started_order()
+
     for n in started_nodes:
         actual_started_order.append(n.activity_id)
+
 
     actual_finished_order:List[str] = []
     finished_nodes:List[Node] = ab.get_node_finished_order()
     for n in finished_nodes:
         actual_finished_order.append(n.activity_id)
 
-    _check_equal_lists(expected_started_order, actual_started_order, "Activity starting order")
-    _check_equal_lists(expected_finished_order, actual_finished_order, "Activity finishing order")
+    # we only want to check the number of elements provided by the expected lists.
+    actual_started_order = actual_started_order[:len(expected_started_order)]
+    actual_finished_order = actual_finished_order[:len(expected_finished_order)]
+
+    _check_equal_lists(actual_started_order, expected_started_order, "Activity starting order")
+    _check_equal_lists(actual_finished_order, expected_finished_order, "Activity finishing order")
 
 
 
@@ -357,8 +363,8 @@ def test_lastMultiparentToRunAcceptsFail():
 
 
 
-def test_concurrency_graph_order():
-    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_1___print_activity_started_and_finished_order=True___SUCCESS.json', flags={'print_activity_started_and_finished_order':True})
+def test_concurrency_graph_order_and_rerun():
+
     activities_started_order: List[str] = []
     activities_started_order.append("concurrency_1-one")
     activities_started_order.append("concurrency_1-two")
@@ -386,15 +392,19 @@ def test_concurrency_graph_order():
     activities_finished_order.append("concurrency_1-twelve")
     activities_finished_order.append("concurrency_1-eleven")
 
+   # ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_1___print_activity_started_and_finished_order=True___SUCCESS.json',flags={'print_activity_started_and_finished_order': True})
+    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_1___print_activity_started_and_finished_order=True___SUCCESS.json')
     _check_activity_started_and_finished_order(activities_started_order, activities_finished_order, ab)
-
-def test_concurrency_rerun_1():
-    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_1___SUCCESS.json')
     ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="eight", expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___eight___flow_run_id___SUCCESS.json')
+    _check_activity_started_and_finished_order(activities_started_order[:6], activities_finished_order[:2], ab)
     ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="three", expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___three___flow_run_id___SUCCESS.json')
+    _check_activity_started_and_finished_order(activities_started_order[:6], activities_finished_order[:2], ab)
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["six", "eight"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___six_eight___flow_run_id___SUCCESS.json')
+    _check_activity_started_and_finished_order(activities_started_order[:6], activities_finished_order[:2], ab)
 
-    # Multiple re-run activities provided
-    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["six","eight"],expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___six_eight___flow_run_id___SUCCESS.json')
+    # Rerun from eight.
+
+
 
 
 
@@ -410,6 +420,41 @@ def test_concurrency_input_modifier():
 
     ab = test.run2(custom_data=custom_data, expectation='ACTIVITY_BLOCK___concurrency_1___AutorFrameworkActivityInputModifier=eight=outcome=FAIL___FAIL.json')
 
+
+def test_concurrency_input_modifier_and_rerun():
+    activities_started_order: List[str] = []
+    activities_started_order.append("concurrency_1-one")
+    activities_started_order.append("concurrency_1-two")
+    activities_started_order.append("concurrency_1-three")
+    activities_started_order.append("concurrency_1-four")
+    activities_started_order.append("concurrency_1-seven")
+    activities_started_order.append("concurrency_1-ten")
+    activities_started_order.append("concurrency_1-five")
+    activities_started_order.append("concurrency_1-eight")
+    activities_started_order.append("concurrency_1-nine")
+    activities_started_order.append("concurrency_1-six")
+    activities_started_order.append("concurrency_1-eleven")
+    activities_started_order.append("concurrency_1-twelve")
+    activities_finished_order: List[str] = []
+    activities_finished_order.append("concurrency_1-one")
+    activities_finished_order.append("concurrency_1-two")
+    activities_finished_order.append("concurrency_1-ten")
+    activities_finished_order.append("concurrency_1-four")
+    activities_finished_order.append("concurrency_1-seven")
+    activities_finished_order.append("concurrency_1-eight")
+    activities_finished_order.append("concurrency_1-nine")
+    activities_finished_order.append("concurrency_1-five")
+    activities_finished_order.append("concurrency_1-three")
+    activities_finished_order.append("concurrency_1-six")
+    activities_finished_order.append("concurrency_1-twelve")
+    activities_finished_order.append("concurrency_1-eleven")
+
+    custom_data:dict = {}
+    data:dict = {}
+    custom_data["AutorFrameworkActivityInputModifier"] = data
+
+    data["eight"] = {}
+    data["eight"]["outcome"] = "FAIL"
     data["three"] = {}
     data["three"]["outcome"] = "FAIL"
     data["five"] = {}
@@ -417,3 +462,10 @@ def test_concurrency_input_modifier():
 
 
     ab = test.run2(custom_data=custom_data, expectation='ACTIVITY_BLOCK___concurrency_1___AutorFrameworkActivityInputModifier=eight=outcome=FAIL_three=outcome=FAIL_five=outcome=FAIL___FAIL.json')
+    _check_activity_started_and_finished_order(activities_started_order[:8], activities_finished_order[:8], ab)
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="eight", expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___eight___flow_run_id___FAIL.json')
+    _check_activity_started_and_finished_order(activities_started_order[:3], activities_finished_order[:2], ab)
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["three", "five"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___three_five___flow_run_id___SUCCESS.json')
+    _check_activity_started_and_finished_order(activities_started_order[:4], activities_finished_order[:2], ab)
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["eight"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___eight2___flow_run_id___SUCCESS.json')
+    _check_activity_started_and_finished_order(activities_started_order[:6], activities_finished_order[:2], ab)

@@ -35,7 +35,6 @@ class DebugConfig():
     print_uninitiated_inputs = False # Lists also uninitiated inputs in various inputs prints.
 
 
-
     create_skip_with_output_flow_config = False
     save_activity_block_context_locally = True # Creates files in context/ directory. These can be used for creating test cases.
 

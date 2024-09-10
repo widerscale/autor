@@ -11,7 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+import copy
 import logging
 from typing import Type
 
@@ -79,6 +79,10 @@ class Context:
     @staticmethod
     def get_context_dict() -> dict:
         return Context._local_context
+
+    @staticmethod
+    def get_context_dict_copy() -> dict:
+        return copy.deepcopy(Context._local_context)
 
     @staticmethod
     def print_context(message="") -> None:
