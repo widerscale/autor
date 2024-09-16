@@ -869,37 +869,33 @@ activityBlocks:
           name: BA1
           runOn:
             activityStatus: {} # All previous activity statuses are ok.
-            activityBlockStatus:
-              - ALL
+            activityBlockStatus: [] # Any activity block status is ok.
+
 
         - type: empty
           name: BA2
           runOn:
             activityStatus: {} # All previous activity statuses are ok.
-            activityBlockStatus:
-              - ALL
+            activityBlockStatus: [] # Any activity block status is ok.
 
     activities: # main activities
       - type: empty
         name: MA1
         runOn:
           activityStatus: {} # All previous activity statuses are ok.
-          activityBlockStatus:
-            - ALL
+          activityBlockStatus: [] # Any activity block status is ok.
 
       - type: empty
         name: MA2
         runOn:
           activityStatus: {} # All previous activity statuses are ok.
-          activityBlockStatus:
-            - ALL
+          activityBlockStatus: [] # Any activity block status is ok.
 
       - type: empty
         name: MA3
         runOn:
           activityStatus: {} # All previous activity statuses are ok.
-          activityBlockStatus:
-            - ALL
+          activityBlockStatus: [] # Any activity block status is ok.
 
 
     afterActivity:
@@ -908,19 +904,15 @@ activityBlocks:
           name: AA1
           runOn:
             activityStatus: {} # All previous activity statuses are ok.
-            mainActivityStatus:
-              - ALL
-            activityBlockStatus:
-              - ALL
+            mainActivityStatus: []
+            activityBlockStatus: [] # Any activity block status is ok.
 
         - type: empty
           name: AA2
           runOn:
             activityStatus: {} # All previous activity statuses are ok.
-            mainActivityStatus:
-              - ALL
-            activityBlockStatus:
-              - ALL
+            mainActivityStatus: []
+            activityBlockStatus: [] # Any activity block status is ok.
 
 
     afterBlock:
@@ -929,15 +921,13 @@ activityBlocks:
           name: AB1
           runOn:
             activityStatus: {} # All previous activity statuses are ok.
-            activityBlockStatus:
-              - ALL
+            activityBlockStatus: [] # Any activity block status is ok.
 
         - type: empty
           name: AB2
           runOn:
             activityStatus: {} # All previous activity statuses are ok.
-            activityBlockStatus:
-              - ALL
+            activityBlockStatus: [] # Any activity block status is ok.
 
 
 

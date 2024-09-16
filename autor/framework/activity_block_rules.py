@@ -117,34 +117,34 @@ class ActivityBlockRules:
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_BLOCK] = d
-    d[cfg.ACTIVITY_STATUS]       = {} # Always True
+    d[cfg.ACTIVITY_STATUS]       = {} # No restrictions.
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
-    d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
+    d[cfg.ACTIVITY_BLOCK_STATUS] = []
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {}  # No restrictions.
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as the main activity has not run yet
-    d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
+    d[cfg.ACTIVITY_BLOCK_STATUS] = [] # No restrictions
 
     d = {}
     DEFAULT_RUN_ON[agt.MAIN_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {} # No restrictions.
     #d[cfg.ACTIVITY_STATUS]       = {Configuration.ANCESTOR: [Status.SUCCESS]}
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to another main activity
-    d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
+    d[cfg.ACTIVITY_BLOCK_STATUS] = [] # No restrictions
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {}  # Always True
-    d[cfg.MAIN_ACTIVITY_STATUS]  = [Status.ALL]
-    d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
+    d[cfg.ACTIVITY_STATUS]       = {} # No restrictions.
+    d[cfg.MAIN_ACTIVITY_STATUS]  = [] # No restrictions
+    d[cfg.ACTIVITY_BLOCK_STATUS] = [] # No restrictions
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_BLOCK] = d
-    d[cfg.ACTIVITY_STATUS]       = {}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {} # No restrictions.
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
-    d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
+    d[cfg.ACTIVITY_BLOCK_STATUS] = [] # No restrictions
 
     _rerun_activated = False # static attribute used for mode ACTIVITY_BLOCK_RERUN
     _special_activity_detected = False # static attribute used for mode ACTIVITY_IN_BLOCK
@@ -452,7 +452,7 @@ class ActivityBlockRules:
         # Configuration allowed and provided -> check the format
         else:
             # Must not be an empty list
-            assert len(original) > 0
+           # assert len(original) > 0
 
             # Check that the values are valid statuses
             for val in original:
@@ -462,16 +462,21 @@ class ActivityBlockRules:
 
     def _run_on_activity_block_status(self, statuses, data):
         if statuses is None:  # None means that no configuration is expected.
-            self._print("runOn.activityBlockStatus: None ---> True")
+            self._print("runOn.activityBlockStatus: None ---> True (no configuration expected)")
             return True
 
-        Check.not_empty_list(
-            statuses,
-            (
-                "Empty list is not a valid value for runOn.activityBlockStatus."
-                + " Add at least one element or remove from the configuration."
-            ),
-        )
+        if len(statuses) == 0:
+            self._print("runOn.activityBlockStatus: [] ---> True (no restrictions)")
+            return True
+
+
+        # Check.not_empty_list(
+        #     statuses,
+        #     (
+        #         "Empty list is not a valid value for runOn.activityBlockStatus."
+        #         + " Add at least one element or remove from the configuration."
+        #     ),
+        # )
         run = (data.activity_block_status in statuses) or (Status.ALL in statuses)
 
         self._print("runOn.activityBlockStatus --->" + str(run))
@@ -479,16 +484,20 @@ class ActivityBlockRules:
 
     def _run_on_main_activity_status(self, statuses, data):
         if statuses is None:  # None means that no configuration is expected.
-            self._print("runOn.mainActivityStatus: None ---> True")
+            self._print("runOn.mainActivityStatus: None ---> True (no configuration expected)")
             return True
 
-        Check.not_empty_list(
-            statuses,
-            (
-                "Empty list is not a valid value for runOn.mainActivityStatus."
-                + " Add at least one element or remove from the configuration."
-            ),
-        )
+        if len(statuses) == 0: # No restrictions
+            self._print("runOn.mainActivityStatus: [] ---> True (no restrictions")
+            return True
+
+        # Check.not_empty_list(
+        #     statuses,
+        #     (
+        #         "Empty list is not a valid value for runOn.mainActivityStatus."
+        #         + " Add at least one element or remove from the configuration."
+        #     ),
+        # )
         Check.not_empty_list(
             data.main_activities,
             "runOn.mainActivityStatus cannot be applied, as no main activity has previously run.",
