@@ -730,6 +730,121 @@ activityBlocks:
 
 
 
+#
+#
+## -------------------------- Defaults --------------------------------#
+#  sequenceRulesDefaults:
+#    beforeBlock:
+#      activities: # activities in this list are run before running the main activity block
+#        - type: empty
+#          name: BB1
+#          runOn: # As this is the first activity in AB, the runOn condition will be ignored.
+#            activityStatus:
+#              _any:
+#                - ALL
+#
+#        - type: empty
+#          name: BB2
+#          runOn:
+#            activityStatus:
+#              _any: # All previous activity statuses are ok.
+#                - ALL
+#
+#
+#    beforeActivity:
+#      activities: # activities in this list are run before EACH main activity
+#        - type: empty
+#          name: BA1
+#          runOn:
+#            activityStatus:
+#              _any: # All previous activity statuses are ok.
+#                - ALL
+#            activityBlockStatus:
+#              - ALL
+#
+#        - type: empty
+#          name: BA2
+#          runOn:
+#            activityStatus:
+#              _any: # All previous activity statuses are ok.
+#                - ALL
+#            activityBlockStatus:
+#              - ALL
+#
+#    activities: # main activities
+#      - type: empty
+#        name: MA1
+#        runOn:
+#          activityStatus:
+#            _any: # All previous activity statuses are ok.
+#              - ALL
+#          activityBlockStatus:
+#            - ALL
+#
+#      - type: empty
+#        name: MA2
+#        runOn:
+#          activityStatus:
+#            _any: # All previous activity statuses are ok.
+#              - ALL
+#          activityBlockStatus:
+#            - ALL
+#
+#      - type: empty
+#        name: MA3
+#        runOn:
+#          activityStatus:
+#            _any: # All previous activity statuses are ok.
+#              - ALL
+#          activityBlockStatus:
+#            - ALL
+#
+#
+#    afterActivity:
+#      activities: # activities in this list are run after EACH main activity
+#        - type: empty
+#          name: AA1
+#          runOn:
+#            activityStatus:
+#              _any: # All previous activity statuses are ok.
+#                - ALL
+#            mainActivityStatus:
+#              - ALL
+#            activityBlockStatus:
+#              - ALL
+#
+#        - type: empty
+#          name: AA2
+#          runOn:
+#            activityStatus:
+#              _any: # All previous activity statuses are ok.
+#                - ALL
+#            mainActivityStatus:
+#              - ALL
+#            activityBlockStatus:
+#              - ALL
+#
+#
+#    afterBlock:
+#      activities: # activities in this list are run after the main block has run
+#        - type: empty
+#          name: AB1
+#          runOn:
+#            activityStatus:
+#              _any: # All previous activity statuses are ok.
+#                - ALL
+#            activityBlockStatus:
+#              - ALL
+#
+#        - type: empty
+#          name: AB2
+#          runOn:
+#            activityStatus:
+#              _any: # All previous activity statuses are ok.
+#                - ALL
+#            activityBlockStatus:
+#              - ALL
+
 
 
 # -------------------------- Defaults --------------------------------#
@@ -739,16 +854,13 @@ activityBlocks:
         - type: empty
           name: BB1
           runOn: # As this is the first activity in AB, the runOn condition will be ignored.
-            activityStatus:
-              _any:
-                - ALL
+            activityStatus: {} # All previous activity statuses are ok.
+
 
         - type: empty
           name: BB2
           runOn:
-            activityStatus:
-              _any: # All previous activity statuses are ok.
-                - ALL
+            activityStatus: {} # All previous activity statuses are ok.
 
 
     beforeActivity:
@@ -756,18 +868,14 @@ activityBlocks:
         - type: empty
           name: BA1
           runOn:
-            activityStatus:
-              _any: # All previous activity statuses are ok.
-                - ALL
+            activityStatus: {} # All previous activity statuses are ok.
             activityBlockStatus:
               - ALL
 
         - type: empty
           name: BA2
           runOn:
-            activityStatus:
-              _any: # All previous activity statuses are ok.
-                - ALL
+            activityStatus: {} # All previous activity statuses are ok.
             activityBlockStatus:
               - ALL
 
@@ -775,27 +883,21 @@ activityBlocks:
       - type: empty
         name: MA1
         runOn:
-          activityStatus:
-            _any: # All previous activity statuses are ok.
-              - ALL
+          activityStatus: {} # All previous activity statuses are ok.
           activityBlockStatus:
             - ALL
 
       - type: empty
         name: MA2
         runOn:
-          activityStatus:
-            _any: # All previous activity statuses are ok.
-              - ALL
+          activityStatus: {} # All previous activity statuses are ok.
           activityBlockStatus:
             - ALL
 
       - type: empty
         name: MA3
         runOn:
-          activityStatus:
-            _any: # All previous activity statuses are ok.
-              - ALL
+          activityStatus: {} # All previous activity statuses are ok.
           activityBlockStatus:
             - ALL
 
@@ -805,9 +907,7 @@ activityBlocks:
         - type: empty
           name: AA1
           runOn:
-            activityStatus:
-              _any: # All previous activity statuses are ok.
-                - ALL
+            activityStatus: {} # All previous activity statuses are ok.
             mainActivityStatus:
               - ALL
             activityBlockStatus:
@@ -816,9 +916,7 @@ activityBlocks:
         - type: empty
           name: AA2
           runOn:
-            activityStatus:
-              _any: # All previous activity statuses are ok.
-                - ALL
+            activityStatus: {} # All previous activity statuses are ok.
             mainActivityStatus:
               - ALL
             activityBlockStatus:
@@ -830,18 +928,14 @@ activityBlocks:
         - type: empty
           name: AB1
           runOn:
-            activityStatus:
-              _any: # All previous activity statuses are ok.
-                - ALL
+            activityStatus: {} # All previous activity statuses are ok.
             activityBlockStatus:
               - ALL
 
         - type: empty
           name: AB2
           runOn:
-            activityStatus:
-              _any: # All previous activity statuses are ok.
-                - ALL
+            activityStatus: {} # All previous activity statuses are ok.
             activityBlockStatus:
               - ALL
 

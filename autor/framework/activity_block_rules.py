@@ -117,32 +117,32 @@ class ActivityBlockRules:
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_BLOCK] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE: [Status.ALL]} # Always True
+    d[cfg.ACTIVITY_STATUS]       = {} # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE:[Status.ALL]}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as the main activity has not run yet
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.MAIN_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE: [Status.ALL]}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {}  # Always True
     #d[cfg.ACTIVITY_STATUS]       = {Configuration.ANCESTOR: [Status.SUCCESS]}
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to another main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE: [Status.ALL]}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = [Status.ALL]
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_BLOCK] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE: [Status.ALL]}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
@@ -408,7 +408,7 @@ class ActivityBlockRules:
                 # print("ORIGINAL: " + str(original))
 
                 items = original.items()
-                assert len(items) > 0
+                # assert len(items) > 0 # Commented out as now no items == no restrictions
 
                 # Loop through the elements in runOn.activityStatus and
                 # check that they are not empty and that they are lists
@@ -511,7 +511,11 @@ class ActivityBlockRules:
     def _run_on_activity_status(self, config, data, ignore_unrun):
 
         if config is None:  # None means that no configuration is expected.
-            self._print("runOn.activityStatus: None ---> True")
+            self._print("runOn.activityStatus: None ---> True (configuration not expected)")
+            return True
+
+        if len(config.keys()) == 0: # Empty means that no restrictions exist.
+            self._print("runOn.activityStatus: {} ---> True (no restrictions)")
             return True
 
         run = True
@@ -526,12 +530,12 @@ class ActivityBlockRules:
             self._print("runOn.activityStatus." + activity_name + ": " + str(statuses))
             Check.not_none(statuses, "runOn.activityStatus." + activity_name)
 
-            # ------------------- NO CONSTRAINTS --------------------#
-            if activity_name == Configuration.NONE:
-                self._print(activity_name + " -> condition: True")
+            # # ------------------- NO CONSTRAINTS --------------------#
+            # if activity_name == Configuration.NONE:
+            #     self._print(activity_name + " -> condition: True")
 
             #---------------------- ANCESTORS -----------------------#
-            elif activity_name == Configuration.ANCESTOR:
+            if activity_name == Configuration.ANCESTOR:
                 ancestor_nodes:dict[Node] = data.activity_node.ancestors
                 for activity_id, node in ancestor_nodes.items():
                     activity = node.activity
