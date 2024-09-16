@@ -130,7 +130,7 @@ class ActivityBlockRules:
     d = {}
     DEFAULT_RUN_ON[agt.MAIN_ACTIVITY] = d
     d[cfg.ACTIVITY_STATUS]       = {} # No restrictions.
-    #d[cfg.ACTIVITY_STATUS]       = {Configuration.ANCESTOR: [Status.SUCCESS]}
+        #d[cfg.ACTIVITY_STATUS]       = {Configuration.ANCESTOR: [Status.SUCCESS]}
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to another main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [] # No restrictions
 
@@ -145,6 +145,9 @@ class ActivityBlockRules:
     d[cfg.ACTIVITY_STATUS]       = {} # No restrictions.
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [] # No restrictions
+
+
+
 
     _rerun_activated = False # static attribute used for mode ACTIVITY_BLOCK_RERUN
     _special_activity_detected = False # static attribute used for mode ACTIVITY_IN_BLOCK
