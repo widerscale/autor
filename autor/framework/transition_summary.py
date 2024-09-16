@@ -64,13 +64,14 @@ class TransitionSummary:
         logging.info(f"{prefix}{'-'*line_len}")
 
         for activity in print_in_activity_order:
-            i = self._activity_names.index(activity)
-            name_str = self._activity_names[i].ljust(longest_activity_name_length)
-            status_str = self._activity_status[i].ljust(longest_activity_status_length)
-            action_str = self._activity_action[i].ljust(longest_activity_action_length)
-            curr_str = self._current_block_status[i].ljust(longest_current_block_length)
-            new_str = self._new_block_status[i].ljust(longest_new_block_length)
-            logging.info(f'{prefix}{name_str}   {status_str}   {action_str}   {new_str}')
+            if activity in self._activity_names:
+                i = self._activity_names.index(activity)
+                name_str = self._activity_names[i].ljust(longest_activity_name_length)
+                status_str = self._activity_status[i].ljust(longest_activity_status_length)
+                action_str = self._activity_action[i].ljust(longest_activity_action_length)
+                curr_str = self._current_block_status[i].ljust(longest_current_block_length)
+                new_str = self._new_block_status[i].ljust(longest_new_block_length)
+                logging.info(f'{prefix}{name_str}   {status_str}   {action_str}   {new_str}')
 
         # for i in range(len(self._activity_names)):
         #     name_str = self._activity_names[i].ljust(longest_activity_name_length)

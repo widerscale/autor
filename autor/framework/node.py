@@ -28,6 +28,7 @@ class Node:
         self._rerun_initiated_by:str = None # Activity id of the node that has initiated the re-run of this node.
         self._children:List[Node] = []
         self._parents:List[Node] = []
+        self._ancestors_by_activity_id:dict = {}
         self._status:NodeStatus = NodeStatus.BLOCKED
         self._main_activity_node = None # Used for before-activities. Needed for rules.
         self._before_activity_nodes:List = [] # Used for main and after-activities. Needed for rules.
@@ -62,6 +63,10 @@ class Node:
     @status.setter
     def status(self, value:NodeStatus):
         self._status = value
+
+    @property
+    def ancestors(self) -> dict:
+        return self._ancestors_by_activity_id
 
     @property
     def main_activity_node(self):
@@ -144,6 +149,7 @@ class Node:
         self._children.append(node)
 
     def add_parent(self, node):
+        self._ancestors_by_activity_id[node.activity_id] = node
         self._parents.append(node)
 
 

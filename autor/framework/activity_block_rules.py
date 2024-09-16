@@ -100,34 +100,49 @@ class ActivityBlockRules:
 
     DEFAULT_RUN_ON = {}
 
+    # ACTIVITY_STATUS - define what activities the current activity has constraints on
+
+
+    # No constraints or not applicable.
+    # d[cfg.ACTIVITY_STATUS] = None
+
+    # All activities that have run must have status SUCCESS or SKIPPED.
+    # d[cfg.ACTIVITY_STATUS] = {Configuration.ALL: [Status.SUCCESS, Status.SKIPPED]}
+
+    # All ancestor activities that have run must have status SUCCESS or SKIPPED.
+    # Note that before/after activities are not considered to be ancestors.
+    # d[cfg.ACTIVITY_STATUS] = {Configuration.ANCESTOR: [Status.SUCCESS, Status.SKIPPED]}
+
+
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_BLOCK] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]} # Always True
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE: [Status.ALL]} # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.BEFORE_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY:[Status.ALL]}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE:[Status.ALL]}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as the main activity has not run yet
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.MAIN_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE: [Status.ALL]}  # Always True
+    #d[cfg.ACTIVITY_STATUS]       = {Configuration.ANCESTOR: [Status.SUCCESS]}
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to another main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_ACTIVITY] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE: [Status.ALL]}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = [Status.ALL]
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
     d = {}
     DEFAULT_RUN_ON[agt.AFTER_BLOCK] = d
-    d[cfg.ACTIVITY_STATUS]       = {Configuration.ANY: [Status.ALL]}  # Always True
+    d[cfg.ACTIVITY_STATUS]       = {Configuration.NONE: [Status.ALL]}  # Always True
     d[cfg.MAIN_ACTIVITY_STATUS]  = None # Not applicable, as it is not bound to a main activity
     d[cfg.ACTIVITY_BLOCK_STATUS] = [Status.ALL]
 
@@ -328,9 +343,11 @@ class ActivityBlockRules:
         run_on_activity_status = self._run_on_activity_status(
             run_on_config[cfg.ACTIVITY_STATUS], data, ignore_unrun
         )  # Returns True if cfg is None
+
         run_on_main_activity_status = self._run_on_main_activity_status(
             run_on_config[cfg.MAIN_ACTIVITY_STATUS], data
         )  # Returns True if cfg is None
+
         run_on_activity_block_status = self._run_on_activity_block_status(
             run_on_config[cfg.ACTIVITY_BLOCK_STATUS], data
         )  # Returns True if cfg is None
@@ -509,8 +526,34 @@ class ActivityBlockRules:
             self._print("runOn.activityStatus." + activity_name + ": " + str(statuses))
             Check.not_none(statuses, "runOn.activityStatus." + activity_name)
 
-            if activity_name == Configuration.ANY:
+            # ------------------- NO CONSTRAINTS --------------------#
+            if activity_name == Configuration.NONE:
                 self._print(activity_name + " -> condition: True")
+
+            #---------------------- ANCESTORS -----------------------#
+            elif activity_name == Configuration.ANCESTOR:
+                ancestor_nodes:dict[Node] = data.activity_node.ancestors
+                for activity_id, node in ancestor_nodes.items():
+                    activity = node.activity
+                    if activity is not None:
+                        Check.not_empty_list(
+                            statuses,
+                            "Empty list is not a valid value for runOn.activityStatus."
+                            + activity_name
+                            + "="
+                            + str(statuses)
+                            + ".  Add at least one element or remove from the configuration.",
+                        )
+                        run = run and ((activity.status in statuses) or (Status.ALL in statuses))
+                        self._print(
+                            activity_id
+                            + ".status = "
+                            + str(activity.status)
+                            + " -> condition: "
+                            + str(run)
+                        )
+
+            #--------------- SPECIFIED ACTIVITIES -----------------#
             else:
                 activity = self._get_activity_by_name(activity_name, data)  # Returns None, if not found
 

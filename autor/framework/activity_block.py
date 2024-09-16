@@ -594,7 +594,7 @@ class ActivityBlock(StateProducer):
             elif name == Inparam.ACTIVITY_CONFIG:       # No
                 self._assure_absence(name, val)
             elif name == Inparam.ACTIVITY_NAME:         # Mandatory within group
-                activity_name_value
+                activity_name_value = val
             elif name == Inparam.ACTIVITY_NAMES:        # Mandatory within group
                 activity_name_values = val
             elif name == Inparam.ACTIVITY_ID:           # Mandatory within group
@@ -1351,10 +1351,10 @@ class ActivityBlock(StateProducer):
         if self._activity_block_interrupted is False: # Once the activity block has been interrupted it will remain interrupted.
             if framework_error_occurred:
                 self._activity_block_interrupted = True  # All framework and framework usage errors
-                data.interrupted = self._activity_block_interrupted
             else:
-                self._activity_block_interrupted = not self._rules.continue_on(data, self._mode, action)
-                data.interrupted = self._activity_block_interrupted
+                 self._activity_block_interrupted = not self._rules.continue_on(data, self._mode, action)
+
+            data.interrupted = self._activity_block_interrupted
 
         self._activity_block_status, state_transition_summary = self._rules.get_activity_block_status(data, self._autor_aborted)
         data.activity_block_status = self._activity_block_status

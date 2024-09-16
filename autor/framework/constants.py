@@ -98,9 +98,10 @@ class AbortType(Constant):
 
 # Values used in configurations.
 class Configuration(Constant):
-    ANY = "_any"
+    NONE = "_any"
     PREVIOUS = "_previous"
     LATEST = "_latest"
+    ANCESTOR = "_ancestor"
 
 # Autor in-parameter names
 class Inparam(Constant):

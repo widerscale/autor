@@ -52,7 +52,7 @@ class DebugConfig():
     print_selected_activity = False
     selected_activity_prefix = "[sel]: "
 
-    trace_activity_sequence_decisions = False
+    trace_activity_sequence_decisions = True
     activity_sequence_decisions_trace_prefix = "[seq]: "
 
     trace_activity_processing = False
