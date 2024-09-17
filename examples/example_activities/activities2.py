@@ -36,7 +36,7 @@ class CallbackActivity(Activity):
             SuccesOrSkippedCallback(self, [Status.SUCCESS, Status.SKIPPED])
         )
         self.activity_block_callbacks.append(FailureCallback(self, [Status.FAIL]))
-        self.activity_block_callbacks.append(AllCallback(self, [Status.ALL]))
+        self.activity_block_callbacks.append(AllCallback(self, []))
         # self.print()
 
 

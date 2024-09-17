@@ -247,13 +247,13 @@ class AutorTester():
         Check.not_none(expected_status, "'expected_status' is mandatory - was not provided")
         actual_status = activity_block.get_activity_block_status()
 
-        if not expected_status == Status.ALL: # Status ALL is always correct -> nothing to check
-            Check.expected(expected_status, actual_status, "Activity block did not have expected status")
-            if expected_err_msg is not None:
-                ex:Exception = activity_block.get_exception()
-                Check.not_none(ex, f"No exception provided by ActivityBlock. Expected exception with message: {expected_err_msg}")
-                actual_err_msg = str(ex)
-                Check.expected(expected_err_msg, actual_err_msg, "Exception error message was not as expected.")
+
+        Check.expected(expected_status, actual_status, "Activity block did not have expected status")
+        if expected_err_msg is not None:
+            ex:Exception = activity_block.get_exception()
+            Check.not_none(ex, f"No exception provided by ActivityBlock. Expected exception with message: {expected_err_msg}")
+            actual_err_msg = str(ex)
+            Check.expected(expected_err_msg, actual_err_msg, "Exception error message was not as expected.")
 
 
 

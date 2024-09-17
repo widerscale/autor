@@ -190,7 +190,7 @@ class FailFirstTimeRun(Activity):
 
 class FailFirstTimeRunCleanUp(ActivityBlockCallback):
     def __int__(self, activity:Activity):
-        super.__init__(activity=activity, run_on=[Status.ALL])
+        super.__init__(activity=activity, run_on=[])
 
     def run(self):
         logging.info("Running callback...")

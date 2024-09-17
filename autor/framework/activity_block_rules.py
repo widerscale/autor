@@ -392,7 +392,7 @@ class ActivityBlockRules:
 
         if (original is not None) and original != missing:
             Check.is_instance_of(
-                original, dict, "runOn." + cfg.ACTIVITY_STATUS + " value should be a dctionary"
+                original, dict, "runOn." + cfg.ACTIVITY_STATUS + " value should be a dictionary"
             )
 
         if default is None:
@@ -410,15 +410,14 @@ class ActivityBlockRules:
                 # If config exists, it must not be empty.
                 # print("ORIGINAL: " + str(original))
 
-                items = original.items()
+                # items = original.items()
                 # assert len(items) > 0 # Commented out as now no items == no restrictions
 
                 # Loop through the elements in runOn.activityStatus and
                 # check that they are not empty and that they are lists
-                for key, value in items:
-                    Check.not_empty_list(value, msg=f"runOn.{cfg.ACTIVITY_STATUS}.{key} value should be a non-empty list")
+                for key, value in original.items():
+                    #Check.not_empty_list(value, msg=f"runOn.{cfg.ACTIVITY_STATUS}.{key} value should be a non-empty list")
                     for val in value:
-                        Check.is_status(val, msg=f"Configuration: {original} contains an illegal value.")
                         Check.is_status(val, msg=f"Configuration: {original} contains an illegal value.")
                 return original_config
 
@@ -480,7 +479,8 @@ class ActivityBlockRules:
         #         + " Add at least one element or remove from the configuration."
         #     ),
         # )
-        run = (data.activity_block_status in statuses) or (Status.ALL in statuses)
+        # run = (data.activity_block_status in statuses) or (Status.ALL in statuses)
+        run = data.activity_block_status in statuses
 
         self._print("runOn.activityBlockStatus --->" + str(run))
         return run
@@ -513,7 +513,7 @@ class ActivityBlockRules:
             )
 
         latest_main_activity = data.main_activities[-1]
-        run = (latest_main_activity.status in statuses) or (Status.ALL in statuses)
+        run = latest_main_activity.status in statuses
 
         self._print("(aaaa) runOn.mainActivityStatus --->" + str(run))
         return run
@@ -552,15 +552,15 @@ class ActivityBlockRules:
                 for activity_id, node in ancestor_nodes.items():
                     activity = node.activity
                     if activity is not None:
-                        Check.not_empty_list(
-                            statuses,
-                            "Empty list is not a valid value for runOn.activityStatus."
-                            + activity_name
-                            + "="
-                            + str(statuses)
-                            + ".  Add at least one element or remove from the configuration.",
-                        )
-                        run = run and ((activity.status in statuses) or (Status.ALL in statuses))
+                        # Check.not_empty_list(
+                        #     statuses,
+                        #     "Empty list is not a valid value for runOn.activityStatus."
+                        #     + activity_name
+                        #     + "="
+                        #     + str(statuses)
+                        #     + ".  Add at least one element or remove from the configuration.",
+                        # )
+                        run = run and (activity.status in statuses)
                         self._print(
                             activity_id
                             + ".status = "
@@ -583,15 +583,15 @@ class ActivityBlockRules:
                         + " as the activity has not run and produced any status value.",
                     )
                 else:
-                    Check.not_empty_list(
-                        statuses,
-                        "Empty list is not a valid value for runOn.activityStatus."
-                        + activity_name
-                        + "="
-                        + str(statuses)
-                        + ".  Add at least one element or remove from the configuration.",
-                    )
-                    run = run and ((activity.status in statuses) or (Status.ALL in statuses))
+                    # Check.not_empty_list(
+                    #     statuses,
+                    #     "Empty list is not a valid value for runOn.activityStatus."
+                    #     + activity_name
+                    #     + "="
+                    #     + str(statuses)
+                    #     + ".  Add at least one element or remove from the configuration.",
+                    # )
+                    run = run and activity.status in statuses
                     self._print(
                         activity_name
                         + ".status = "
@@ -694,14 +694,18 @@ class ActivityBlockRules:
                 + "]"
             )
 
-        if mode == Mode.ACTIVITY_IN_BLOCK and action == Action.KEEP_AS_IS:
-            # An activity can have status UNKNOWN ony if it has never been run for real, but we've
-            # been skipping it with action KEEP_AS_IS to make sure that no changes are made
-            # to the context. A status for an unrun activity should not have impact on wether the
-            # activity block will continue to run or not.
-            self._print(f"(continue-decision) mode={mode} && action={action} -> add UNKNOWN to continue_on")
-            continue_on = continue_on + [Status.UNKNOWN]
-            #continue_on.append(Status.UNKNOWN)
+        all_statuses_allowed = len(continue_on) == 0
+
+
+        if not all_statuses_allowed:
+            if mode == Mode.ACTIVITY_IN_BLOCK and action == Action.KEEP_AS_IS:
+                # An activity can have status UNKNOWN ony if it has never been run for real, but we've
+                # been skipping it with action KEEP_AS_IS to make sure that no changes are made
+                # to the context. A status for an un-run activity should not have impact on whether the
+                # activity block will continue to run or not.
+                self._print(f"(continue-decision) mode={mode} && action={action} -> add UNKNOWN to continue_on")
+                continue_on = continue_on + [Status.UNKNOWN]
+                #continue_on.append(Status.UNKNOWN)
 
         self._print("(continue-decision) continue_on     = " + str(continue_on))
         self._print("(continue-decision) activity.status = " + str(activity.status))
@@ -710,7 +714,7 @@ class ActivityBlockRules:
         # Continue if:
         # - The activity states that the flow should ALWAYS continue,regardless the activity status.
         # - The activity status is listed as one of the required statuses for the flow to continue.
-        if (Status.ALL in continue_on) or (activity.status in continue_on):
+        if all_statuses_allowed or (activity.status in continue_on):
             ok_to_continue_with_next_activity = True
 
         self._print(
@@ -724,18 +728,12 @@ class ActivityBlockRules:
     def _run_on_main_activity_status_old(self, main_activity, after_activity_config):
 
         # pylint: disable=no-member
-        run_on_main_activity_status = after_activity_config.configuration.get(
-            cfg.RUN_ON_MAIN_ACTIVITY_STATUS, None
-        )
+        run_on_main_activity_status = after_activity_config.configuration.get(cfg.RUN_ON_MAIN_ACTIVITY_STATUS, None)
+
         # Value not obligatory -> use default
         if run_on_main_activity_status is None:
             ####run_on_main_activity_status = ActivityBlockRules.DEFAULT_RUN_ON_MAIN_ACTIVITY_STATUS
-            self._print(
-                (
-                    "(run-decision) runOnMainActivityStatus = None"
-                    + " -> use DEFAULT_RUN_ON_MAIN_ACTIVITY_STATUS"
-                )
-            )
+            self._print("(run-decision) runOnMainActivityStatus = None -> use DEFAULT_RUN_ON_MAIN_ACTIVITY_STATUS")
 
         self._print("(run-decision) runOnMainActivityStatus = " + str(run_on_main_activity_status))
         self._print("(run-decision) main_activity.status:   = " + str(main_activity.status))
@@ -746,9 +744,7 @@ class ActivityBlockRules:
         # - The activity states that the flow should ALWAYS continue,
         #  regardless the activity status.
         # - The activity status is listed as one of the required statuses for the flow to continue.
-        if (Status.ALL in run_on_main_activity_status) or (
-            main_activity.status in run_on_main_activity_status
-        ):
+        if (len(run_on_main_activity_status)==0) or (main_activity.status in run_on_main_activity_status):
             ok_to_run_activity = True
 
         return ok_to_run_activity

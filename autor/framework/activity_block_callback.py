@@ -44,19 +44,19 @@ class ActivityBlockCallback:
         """
         Check.not_none(activity, "Activity may not be None in the ActivityBlockCallback")
         # Check.is_instance_of(activity, Activity)
-        Check.not_empty_list(
-            run_on, "ActivityBlockCallback must have at least one run-on condition."
-        )
+        # Check.not_empty_list(
+        #     run_on, "ActivityBlockCallback must have at least one run-on condition."
+        # )
         self.__activity = activity
         self.__run_on = run_on
 
     @property
     def run_on(self) -> List[Status]:
-        """A list of activity statuses that should trigger the callback"""
+        """A list of activity statuses that should trigger the callback. An empty list means that all statuses are valid."""
         return self.__run_on
 
     def should_run(self) -> bool:
-        return self.__activity.status in self.__run_on
+        return len(self.__run_on) == 0 or self.__activity.status in self.__run_on
 
     @abc.abstractmethod
     def run(self):

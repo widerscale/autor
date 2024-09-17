@@ -1623,6 +1623,8 @@ class ActivityBlock(StateProducer):
                     if DebugConfig.trace_callbacks:
                         self._callback_debug_prints(callback, activity, prefix, run=False)
 
+
+
     def _callback_debug_prints(self, callback, activity, prefix, run):
         if run:
             logging.info("")

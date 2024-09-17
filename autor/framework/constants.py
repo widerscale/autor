@@ -77,7 +77,7 @@ class Status(Constant):
     SKIPPED = 'SKIPPED'
     ABORTED = 'ABORTED'
     UNKNOWN = 'UNKNOWN'
-    ALL = 'ALL'
+    #ALL = 'ALL'
 
 
 class Action(Constant):

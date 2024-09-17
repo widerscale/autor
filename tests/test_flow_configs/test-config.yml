@@ -162,8 +162,7 @@ activityBlocks:
         configuration:
           val: 3
       - type: divide-by-zero
-        continueOn:
-          ALL
+        continueOn: [] # all statuses
       - type: max
         configuration:
           val: 1
@@ -369,8 +368,7 @@ activityBlocks:
         configuration:
           sleep_seconds: 0.2
           outcome: FAIL
-        continueOn:
-          - ALL
+        continueOn: []
 
       - type: sleepy-sleeper # Should not be run
         name: A3
@@ -594,8 +592,7 @@ activityBlocks:
       - type: configurable-status
         configuration:
           status_to_set: FAIL
-        continueOn:
-          - ALL                 # Will try to continue on ANY status
+        continueOn: [] # Continue on any status
 
       - type: configurable-status
         configuration:
@@ -621,15 +618,13 @@ activityBlocks:
         name: first
         configuration:
           status_to_set: FAIL
-        continueOn:
-          - ALL                    # -> Continue, although fail
+        continueOn: [] # Continue on any status
 
       - type: configurable-status # Action: RUN
         name: second
         configuration:
           status_to_set: ABORTED
-        continueOn:
-          - ALL                      # -> Continue, although aborted
+        continueOn: [] # Continue on any status
 
       - type: configurable-status
         name: third
@@ -689,8 +684,7 @@ activityBlocks:
           status_to_set: SUCCESS
         runOn:
           activityStatus:
-            eighth:
-              - ALL
+            eighth: [] # Continue on any status
 
 
 
@@ -698,21 +692,19 @@ activityBlocks:
 
 
 
-  sequenceRulesTest:
+  sequenceRulesTest_not_used_in_any_test:
     activities:
       - type: configurable-status  # Action: RUN
         name: first
         configuration:
           status_to_set: FAIL
-        continueOn:
-          - ALL                    # -> Continue, although fail
+        continueOn: []
 
       - type: configurable-status # Action: RUN
         name: second
         configuration:
           status_to_set: ABORTED
-        continueOn:
-          - ALL                      # -> Continue, although aborted
+        continueOn: []
 
       - type: configurable-status
         name: third
@@ -727,123 +719,6 @@ activityBlocks:
           activityBlockStatus:
             - SUCCESS
 
-
-
-
-#
-#
-## -------------------------- Defaults --------------------------------#
-#  sequenceRulesDefaults:
-#    beforeBlock:
-#      activities: # activities in this list are run before running the main activity block
-#        - type: empty
-#          name: BB1
-#          runOn: # As this is the first activity in AB, the runOn condition will be ignored.
-#            activityStatus:
-#              _any:
-#                - ALL
-#
-#        - type: empty
-#          name: BB2
-#          runOn:
-#            activityStatus:
-#              _any: # All previous activity statuses are ok.
-#                - ALL
-#
-#
-#    beforeActivity:
-#      activities: # activities in this list are run before EACH main activity
-#        - type: empty
-#          name: BA1
-#          runOn:
-#            activityStatus:
-#              _any: # All previous activity statuses are ok.
-#                - ALL
-#            activityBlockStatus:
-#              - ALL
-#
-#        - type: empty
-#          name: BA2
-#          runOn:
-#            activityStatus:
-#              _any: # All previous activity statuses are ok.
-#                - ALL
-#            activityBlockStatus:
-#              - ALL
-#
-#    activities: # main activities
-#      - type: empty
-#        name: MA1
-#        runOn:
-#          activityStatus:
-#            _any: # All previous activity statuses are ok.
-#              - ALL
-#          activityBlockStatus:
-#            - ALL
-#
-#      - type: empty
-#        name: MA2
-#        runOn:
-#          activityStatus:
-#            _any: # All previous activity statuses are ok.
-#              - ALL
-#          activityBlockStatus:
-#            - ALL
-#
-#      - type: empty
-#        name: MA3
-#        runOn:
-#          activityStatus:
-#            _any: # All previous activity statuses are ok.
-#              - ALL
-#          activityBlockStatus:
-#            - ALL
-#
-#
-#    afterActivity:
-#      activities: # activities in this list are run after EACH main activity
-#        - type: empty
-#          name: AA1
-#          runOn:
-#            activityStatus:
-#              _any: # All previous activity statuses are ok.
-#                - ALL
-#            mainActivityStatus:
-#              - ALL
-#            activityBlockStatus:
-#              - ALL
-#
-#        - type: empty
-#          name: AA2
-#          runOn:
-#            activityStatus:
-#              _any: # All previous activity statuses are ok.
-#                - ALL
-#            mainActivityStatus:
-#              - ALL
-#            activityBlockStatus:
-#              - ALL
-#
-#
-#    afterBlock:
-#      activities: # activities in this list are run after the main block has run
-#        - type: empty
-#          name: AB1
-#          runOn:
-#            activityStatus:
-#              _any: # All previous activity statuses are ok.
-#                - ALL
-#            activityBlockStatus:
-#              - ALL
-#
-#        - type: empty
-#          name: AB2
-#          runOn:
-#            activityStatus:
-#              _any: # All previous activity statuses are ok.
-#                - ALL
-#            activityBlockStatus:
-#              - ALL
 
 
 
