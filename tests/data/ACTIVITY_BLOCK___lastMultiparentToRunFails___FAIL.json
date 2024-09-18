@@ -2,7 +2,7 @@
     "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
+    "status": "DID_NOT_RUN",
     "activityBlockStatus": "FAIL",
     "activityBlockInterrupted": true,
     "_activityBlocks": {
@@ -50,14 +50,14 @@
                     "__props": {
                         "cfg_provide__sleep_seconds": 0.5,
                         "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 }
             },
             "action": "SKIP_BY_FRAMEWORK",
-            "status": "SKIPPED",
+            "status": "DID_NOT_RUN",
             "activityBlockStatus": "FAIL",
             "activityBlockInterrupted": true
         }

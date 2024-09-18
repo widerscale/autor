@@ -547,28 +547,21 @@ class ActivityBlockRules:
             #     self._print(activity_name + " -> condition: True")
 
             #---------------------- ANCESTORS -----------------------#
-            if activity_name == Configuration.ANCESTOR:
+            if activity_name == Configuration.ANCESTORS:
                 ancestor_nodes:dict[Node] = data.activity_node.ancestors
                 for activity_id, node in ancestor_nodes.items():
                     activity = node.activity
-                    if activity is not None:
-                        # Check.not_empty_list(
-                        #     statuses,
-                        #     "Empty list is not a valid value for runOn.activityStatus."
-                        #     + activity_name
-                        #     + "="
-                        #     + str(statuses)
-                        #     + ".  Add at least one element or remove from the configuration.",
-                        # )
-                        run = run and (activity.status in statuses)
-                        self._print(
-                            activity_id
-                            + ".status = "
-                            + str(activity.status)
-                            + " -> condition: "
-                            + str(run)
-                        )
-
+                    Check.not_none(activity, f"Ancestor activity {activity.name} has not been created. Cannot read its status.")
+                    run = run and (activity.status in statuses)
+                    self._print(activity_id + ".status = " + str(activity.status) + " -> condition: " + str(run))
+            #---------------------- PARENTS -----------------------#
+            if activity_name == Configuration.PARENTS:
+                ancestor_nodes:list[Node] = data.activity_node.parents
+                for node in ancestor_nodes:
+                    activity = node.activity
+                    Check.not_none(activity, f"Parent activity {activity.name} has not been created. Cannot read its status.")
+                    run = run and (activity.status in statuses)
+                    self._print(activity.name + ".status = " + str(activity.status) + " -> condition: " + str(run))
             #--------------- SPECIFIED ACTIVITIES -----------------#
             else:
                 activity = self._get_activity_by_name(activity_name, data)  # Returns None, if not found
@@ -580,25 +573,10 @@ class ActivityBlockRules:
                         + data.activity_name
                         + ": Cannot check runOn.activityStatus for "
                         + activity_name
-                        + " as the activity has not run and produced any status value.",
-                    )
+                        + " as the activity has not run and produced any status value.")
                 else:
-                    # Check.not_empty_list(
-                    #     statuses,
-                    #     "Empty list is not a valid value for runOn.activityStatus."
-                    #     + activity_name
-                    #     + "="
-                    #     + str(statuses)
-                    #     + ".  Add at least one element or remove from the configuration.",
-                    # )
                     run = run and activity.status in statuses
-                    self._print(
-                        activity_name
-                        + ".status = "
-                        + str(activity.status)
-                        + " -> condition: "
-                        + str(run)
-                    )
+                    self._print(activity_name + ".status = " + str(activity.status) + " -> condition: " + str(run))
 
             if not run:
                 break
@@ -648,7 +626,6 @@ class ActivityBlockRules:
             # print("skip_type: " + str(skip_type) + " " + activity.id)
             all_skipped = all_skipped and (skip_type == Action.SKIP_BY_FRAMEWORK)
         self._print("_all_before_activities_were_skipped_by_framework ---> " + str(all_skipped))
-        # print("_all_before_activities_were_skipped_by_framework ---> " + str(all_skipped))
         return all_skipped
 
     def _all_before_block_activities_were_skipped_by_framework(self, data):
@@ -656,9 +633,7 @@ class ActivityBlockRules:
         for activity in data.before_block_activities:
             skip_type = activity.context.get(ctx.ACTION, None)
             all_skipped = all_skipped and (skip_type == Action.SKIP_BY_FRAMEWORK)
-        self._print(
-            "_all_before_block_activities_were_skipped_by_framework ---> " + str(all_skipped)
-        )
+        self._print("_all_before_block_activities_were_skipped_by_framework ---> " + str(all_skipped))
         return all_skipped
 
     # Look at the configuration of the main activity of this activity and return

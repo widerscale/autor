@@ -16,7 +16,7 @@
                 },
                 "calculateMaxFailSecond-third": {
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "calculateMaxFailSecond-fourth": {
                     "action": "KEEP_AS_IS"

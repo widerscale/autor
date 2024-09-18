@@ -7,12 +7,12 @@
                 "calculateMaxWithNames-first": {
                     "skipType": "SKIPPED_BY_FRAMEWORK",
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "calculateMaxWithNames-second": {
                     "skipType": "SKIPPED_BY_FRAMEWORK",
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "calculateMaxWithNames-third": {
                     "action": "RUN",
@@ -22,13 +22,13 @@
                 "calculateMaxWithNames-fourth": {
                     "skipType": "SKIPPED_BY_FRAMEWORK",
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED",
+                    "status": "DID_NOT_RUN",
                     "max": 5
                 }
             },
             "skipType": "SKIPPED_BY_FRAMEWORK",
             "action": "SKIP_BY_FRAMEWORK",
-            "status": "SKIPPED",
+            "status": "DID_NOT_RUN",
             "max": 5,
             "activityBlockStatus": "SUCCESS"
         }
@@ -37,7 +37,7 @@
     "flowConfigPath": "test-config.yml",
     "skipType": "SKIPPED_BY_FRAMEWORK",
     "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
+    "status": "DID_NOT_RUN",
     "max": 5,
     "activityBlockStatus": "SUCCESS"
 }

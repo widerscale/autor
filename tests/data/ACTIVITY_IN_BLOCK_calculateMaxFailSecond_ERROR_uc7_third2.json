@@ -16,16 +16,16 @@
                 },
                 "calculateMaxFailSecond-third": {
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED",
+                    "status": "DID_NOT_RUN",
                     "max": 5
                 },
                 "calculateMaxFailSecond-fourth": {
                     "action": "KEEP_AS_IS",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 }
             },
             "action": "KEEP_AS_IS",
-            "status": "SKIPPED",
+            "status": "DID_NOT_RUN",
             "max": 5,
             "activityBlockStatus": "ERROR",
             "activityBlockInterrupted": true
@@ -34,7 +34,7 @@
     "mode": "ACTIVITY_IN_BLOCK",
     "flowConfigPath": "test-config.yml",
     "action": "KEEP_AS_IS",
-    "status": "SKIPPED",
+    "status": "DID_NOT_RUN",
     "max": 5,
     "activityBlockStatus": "ERROR",
     "activityBlockInterrupted": true

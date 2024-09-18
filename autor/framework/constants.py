@@ -77,6 +77,7 @@ class Status(Constant):
     SKIPPED = 'SKIPPED'
     ABORTED = 'ABORTED'
     UNKNOWN = 'UNKNOWN'
+    DID_NOT_RUN = 'DID_NOT_RUN'
     #ALL = 'ALL'
 
 
@@ -95,13 +96,17 @@ class AbortType(Constant):
     ABORTED_BY_FRAMEWORK = "ABORTED_BY_FRAMEWORK"
     ABORTED_BY_ACTIVITY = "ABORTED_BY_ACTIVITY"
 
+class InterruptMode(Constant):
+    ALL_DESCENDENT_ACTIVITIES = "ALL_DESCENDENT_ACTIVITIES"
+    ALL_UNRUN_ACTIVITIES = "ALL_UNRUN_ACTIVITIES"
 
 # Values used in configurations.
 class Configuration(Constant):
-    NONE = "_any"
-    PREVIOUS = "_previous"
-    LATEST = "_latest"
-    ANCESTOR = "_ancestor"
+    NONE        = "_any"
+    PREVIOUS    = "_previous"
+    LATEST      = "_latest"
+    ANCESTORS   = "_ancestors"
+    PARENTS     = "_parents"
 
 # Autor in-parameter names
 class Inparam(Constant):

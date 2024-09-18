@@ -66,6 +66,15 @@
                     "action": "REUSE",
                     "status": "SUCCESS"
                 },
+                "concurrency_1-eight": {
+                    "__props": {
+                        "cfg_provide__sleep_seconds": 1.0,
+                        "cfg_default__outcome": "SUCCESS",
+                        "out_provide__status": "SUCCESS"
+                    },
+                    "action": "REUSE",
+                    "status": "SUCCESS"
+                },
                 "concurrency_1-five": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 5.0,
@@ -75,7 +84,7 @@
                     "action": "REUSE",
                     "status": "SUCCESS"
                 },
-                "concurrency_1-eight": {
+                "concurrency_1-nine": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 1.0,
                         "cfg_default__outcome": "SUCCESS",
@@ -87,15 +96,6 @@
                 "concurrency_1-six": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 3.0,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
-                    },
-                    "action": "REUSE",
-                    "status": "SUCCESS"
-                },
-                "concurrency_1-nine": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 1.0,
                         "cfg_default__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },

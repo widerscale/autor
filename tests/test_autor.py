@@ -406,8 +406,6 @@ def test_concurrency_graph_order_and_rerun():
 
 
 
-
-
 def test_concurrency_input_modifier():
    # ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_quick___SUCCESS.json')
 
@@ -469,3 +467,42 @@ def test_concurrency_input_modifier_and_rerun():
     _check_activity_started_and_finished_order(activities_started_order[:4], activities_finished_order[:2], ab)
     ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["eight"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___eight2___flow_run_id___SUCCESS.json')
     _check_activity_started_and_finished_order(activities_started_order[:6], activities_finished_order[:2], ab)
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["six","nine"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___six_nine___flow_run_id___SUCCESS.json')
+
+
+def test_concurrency2():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_2___SUCCESS.json',flags={'print_activity_started_and_finished_order': True})
+
+    activities_started_order: List[str] = []
+    activities_started_order.append("concurrency_2-one")
+    activities_started_order.append("concurrency_2-two")
+    activities_started_order.append("concurrency_2-nine")
+    activities_started_order.append("concurrency_2-four")
+    activities_started_order.append("concurrency_2-five")
+    activities_started_order.append("concurrency_2-three")
+    activities_started_order.append("concurrency_2-eight")
+    activities_started_order.append("concurrency_2-six")
+    activities_started_order.append("concurrency_2-seven")
+    activities_started_order.append("concurrency_2-ten")
+    activities_started_order.append("concurrency_2-twelve")
+    activities_started_order.append("concurrency_2-eleven")
+    activities_finished_order: List[str] = []
+    activities_finished_order.append("concurrency_2-one")
+    activities_finished_order.append("concurrency_2-two")
+    activities_finished_order.append("concurrency_2-three")
+    activities_finished_order.append("concurrency_2-four")
+    activities_finished_order.append("concurrency_2-five")
+    activities_finished_order.append("concurrency_2-six")
+    activities_finished_order.append("concurrency_2-seven")
+    activities_finished_order.append("concurrency_2-eight")
+    activities_finished_order.append("concurrency_2-nine")
+    activities_finished_order.append("concurrency_2-ten")
+    activities_finished_order.append("concurrency_2-eleven")
+    activities_finished_order.append("concurrency_2-twelve")
+    _check_activity_started_and_finished_order(activities_started_order, activities_finished_order, ab)
+
+def test_lastMultiparentToRunAcceptsFail():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency2ParentSkipLeadsToChildSKip___SUCCESS.json')
+
+def test_lastMultiparentToRunAcceptsFail():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency2ParentSkipLeadsToChildSKipAndInterrupt___SKIPPED.json')

@@ -172,11 +172,19 @@ class ActivityRunner:
 
         finally:
             if self._data.action in (Action.SKIP_BY_FRAMEWORK, Action.SKIP_BY_CONFIGURATION):
-                self._data.activity.status = Status.SKIPPED
+
                 activity_full_class_name: str = f"{self._data.activity.__module__}.{self._data.activity.__class__.__name__}"
                 logging.info(f"{DebugConfig.autor_info_prefix}")
                 logging.info(f"{DebugConfig.autor_info_prefix}ACTION: {self._data.action}")
-                logging.info(f"{DebugConfig.autor_info_prefix}X Skipping: [Name:{self._data.activity_name_unique} Type:{self._data.activity_type}, Class:{activity_full_class_name}]")
+                if self._data.action == Action.SKIP_BY_FRAMEWORK:
+                    self._data.activity.status = Status.DID_NOT_RUN
+                    temp = "Will not run"
+                elif self._data.action == Action.SKIP_BY_CONFIGURATION:
+                    self._data.activity.status = Status.SKIPPED
+                    temp = "Skipping"
+                else:
+                    Check.is_true(False, f"Unexpected action: {self._data.action}")
+                logging.info(f"{DebugConfig.autor_info_prefix}X {temp}: [Name:{self._data.activity_name_unique} Type:{self._data.activity_type}, Class:{activity_full_class_name}]")
 
             elif self._data.action == Action.KEEP_AS_IS:
                 self._data.activity.status = self._data.output_context.get(ctx.STATUS, default=Status.UNKNOWN)  # Keep the same status
@@ -450,14 +458,16 @@ class ActivityRunner:
         action = self._data.action
 
         # Sanity check
-        if action in (Action.SKIP_BY_FRAMEWORK, Action.SKIP_BY_CONFIGURATION):
+        if action == Action.SKIP_BY_CONFIGURATION:
             Check.is_true(
                 activity.status == Status.SKIPPED,
-                msg=(
-                    "Unexpected activity status: {}. Action SKIPPED_BY_FRAMEWORK or "
-                    + "SKIPPED_BY_CONFIGURATION should always lead to activity status SKIPPED"
-                ),
-            )
+                msg = f"Unexpected activity status: {activity.status}. Action SKIP_BY_CONFIGURATION should always lead to activity status SKIPPED")
+
+        if action == Action.SKIP_BY_FRAMEWORK:
+            Check.is_true(
+                activity.status == Status.DID_NOT_RUN,
+                msg=f"Unexpected activity status: {activity.status}. Action SKIP_BY_FRAMEWORK should always lead to activity status DID_NOT_RUN")
+
 
 
         # Add the action to the context

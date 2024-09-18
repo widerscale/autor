@@ -97,38 +97,38 @@
                 },
                 "sequenceRulesFailingMainActivity-MA3-BA1": {
                     "__props": {
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "sequenceRulesFailingMainActivity-MA3-BA2": {
                     "__props": {
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "sequenceRulesFailingMainActivity-MA3": {
                     "__props": {
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "sequenceRulesFailingMainActivity-MA3-AA1": {
                     "__props": {
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "sequenceRulesFailingMainActivity-MA3-AA2": {
                     "__props": {
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "sequenceRulesFailingMainActivity-AB1": {
                     "__props": {

@@ -2,7 +2,7 @@
     "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
+    "status": "DID_NOT_RUN",
     "max": 5,
     "__generatedFlowConfig": null,
     "activityBlockStatus": "FAIL",
@@ -57,14 +57,14 @@
                         "cfg_default__throw_ex": false,
                         "cfg_default__my_status": null,
                         "inp_provide__max": 5,
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 }
             },
             "action": "SKIP_BY_FRAMEWORK",
-            "status": "SKIPPED",
+            "status": "DID_NOT_RUN",
             "max": 5,
             "activityBlockStatus": "FAIL",
             "activityBlockInterrupted": true

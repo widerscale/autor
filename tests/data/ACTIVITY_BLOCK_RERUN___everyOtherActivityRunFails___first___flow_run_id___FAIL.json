@@ -2,7 +2,7 @@
     "mode": "ACTIVITY_BLOCK_RERUN",
     "flowConfigPath": "test_flow_configs/doc-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
+    "status": "DID_NOT_RUN",
     "max": 3,
     "__generatedFlowConfig": null,
     "activityBlockStatus": "FAIL",
@@ -39,23 +39,23 @@
                     "__props": {
                         "cfg_provide__val": 5,
                         "inp_provide__max": 3,
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "everyOtherActivityRunFails-fourth": {
                     "__props": {
                         "cfg_provide__val": 4,
                         "inp_provide__max": 3,
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 }
             },
             "action": "SKIP_BY_FRAMEWORK",
-            "status": "SKIPPED",
+            "status": "DID_NOT_RUN",
             "max": 3,
             "activityBlockStatus": "FAIL",
             "activityBlockInterrupted": true,

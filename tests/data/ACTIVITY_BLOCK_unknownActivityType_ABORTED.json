@@ -2,7 +2,7 @@
     "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
+    "status": "DID_NOT_RUN",
     "max": 7,
     "__generatedFlowConfig": null,
     "activityBlockStatus": "ERROR",
@@ -29,15 +29,15 @@
                 },
                 "unknownActivityType-activity4": {
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "unknownActivityType-activity5": {
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 }
             },
             "action": "SKIP_BY_FRAMEWORK",
-            "status": "SKIPPED",
+            "status": "DID_NOT_RUN",
             "max": 7,
             "activityBlockStatus": "ERROR",
             "activityBlockInterrupted": true

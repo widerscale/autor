@@ -1,4 +1,5 @@
 {
+    "initial_context_snapshot": {},
     "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "RUN",
@@ -7,12 +8,13 @@
     "activityBlockInterrupted": false,
     "_activityBlocks": {
         "sleepySleepers": {
+            "initial_context_snapshot": {},
             "mode": "ACTIVITY_BLOCK",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "sleepySleepers-first": {
                     "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
+                        "cfg_provide__sleep_seconds": 0.1,
                         "cfg_default__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },
@@ -21,7 +23,7 @@
                 },
                 "sleepySleepers-second": {
                     "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
+                        "cfg_provide__sleep_seconds": 0.1,
                         "cfg_default__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },
@@ -30,7 +32,7 @@
                 },
                 "sleepySleepers-third": {
                     "__props": {
-                        "cfg_provide__sleep_seconds": 1.5,
+                        "cfg_provide__sleep_seconds": 3.0,
                         "cfg_default__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },
@@ -39,7 +41,7 @@
                 },
                 "sleepySleepers-fifth": {
                     "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
+                        "cfg_provide__sleep_seconds": 0.1,
                         "cfg_default__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },
@@ -48,7 +50,7 @@
                 },
                 "sleepySleepers-sixth": {
                     "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
+                        "cfg_provide__sleep_seconds": 0.1,
                         "cfg_default__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },
@@ -66,7 +68,7 @@
                 },
                 "sleepySleepers-seventh": {
                     "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
+                        "cfg_provide__sleep_seconds": 0.1,
                         "cfg_default__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },

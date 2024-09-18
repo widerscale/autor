@@ -2,7 +2,7 @@
     "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
-    "status": "SKIPPED",
+    "status": "DID_NOT_RUN",
     "run_nbr": 2,
     "max": 5,
     "__generatedFlowConfig": null,
@@ -35,11 +35,11 @@
                 },
                 "calculateMaxWithExceptionEverySecondRun2-activity5": {
                     "action": "SKIP_BY_FRAMEWORK",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 }
             },
             "action": "SKIP_BY_FRAMEWORK",
-            "status": "SKIPPED",
+            "status": "DID_NOT_RUN",
             "run_nbr": 2,
             "max": 5,
             "activityBlockStatus": "ERROR",

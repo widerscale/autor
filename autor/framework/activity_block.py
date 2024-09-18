@@ -53,7 +53,7 @@ from autor.framework.constants import (
     ActivityGroupType,
     ExceptionType,
     Mode,
-    Status, ContextPropertyPrefix, Inparam, Constants, NodeStatus,
+    Status, ContextPropertyPrefix, Inparam, Constants, NodeStatus, InterruptMode,
 )
 from autor.framework.context import Context
 from autor.framework.debug_config import DebugConfig
@@ -181,6 +181,7 @@ class ActivityBlock(StateProducer):
         Check.is_true(Mode.is_valid(mode), msg=f'Unknown mode: {mode}. The valid modes are: {Mode.get_valid_constants(Mode)}')
 
         self._flags = flags
+        self._interrupt_mode = InterruptMode.ALL_UNRUN_ACTIVITIES
 
 
 
@@ -1349,13 +1350,22 @@ class ActivityBlock(StateProducer):
         action = data.action
 
         if self._activity_block_interrupted is False: # Once the activity block has been interrupted it will remain interrupted.
+            logging.error("###################### NOT YET INTERRUPTED")
+            interrupt = False
             if framework_error_occurred:
-                self._activity_block_interrupted = True  # All framework and framework usage errors
+                interrupt = True  # All framework and framework usage errors
             else:
-                 self._activity_block_interrupted = not self._rules.continue_on(data, self._mode, action)
+                interrupt = not self._rules.continue_on(data, self._mode, action)
 
-            data.interrupted = self._activity_block_interrupted
+            if self._interrupt_mode == InterruptMode.ALL_UNRUN_ACTIVITIES:
+                self._activity_block_interrupted = interrupt
+                logging.error(f"###################### SETTING INTERRUPT: {self._activity_block_interrupted}")
+            else:
+                Check.is_true(False, "Requested interruption mode not implemented. Implement!")
+        else:
+            logging.error("###################### ALREADY INTERRUPTED")
 
+        data.interrupted = self._activity_block_interrupted
         self._activity_block_status, state_transition_summary = self._rules.get_activity_block_status(data, self._autor_aborted)
         data.activity_block_status = self._activity_block_status
         self._activity_block_run_summary.append(state_transition_summary) # For logging purposes only
