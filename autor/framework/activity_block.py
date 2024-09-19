@@ -1366,7 +1366,7 @@ class ActivityBlock(StateProducer):
             logging.error("###################### ALREADY INTERRUPTED")
 
         data.interrupted = self._activity_block_interrupted
-        self._activity_block_status, state_transition_summary = self._rules.get_activity_block_status(data, self._autor_aborted)
+        self._activity_block_status, state_transition_summary = self._rules.get_activity_block_status(data)
         data.activity_block_status = self._activity_block_status
         self._activity_block_run_summary.append(state_transition_summary) # For logging purposes only
 
@@ -1574,8 +1574,8 @@ class ActivityBlock(StateProducer):
 
         # Create an ordered list of data tuples that are needed for creating activities.
         # The order is the order in which the activities will be run.
-        if self._activity_block_status == Status.UNKNOWN: # First run of the activity block
-            self._activity_block_status = Status.SUCCESS
+        # if self._activity_block_status == Status.UNKNOWN: # First run of the activity block
+        #     self._activity_block_status = Status.SUCCESS
 
         ######################## new ###############################
         graph:ActivityBlockGraph = ActivityBlockGraph()

@@ -726,7 +726,9 @@ class ActivityBlockRules:
 
 
 
-    def get_activity_block_status(self, data, autor_aborted)->(str,str):
+
+
+    def ____old____get_activity_block_status(self, data, autor_aborted)->(str,str):
 
         assert len(data.activities) > 0
 
@@ -795,6 +797,53 @@ class ActivityBlockRules:
             # ERROR -> FAIL
             if activity_status == Status.FAIL:
                 new_block_status = activity_status
+
+
+        self._print("(block-status) ---------> new_block_status = " + str(new_block_status))
+        state_transition_summary = self._create_state_transition_summary(activity, current_block_status, new_block_status)
+        action_str: str = activity.context.get_from_activity(key=ctx.ACTION)
+        ActivityBlockRules._transition_summary.add(activity.id,activity.status,action_str,current_block_status,new_block_status)
+        logging.warning(f"Activity Block Status: {new_block_status}")
+        return new_block_status, state_transition_summary
+
+
+    def get_activity_block_status(self, data)->(str,str):
+
+        assert len(data.activities) > 0
+        current_block_status = data.activity_block_status
+        # list is never empty.
+        activity = data.activities[-1]
+
+
+        self._print("(block-status) current_block_status:       " + str(current_block_status))
+        self._print("(block-status) activity.status:            " + str(activity.status))
+
+        activity_status = activity.status
+        new_block_status = current_block_status
+
+        if current_block_status == Status.UNKNOWN:
+            new_block_status = activity_status
+            #raise AutorFrameworkException("A running activity block should never have status UNKNOWN")
+
+        elif current_block_status == Status.SUCCESS:
+            if activity_status == Status.DID_NOT_RUN:
+                new_block_status = Status.ABORTED
+            if activity_status == Status.ERROR:
+                new_block_status = Status.ERROR
+            if activity_status == Status.FAIL:
+                new_block_status = Status.FAIL
+
+        elif current_block_status == Status.ABORTED:
+            if activity_status == Status.ERROR:
+                new_block_status = Status.ERROR
+            if activity_status == Status.FAIL:
+                new_block_status = Status.FAIL
+
+        elif current_block_status == Status.ERROR:
+            if activity_status == Status.FAIL:
+                new_block_status = Status.FAIL
+
+
 
 
         self._print("(block-status) ---------> new_block_status = " + str(new_block_status))

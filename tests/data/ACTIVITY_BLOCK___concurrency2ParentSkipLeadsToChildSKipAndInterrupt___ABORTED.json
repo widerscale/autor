@@ -4,7 +4,7 @@
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
     "status": "DID_NOT_RUN",
-    "activityBlockStatus": "SKIPPED",
+    "activityBlockStatus": "ABORTED",
     "activityBlockInterrupted": true,
     "_activityBlocks": {
         "concurrency2ParentSkipLeadsToChildSKipAndInterrupt": {
@@ -75,7 +75,7 @@
                     "action": "SKIP_BY_FRAMEWORK",
                     "status": "DID_NOT_RUN"
                 },
-                "concurrency2ParentSkipLeadsToChildSKipAndInterrupt-ten": {
+                "concurrency2ParentSkipLeadsToChildSKipAndInterrupt-six": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 0.1,
                         "cfg_default__outcome": "SUCCESS",
@@ -84,7 +84,7 @@
                     "action": "SKIP_BY_FRAMEWORK",
                     "status": "DID_NOT_RUN"
                 },
-                "concurrency2ParentSkipLeadsToChildSKipAndInterrupt-six": {
+                "concurrency2ParentSkipLeadsToChildSKipAndInterrupt-ten": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 0.1,
                         "cfg_default__outcome": "SUCCESS",
@@ -123,7 +123,7 @@
             },
             "action": "SKIP_BY_FRAMEWORK",
             "status": "DID_NOT_RUN",
-            "activityBlockStatus": "SKIPPED",
+            "activityBlockStatus": "ABORTED",
             "activityBlockInterrupted": true
         }
     }

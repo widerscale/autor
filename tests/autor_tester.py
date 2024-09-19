@@ -58,9 +58,14 @@ class AutorTester():
         else:
             raise ValueError(f"The file name for the expected result should begin with Autor mode name (ex: ACTIVITY_BLOCK_RERUN_calculateMax_SUCCESS_activity4.json). Received: {expectation}")
 
-        activity_block_id = expectation.split('___')[1]
+        tokens =  expectation.split('___')
+        activity_block_id = tokens[1]
 
-        return mode, activity_block_id
+        last_token = tokens[-1]
+        tokens2 = last_token.split('.')
+        activity_block_status = tokens2[0]
+
+        return mode, activity_block_id, activity_block_status
 
 
     @staticmethod
@@ -178,7 +183,7 @@ class AutorTester():
 
 
         if expectation is not None:
-            p_mode,p_activity_block_id = AutorTester._parse_expectation2(expectation)
+            p_mode,p_activity_block_id,p_activity_block_status = AutorTester._parse_expectation2(expectation)
             if p_activity_block_id.startswith(Constants.AUTOGEN_ACTIVITY_BLOCK_ID):
                 p_activity_block_id = None
 
@@ -186,6 +191,9 @@ class AutorTester():
 
             if mode is None:
                 mode = p_mode
+
+            if status is None:
+                status = p_activity_block_status
 
             if mode.upper() != Mode.ACTIVITY:
                 if flow_config_path == None:
@@ -266,6 +274,11 @@ class AutorTester():
         full_file_name = os.path.join('data', file_name)
         expected_ctx = Util.read_json(full_file_name)
         actual_ctx = Context.get_context_dict() # Context has a global dict
+
+        expected_ab_status = expected_ctx['activityBlockStatus']
+        actual_ab_status = actual_ctx['activityBlockStatus']
+        Check.is_true(expected_ab_status == actual_ab_status, f"\nExpected activityBlockStatus: {expected_ab_status}"
+                                                              f"\nActual   activityBlockStatus: {actual_ab_status}")
 
         expected_abs:dict = expected_ctx["_activityBlocks"]
         Check.is_true(len(expected_abs.keys()) == 1, msg="Expected context should contain only one activity block")

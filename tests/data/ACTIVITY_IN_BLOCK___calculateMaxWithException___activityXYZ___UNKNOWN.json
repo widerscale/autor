@@ -1,13 +1,13 @@
 {
+    "initial_context_snapshot": {},
     "mode": "ACTIVITY_IN_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "KEEP_AS_IS",
-    "abortType": "ABORTED_BY_FRAMEWORK",
-    "__generatedFlowConfig": null,
-    "activityBlockStatus": "ABORTED",
+    "activityBlockStatus": "UNKNOWN",
     "activityBlockInterrupted": false,
     "_activityBlocks": {
         "calculateMaxWithException": {
+            "initial_context_snapshot": {},
             "mode": "ACTIVITY_IN_BLOCK",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
@@ -38,8 +38,7 @@
                 }
             },
             "action": "KEEP_AS_IS",
-            "abortType": "ABORTED_BY_FRAMEWORK",
-            "activityBlockStatus": "ABORTED",
+            "activityBlockStatus": "UNKNOWN",
             "activityBlockInterrupted": false
         }
     }
