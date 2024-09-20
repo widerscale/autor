@@ -68,6 +68,24 @@ class ActivityBlockGraph:
     def get_activity_ids(self)->List[str]:
         return self._nodes.keys()
 
+    def mark_all_nodes_as_interrupted(self):
+        for activity_id in self._nodes:
+            self._nodes[activity_id].interrupted = True
+
+    def mark_node_and_all_descendants_as_interrupted(self, node:Node):
+        self._rec_mark_children_interrupted(node)
+
+    def _rec_mark_children_interrupted(self, node:Node):
+        node.interrupted = True
+        children:List = node.children
+        for child in children:
+            self._rec_mark_children_interrupted(child)
+
+
+
+
+
+
 
     def graph_finished(self)->bool:
         return len(list(self._nodes.values())) == self._nbr_finished

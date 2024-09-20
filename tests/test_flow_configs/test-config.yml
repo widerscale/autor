@@ -1436,8 +1436,8 @@ activityBlocks:
 
 
 
-  concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDescendents: # Naming in finishing order - easier to verify visually
-    concurrentInterruptMode: INTERRUPT_DESCENDENT_ACTIVITIES
+  concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDescendants: # Naming in finishing order - easier to verify visually
+    concurrentInterruptMode: INTERRUPT_DESCENDANT_ACTIVITIES
     activities:
       - type: sleepy-sleeper
         name: one

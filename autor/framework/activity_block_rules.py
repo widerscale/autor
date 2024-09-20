@@ -263,7 +263,9 @@ class ActivityBlockRules:
     def _get_action(self, data:ActivityData, ignore_unrun=False):
 
         activity_group_type = data.activity_group_type
-        interrupted = data.activity_block_interrupted
+        ab_interrupted = data.activity_block_interrupted
+        node_interrupted = data.activity_node.interrupted
+        interrupted = data.activity_block_interrupted and data.activity_node.interrupted
         self._print("(run-decision) activity_group_type       = " + str(activity_group_type))
 
         # @TODO add warnings if wrong configuration is added
@@ -725,86 +727,6 @@ class ActivityBlockRules:
         return ok_to_run_activity
 
 
-
-
-
-    def ____old____get_activity_block_status(self, data:ActivityData, autor_aborted)->(str,str):
-
-        assert len(data.activities) > 0
-
-        current_block_status = data.activity_block_status
-        # list is never empty.
-        activity = data.activities[-1]
-        activity_block_interrupted = data.activity_block_interrupted
-
-        self._print("(block-status) current_block_status:       " + str(current_block_status))
-        self._print("(block-status) activity.status:            " + str(activity.status))
-        self._print("(block-status) activity_block_interrupted: " + str(activity_block_interrupted))
-        self._print("(block-status) autor_aborted:              " + str(autor_aborted))
-
-        # See the diagram for the rules: https://jira-dowhile.atlassian.net/l/c/w3pkZPM1
-        activity_status = activity.status
-        new_block_status = current_block_status
-
-        if autor_aborted:
-            Check.is_true(
-                current_block_status == Status.ABORTED,
-                msg=(
-                    "Activity block status should always be {Status.ABORTED} once autor has been"
-                    + " aborted by (due to framework or other unrecoverable errors). "
-                    + "Current status: {current_block_status}"
-                ),
-            )
-
-        elif current_block_status == Status.UNKNOWN:
-            raise AutorFrameworkException(
-                "A running activity block should never have status UNKNOWN"
-            )
-            # UNKNOWN -> SUCCESS
-            # UNKNOWN -> FAIL
-            # UNKNOWN -> ERROR
-            # pylint: disable-next=line-too-long
-            # if activity_status == Status.SUCCESS or activity_status == Status.FAIL or activity_status == Status.ERROR:
-            # new_block_status = activity_status
-
-            # UNKNOWN -> SKIPPED
-            # UNKNOWN -> ABORTED
-            # elif activity_status == Status.SKIPPED or activity_status == Status.ABORTED:
-            # if activity_block_interrupted:
-            #  new_block_status = activity_status
-
-        elif current_block_status == Status.SUCCESS:
-            # SUCCESS -> FAIL
-            # SUCCESS -> ERROR
-            if activity_status in (Status.FAIL, Status.ERROR):
-                new_block_status = activity_status
-
-            # SUCCESS -> SKIPPED
-            # SUCCESS -> ABORTED
-            elif activity_status in (Status.SKIPPED, Status.ABORTED):
-                if activity_block_interrupted:
-                    new_block_status = activity_status
-
-        elif current_block_status in (Status.SKIPPED, Status.ABORTED):
-            # SKIPPED -> FAIL
-            # SKIPPED -> ERROR
-            # ABORTED -> FAIL
-            # ABORTED -> ERROR
-            if activity_status in (Status.FAIL, Status.ERROR):
-                new_block_status = activity_status
-
-        elif current_block_status == Status.ERROR:
-            # ERROR -> FAIL
-            if activity_status == Status.FAIL:
-                new_block_status = activity_status
-
-
-        self._print("(block-status) ---------> new_block_status = " + str(new_block_status))
-        state_transition_summary = self._create_state_transition_summary(activity, current_block_status, new_block_status)
-        action_str: str = activity.context.get_from_activity(key=ctx.ACTION)
-        ActivityBlockRules._transition_summary.add(activity.id,activity.status,action_str,current_block_status,new_block_status)
-        logging.warning(f"Activity Block Status: {new_block_status}")
-        return new_block_status, state_transition_summary
 
 
     def get_activity_block_status(self, data)->(str,str):

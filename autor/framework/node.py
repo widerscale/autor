@@ -36,6 +36,7 @@ class Node:
         self._activity_data = None # Added when the activity data is created. # type:ActivityData
         self._activity_runner = None # Added when the activity is being run. # type:ActivityRunner
         self._previous_activity_in_running_order_during_last_run = None # Activity ID
+        self._interrupted:bool = False # True if this node should not run
 
 
     def print(self):
@@ -56,6 +57,14 @@ class Node:
     @previous_activity_in_running_order_during_last_run.setter
     def previous_activity_in_running_order_during_last_run(self, value:str):
         self._previous_activity_in_running_order_during_last_run = value
+
+    @property
+    def interrupted(self) -> bool:
+        return self._interrupted
+
+    @interrupted.setter
+    def interrupted(self, value:bool):
+        self._interrupted = value
 
     @property
     def status(self) -> NodeStatus:

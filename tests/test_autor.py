@@ -523,5 +523,5 @@ def test_parentSkipLeadsToChildSkip():
 def test_parentSkipLeadsToChildSKipAndInterrupt():
     ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency2ParentSkipLeadsToChildSKipAndInterrupt___ABORTED.json')
 
-# def test_concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDesc():
-#     ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDescendents___ABORTED.json')
+def test_concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDesc():
+    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDescendants___ABORTED.json')

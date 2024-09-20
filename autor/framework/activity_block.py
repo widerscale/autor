@@ -336,6 +336,10 @@ class ActivityBlock(StateProducer):
         # Status is not considered as an output.
         self._latest_activity_that_finished_running:str = None
 
+        self._graph:ActivityBlockGraph = None
+
+
+
         #---------------------------------- DEBUGGING SUPPORT -------------------------------------#
         # This value will be added to the state data for the extensions to play around with.
         # Key: DBG_EXTENSION_TEST_STR
@@ -346,6 +350,8 @@ class ActivityBlock(StateProducer):
 
         # Nodes listed in the order that they finished running. For writing concurrency tests.
         self._nodes_finished_order:List[Node] = []
+
+
 
 
 
@@ -1328,11 +1334,16 @@ class ActivityBlock(StateProducer):
             else:
                 interrupt = not self._rules.continue_on(data, self._mode, action)
 
-            if self._concurrent_interrupt_mode == InterruptMode.INTERRUPT_ALL_ACTIVITIES:
-                self._activity_block_interrupted = interrupt
-                logging.error(f"###################### SETTING INTERRUPT: {self._activity_block_interrupted}")
-            else:
-                Check.is_true(False, "Requested interruption mode not implemented. Implement!")
+            if interrupt:
+                if self._concurrent_interrupt_mode == InterruptMode.INTERRUPT_ALL_ACTIVITIES:
+                    self._activity_block_interrupted = interrupt
+                    self._graph.mark_all_nodes_as_interrupted()
+                    logging.error(f"###################### Interrupting all activities")
+                else:
+                    self._activity_block_interrupted = interrupt
+                    self._graph.mark_node_and_all_descendants_as_interrupted(data.activity_node)
+                    logging.error(f"###################### Interrupting all descendants to {data.activity_id}")
+                   # Check.is_true(False, "Requested interruption mode not implemented. Implement!")
         else:
             logging.error("###################### ALREADY INTERRUPTED")
 
@@ -1549,19 +1560,19 @@ class ActivityBlock(StateProducer):
         #     self._activity_block_status = Status.SUCCESS
 
         ######################## new ###############################
-        graph:ActivityBlockGraph = ActivityBlockGraph()
-        graph.initiate(self._flow_config.activity_block(self._activity_block_id), rerun_activity_ids=self._activity_ids_special)
+        self._graph:ActivityBlockGraph = ActivityBlockGraph()
+        self._graph.initiate(self._flow_config.activity_block(self._activity_block_id), rerun_activity_ids=self._activity_ids_special)
         if Flags.print_graph:
-            graph.print()
+            self._graph.print()
 
         # Graph has created all activity ids. Now we can check that activity ids provided by the user are correct.
         for activity_id in self._activity_ids_special:
-            if not graph.has_node(activity_id):
-                activity_ids:List = graph.get_activity_ids()
+            if not self._graph.has_node(activity_id):
+                activity_ids:List = self._graph.get_activity_ids()
                 activity_ids = "\n".join(activity_ids)
                 Check.is_true(False, f"Could not find the provided activity id: {activity_id} in the activity block. Valid activity ids:\n{activity_ids}")
 
-        monitor = ActivityBlockMonitor(activity_block=self, graph=graph)
+        monitor = ActivityBlockMonitor(activity_block=self, graph=self._graph)
         self._monitor = monitor
         #logging.error("Before monitor.run_nodes()")
         monitor.run_nodes()
