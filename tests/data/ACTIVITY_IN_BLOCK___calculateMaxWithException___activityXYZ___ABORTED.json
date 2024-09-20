@@ -1,0 +1,18 @@
+{
+    "initial_context_snapshot": {},
+    "mode": "ACTIVITY_IN_BLOCK",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
+    "abortType": "ABORTED_BY_FRAMEWORK",
+    "activityBlockStatus": "ABORTED",
+    "activityBlockInterrupted": false,
+    "_activityBlocks": {
+        "calculateMaxWithException": {
+            "initial_context_snapshot": {},
+            "mode": "ACTIVITY_IN_BLOCK",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
+            "abortType": "ABORTED_BY_FRAMEWORK",
+            "activityBlockStatus": "ABORTED",
+            "activityBlockInterrupted": false
+        }
+    }
+}

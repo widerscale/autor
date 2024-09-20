@@ -58,10 +58,15 @@ class ActivityBlockGraph:
         # self._finished:List[Node] = []
         # self._blocked:List[Node] = []
 
-        self._nodes:Dict[Node] = {} # All nodes of the graph
+        self._nodes:Dict[Node] = {} # All nodes of the graph. Format: {activity_id:Node}
 
         self._nbr_finished:int = 0
 
+    def has_node(self, activity_id:str)->bool:
+        return activity_id in self._nodes
+
+    def get_activity_ids(self)->List[str]:
+        return self._nodes.keys()
 
 
     def graph_finished(self)->bool:

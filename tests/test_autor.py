@@ -142,6 +142,18 @@ def test_exception_handling2():
     # Activity name that does not exist.
     ab = test.run2(activity_name='activityXYZ', expectation='ACTIVITY_IN_BLOCK___calculateMaxWithException___activityXYZ___UNKNOWN')
 
+def test_exception_handling2():
+    err_msg = f"Could not find the provided activity id: calculateMaxWithException-activityXYZ in the activity block. Valid activity ids:"\
+                f"\ncalculateMaxWithException-activity1"\
+                f"\ncalculateMaxWithException-activity2"\
+                f"\ncalculateMaxWithException-activity3"\
+                f"\ncalculateMaxWithException-activity4"
+    ab = test.run2(activity_name='activityXYZ', expectation='ACTIVITY_IN_BLOCK___calculateMaxWithException___activityXYZ___ABORTED', err_msg=err_msg)
+
+
+
+
+
 def test_exception_handling3():
     # Flow allows ERROR, but activity throws an exception.
     # Autor should continue running activities after the ERROR, but mark the activity block status as ERROR.
@@ -206,7 +218,9 @@ def test_ACTIVITY_BLOCK_err_misspelled_activity_block_name():
     ab = test.run(activity_block_id='thisActivityBlockDoesNotExist', mode="ACTIVITY_BLOCK", status="ABORTED", err_msg="No activity block named 'thisActivityBlockDoesNotExist' was found.")
 
 def test_ACTIVITY_BLOCK_err_misspelled_activity_type():
-    err_msg = f"No activity with the type: 'max-misspelled' registered. \n          - Check the spelling of the 'type' int the activity decorator. \n          - Make sure the activity module has been added to the Flow Configuration (if it is used) or provided as a parameter to Autor."
+    err_msg = f"No activity with the type: 'max-misspelled' registered. \n" \
+              f"          - Check the spelling of the 'type' in the activity decorator. \n" \
+              f"          - Make sure the activity module has been added to the Flow Configuration (if Flow Configuration is used) or provided as a parameter to Autor."
     ab = test.run2(expectation="ACTIVITY_BLOCK___activityTypeMisspelled___ERROR", err_msg=err_msg)
 
 def test_ACTIVITY_BLOCK_err_activity_defined_without_type():
@@ -508,3 +522,6 @@ def test_parentSkipLeadsToChildSkip():
 
 def test_parentSkipLeadsToChildSKipAndInterrupt():
     ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency2ParentSkipLeadsToChildSKipAndInterrupt___ABORTED.json')
+
+# def test_concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDesc():
+#     ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDescendents___ABORTED.json')

@@ -1436,6 +1436,130 @@ activityBlocks:
 
 
 
+  concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDescendents: # Naming in finishing order - easier to verify visually
+    concurrentInterruptMode: INTERRUPT_DESCENDENT_ACTIVITIES
+    activities:
+      - type: sleepy-sleeper
+        name: one
+        configuration:
+          sleep_seconds: 0.1
+
+      - type: sleepy-sleeper
+        name: two
+        configuration:
+          sleep_seconds: 0.1
+          outcome: SKIPPED    # Parent
+
+      # --------------------- group 1 ----------------------#
+      - type: sleepy-sleeper
+        name: nine
+        concurrencyGroup: group_1
+        configuration:
+          sleep_seconds: 0.1
+      # --------------------- TRACK A ----------------------#
+      - type: sleepy-sleeper
+        name: four
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 0.1
+        runOn:
+          activityStatus:
+            _parents:
+              - SUCCESS     # If one of the parents is not SUCCESS -> skip by config
+        continueOn:
+          - SUCCESS
+
+      - type: sleepy-sleeper
+        name: eight
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 0.1
+
+      - type: sleepy-sleeper
+        name: ten
+        concurrencyGroup: group_1
+        concurrencyTrack: track_A
+        configuration:
+          sleep_seconds: 0.1
+
+      # --------------------- TRACK B ----------------------#
+      - type: sleepy-sleeper
+        name: five
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 0.1
+
+      - type: sleepy-sleeper
+        name: six
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 0.1
+
+      - type: sleepy-sleeper
+        name: seven
+        concurrencyGroup: group_1
+        concurrencyTrack: track_B
+        configuration:
+          sleep_seconds: 0.1
+
+      # ----------------------------------------------------#
+
+      - type: sleepy-sleeper
+        name: three
+        concurrencyGroup: group_1
+        configuration:
+          sleep_seconds: 0.1
+
+      # --------------------- group 2 ----------------------#
+      - type: sleepy-sleeper
+        name: twelve
+        concurrencyGroup: group_2
+        configuration:
+          sleep_seconds: 0.1
+
+      - type: sleepy-sleeper
+        name: eleven
+        concurrencyGroup: group_2
+        configuration:
+          sleep_seconds: 0.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

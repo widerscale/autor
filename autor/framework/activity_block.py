@@ -181,15 +181,15 @@ class ActivityBlock(StateProducer):
         Check.is_true(Mode.is_valid(mode), msg=f'Unknown mode: {mode}. The valid modes are: {Mode.get_valid_constants(Mode)}')
 
         self._flags = flags
-        self._interrupt_mode = InterruptMode.ALL_UNRUN_ACTIVITIES
+        self._concurrent_interrupt_mode = InterruptMode.INTERRUPT_ALL_ACTIVITIES
 
 
 
         #------------------------- mode: ACTIVITY ------------------------------#
-        self._activity_module: str = activity_module   # mode: ACTIVITY
-        self._activity_type: str = activity_type     # mode: ACTIVITY
-        self._input: dict = input                   # mode: ACTIVITY
-        self._activity_config: dict = activity_config     # mode: ACTIVITY
+        self._activity_module: str = activity_module    # mode: ACTIVITY
+        self._activity_type: str = activity_type        # mode: ACTIVITY
+        self._input: dict = input                       # mode: ACTIVITY
+        self._activity_config: dict = activity_config   # mode: ACTIVITY
         # ------------------------- mode: ACTIVITY ------------------------------#
 
 
@@ -1082,6 +1082,13 @@ class ActivityBlock(StateProducer):
         self._flow_config = load_flow_configuration(self._flow_config_path)
         self._flow_id = self._flow_config.flow_id
 
+        # Interrupt is not relevant in mode ACTIVITY.
+        if self._mode != Mode.ACTIVITY:
+            interrupt_mode = self._flow_config.activity_block(self._activity_block_id).concurrent_interrupt_mode
+            if interrupt_mode is not None:
+                self._concurrent_interrupt_mode = interrupt_mode
+
+
 
 
     def _initiate_context(self):
@@ -1115,33 +1122,35 @@ class ActivityBlock(StateProducer):
         prefix = DebugConfig.autor_info_prefix
         Util.print_header(prefix, title, 'info')
         attr = self._mode
-        self._print_attribute(attr, "mode:                   ")
+        self._print_attribute(attr, "mode:                      ")
+        attr = self._concurrent_interrupt_mode
+        self._print_attribute(attr, "concurrent_interrupt_mode: ")
         attr = self._additional_extensions
-        self._print_attribute(attr, "additional_extensions:  ")
+        self._print_attribute(attr, "additional_extensions:     ")
         attr = self._activity_block_id
-        self._print_attribute(attr, "activity_block_id:      ")
+        self._print_attribute(attr, "activity_block_id:         ")
         attr = self._activity_config
-        self._print_attribute(attr, "activity_config:        ")
+        self._print_attribute(attr, "activity_config:           ")
         attr = self._activity_id_special
-        self._print_attribute(attr, "activity_id_special:    ")
+        self._print_attribute(attr, "activity_id_special:       ")
         attr = ','.join(self._activity_ids_special)
-        self._print_attribute(attr, "activity_ids_special:   ")
+        self._print_attribute(attr, "activity_ids_special:      ")
         attr = self._input
-        self._print_attribute(attr, "input:                  ")
+        self._print_attribute(attr, "input:                     ")
         attr = self._activity_module
-        self._print_attribute(attr, "activity_module:        ")
+        self._print_attribute(attr, "activity_module:           ")
         attr = self._activity_name_special
-        self._print_attribute(attr, "activity_name_special:  ")
+        self._print_attribute(attr, "activity_name_special:     ")
         attr = ','.join(self._activity_names_special)
-        self._print_attribute(attr, "activity_names_special: ")
+        self._print_attribute(attr, "activity_names_special:    ")
         attr = self._activity_type
-        self._print_attribute(attr, "activity_type:          ")
+        self._print_attribute(attr, "activity_type:             ")
         attr = self._custom_data
-        self._print_attribute(attr, "custom_data:            ")
+        self._print_attribute(attr, "custom_data:               ")
         attr = self._flow_run_id
-        self._print_attribute(attr, "flow_run_id:            ")
+        self._print_attribute(attr, "flow_run_id:               ")
         attr = self._flow_config_path
-        self._print_attribute(attr, "flow_config_path:       ")
+        self._print_attribute(attr, "flow_config_path:          ")
 
 
         logging.info(f'{prefix}')
@@ -1197,45 +1206,7 @@ class ActivityBlock(StateProducer):
             logging.info(f"{prefix}")
         # fmt: on
 
-    # def _create_activities_configurations(self):
-    #     try:
-    #
-    #         ######################## new ###############################
-    #         graph:ActivityBlockGraph = ActivityBlockGraph()
-    #         graph.initiate(self._flow_config.activity_block(self._activity_block_id))
-    #         graph.print()
-    #         ######################## new ###############################
-    #
-    #         # pylint: disable=line-too-long
-    #         # fmt: off
-    #         self._activity_block_config = self._flow_config.activity_block(self._activity_block_id)
-    #         self._activity_block_configs_main_activities = self._activity_block_config.activities
-    #         self._activity_block_configs_before_block    = self._activity_block_config.before_block
-    #         self._activity_block_configs_after_block     = self._activity_block_config.after_block
-    #         self._activity_block_configs_before_activity = self._activity_block_config.before_activity
-    #         self._activity_block_configs_after_activity  = self._activity_block_config.after_activity
-    #
-    #         # fmt: on
-    #         # pylint: enable=line-too-long
-    #
-    #         if (
-    #             len(self._activity_block_configs_main_activities) == 0
-    #             and len(self._activity_block_configs_before_block) == 0
-    #             and len(self._activity_block_configs_after_block) == 0
-    #             and len(self._activity_block_configs_before_activity) == 0
-    #             and len(self._activity_block_configs_after_activity) == 0
-    #         ):
-    #             raise AutorFrameworkValueException(
-    #                 (
-    #                     "No activity configurations found in the configuration of the activity"
-    #                     + f" block: {str(self._activity_block_id)!r} -> no activities to run"
-    #                 )
-    #             )
-    #
-    #     except Exception as e:
-    #         raise AutorFrameworkException(
-    #             f"Could not create activity configurations: {e.__class__.__name__}: {str(e)}"
-    #         ) from e
+
 
     def _create_data(self, activity_node:Node):  # -> ActivityData
         activity_id = activity_node.activity_id
@@ -1285,7 +1256,7 @@ class ActivityBlock(StateProducer):
         data.activity_config        = activity_config
         data.activity_type          = activity_config.activity_type
 
-        data.interrupted            = self._activity_block_interrupted
+        data.activity_block_interrupted = self._activity_block_interrupted
         data.activity_block_id      = self._activity_block_id
         data.activity_block_run_id  = self._activity_block_run_id
         data.flow_run_id            = self._flow_run_id
@@ -1357,7 +1328,7 @@ class ActivityBlock(StateProducer):
             else:
                 interrupt = not self._rules.continue_on(data, self._mode, action)
 
-            if self._interrupt_mode == InterruptMode.ALL_UNRUN_ACTIVITIES:
+            if self._concurrent_interrupt_mode == InterruptMode.INTERRUPT_ALL_ACTIVITIES:
                 self._activity_block_interrupted = interrupt
                 logging.error(f"###################### SETTING INTERRUPT: {self._activity_block_interrupted}")
             else:
@@ -1365,7 +1336,7 @@ class ActivityBlock(StateProducer):
         else:
             logging.error("###################### ALREADY INTERRUPTED")
 
-        data.interrupted = self._activity_block_interrupted
+        data.activity_block_interrupted = self._activity_block_interrupted
         self._activity_block_status, state_transition_summary = self._rules.get_activity_block_status(data)
         data.activity_block_status = self._activity_block_status
         self._activity_block_run_summary.append(state_transition_summary) # For logging purposes only
@@ -1582,6 +1553,13 @@ class ActivityBlock(StateProducer):
         graph.initiate(self._flow_config.activity_block(self._activity_block_id), rerun_activity_ids=self._activity_ids_special)
         if Flags.print_graph:
             graph.print()
+
+        # Graph has created all activity ids. Now we can check that activity ids provided by the user are correct.
+        for activity_id in self._activity_ids_special:
+            if not graph.has_node(activity_id):
+                activity_ids:List = graph.get_activity_ids()
+                activity_ids = "\n".join(activity_ids)
+                Check.is_true(False, f"Could not find the provided activity id: {activity_id} in the activity block. Valid activity ids:\n{activity_ids}")
 
         monitor = ActivityBlockMonitor(activity_block=self, graph=graph)
         self._monitor = monitor

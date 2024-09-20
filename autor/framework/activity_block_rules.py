@@ -260,10 +260,10 @@ class ActivityBlockRules:
 
 
 
-    def _get_action(self, data, ignore_unrun=False):
+    def _get_action(self, data:ActivityData, ignore_unrun=False):
 
         activity_group_type = data.activity_group_type
-        interrupted = data.interrupted
+        interrupted = data.activity_block_interrupted
         self._print("(run-decision) activity_group_type       = " + str(activity_group_type))
 
         # @TODO add warnings if wrong configuration is added
@@ -728,14 +728,14 @@ class ActivityBlockRules:
 
 
 
-    def ____old____get_activity_block_status(self, data, autor_aborted)->(str,str):
+    def ____old____get_activity_block_status(self, data:ActivityData, autor_aborted)->(str,str):
 
         assert len(data.activities) > 0
 
         current_block_status = data.activity_block_status
         # list is never empty.
         activity = data.activities[-1]
-        activity_block_interrupted = data.interrupted
+        activity_block_interrupted = data.activity_block_interrupted
 
         self._print("(block-status) current_block_status:       " + str(current_block_status))
         self._print("(block-status) activity.status:            " + str(activity.status))

@@ -34,7 +34,7 @@ class ActivityData:
         self.activity_block_id:str = None
         self.activity_block_run_id:str = None
         self.activity_block_status = None
-        self.interrupted = None
+        self.activity_block_interrupted = None
 
         self.action = None # See Constants.Action
         self.activity = None
@@ -94,7 +94,7 @@ class ActivityData:
         self._print(f"activity_block_id: {self.activity_block_id}")
         self._print(f"activity_block_run_id: {self.activity_block_run_id}")
         self._print(f"activity_block_status: {self.activity_block_status}")
-        self._print(f"interrupted: {self.interrupted}")
+        self._print(f"interrupted: {self.activity_block_interrupted}")
         self._print(f"action: {self.action}")
         self._print(f"activity: {self.activity}")
         self._print(f"activity_id: {self.activity_id}")

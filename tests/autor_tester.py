@@ -244,8 +244,11 @@ class AutorTester():
 
         if expectation is not None:
             AutorTester._validate_context(expectation)
+            AutorTester._validate_error_message(activity_block, err_msg)
         else:
             AutorTester._validate(activity_block, expected_status=status, expected_err_msg=err_msg)
+
+
 
 
         return activity_block
@@ -254,9 +257,11 @@ class AutorTester():
     def _validate(activity_block:ActivityBlock, expected_status:str, expected_err_msg:str=None):
         Check.not_none(expected_status, "'expected_status' is mandatory - was not provided")
         actual_status = activity_block.get_activity_block_status()
-
-
         Check.expected(expected_status, actual_status, "Activity block did not have expected status")
+        AutorTester._validate_error_message(activity_block,expected_err_msg)
+
+    @staticmethod
+    def _validate_error_message(activity_block:ActivityBlock, expected_err_msg:str=None):
         if expected_err_msg is not None:
             ex:Exception = activity_block.get_exception()
             Check.not_none(ex, f"No exception provided by ActivityBlock. Expected exception with message: {expected_err_msg}")
@@ -285,7 +290,8 @@ class AutorTester():
 
         expected_ab_id:str =list(expected_abs.keys())[0]
         expected_ab:dict = expected_abs[expected_ab_id]
-        expected_activities:dict = expected_ab["_activities"]
+
+        expected_activities:dict = expected_ab.get("_activities",{})
 
         # Actual
         actual_abs:dict = actual_ctx["_activityBlocks"]
@@ -293,7 +299,7 @@ class AutorTester():
        # Check.is_true(expected_ab_id in actual_abs, f"Expected activity block id: {expected_ab_id}. Did not find it.")
 
         actual_ab:dict = actual_abs[expected_ab_id]
-        actual_activities:dict = actual_ab["_activities"]
+        actual_activities:dict = actual_ab.get("_activities",{})
 
         # Check activity block data
         Check.is_equal(expected_ab['mode'],actual_ab['mode'], f"Expected mode:{expected_ab['mode']}, got: {actual_ab['mode']}")

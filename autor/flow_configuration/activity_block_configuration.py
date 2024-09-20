@@ -68,11 +68,16 @@ class ActivityBlockConfiguration(Configurable):
     ):
         super().__init__(name, configuration_dict, flow_configuration, flow_dummy_configuration)
         self.__configuration_dict = configuration_dict
+        self.__concurrent_interrupt_mode = None
         self.__activities = None
         self.__before_block = None
         self.__after_block = None
         self.__before_activity = None
         self.__after_activity = None
+
+    @property
+    def concurrent_interrupt_mode(self) -> str:
+        return self.__configuration_dict.get("concurrentInterruptMode", None) # ok if None
 
     @property
     def worker(self) -> Worker:
