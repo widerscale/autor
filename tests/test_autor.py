@@ -476,14 +476,12 @@ def test_concurrency_input_modifier_and_rerun():
 
 
     ab = test.run2(custom_data=custom_data, expectation='ACTIVITY_BLOCK___concurrency_1___AutorFrameworkActivityInputModifier=eight=outcome=FAIL_three=outcome=FAIL_five=outcome=FAIL___FAIL.json')
-    # _check_activity_started_and_finished_order(activities_started_order[:8], activities_finished_order[:8], ab)
-    # ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="eight", expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___eight___flow_run_id___FAIL.json')
-    # _check_activity_started_and_finished_order(activities_started_order[:3], activities_finished_order[:2], ab)
-    # ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["three", "five"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___three_five___flow_run_id___SUCCESS.json')
-    # _check_activity_started_and_finished_order(activities_started_order[:4], activities_finished_order[:2], ab)
-    # ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["eight"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___eight2___flow_run_id___SUCCESS.json')
-    # _check_activity_started_and_finished_order(activities_started_order[:6], activities_finished_order[:2], ab)
-    # ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["six","nine"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___six_nine___flow_run_id___SUCCESS.json')
+    _check_activity_started_and_finished_order(activities_started_order[:8], activities_finished_order[:8], ab)
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="eight", expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___eight___flow_run_id___FAIL.json')
+    _check_activity_started_and_finished_order(activities_started_order[:3], activities_finished_order[:2], ab)
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["three", "four"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___three_four___flow_run_id___ABORTED.json')
+    _check_activity_started_and_finished_order(activities_started_order[:4], activities_finished_order[:2], ab)
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["five","eight"], expectation='ACTIVITY_BLOCK_RERUN___concurrency_1___five_eight___flow_run_id___SUCCESS.json')
 
 
 def test_concurrency2():
@@ -525,3 +523,20 @@ def test_parentSkipLeadsToChildSKipAndInterrupt():
 
 def test_concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDesc():
     ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency2ParentSkipLeadsToChildSKipAndInterrupt_interruptDescendants___ABORTED.json')
+
+def test_descendantConcurrency():
+    custom_data:dict = {}
+    data:dict = {}
+    custom_data["AutorFrameworkActivityInputModifier"] = data
+    data.setdefault("two",{}).setdefault("outcome","FAIL")
+    ab = test.run2(expectation='ACTIVITY_BLOCK___concurrency_2___AutorFrameworkActivityInputModifier=two=outcome=FAIL___FAIL',custom_data=custom_data)
+
+    data:dict = {}
+    custom_data["AutorFrameworkActivityInputModifier"] = data
+    data.setdefault("three",{}).setdefault("outcome","FAIL")
+    data.setdefault("eight", {}).setdefault("outcome", "FAIL")
+    data.setdefault("nine", {}).setdefault("outcome", "FAIL")
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="two", expectation='ACTIVITY_BLOCK_RERUN___concurrency_2___two___AutorFrameworkActivityInputModifier=three=outcome=FAIL_eight=outcome=FAIL_nine=outcome=FAIL___flow_run_id___FAIL',custom_data=custom_data)
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="eight", expectation='ACTIVITY_BLOCK_RERUN___concurrency_2___eight___flow_run_id___FAIL')
+    ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["nine","three","seven"],expectation='ACTIVITY_BLOCK_RERUN___concurrency_2___nine_three_seven___flow_run_id___SUCCESS')
+

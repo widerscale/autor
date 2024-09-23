@@ -266,6 +266,8 @@ class ActivityBlockRules:
         ab_interrupted = data.activity_block_interrupted
         node_interrupted = data.activity_node.interrupted
         interrupted = data.activity_block_interrupted and data.activity_node.interrupted
+        self._print(f"activity block interrupted = {ab_interrupted}")
+        self._print(f"activity interrputed       = {node_interrupted}")
         self._print("(run-decision) activity_group_type       = " + str(activity_group_type))
 
         # @TODO add warnings if wrong configuration is added
@@ -772,7 +774,6 @@ class ActivityBlockRules:
         state_transition_summary = self._create_state_transition_summary(activity, current_block_status, new_block_status)
         action_str: str = activity.context.get_from_activity(key=ctx.ACTION)
         ActivityBlockRules._transition_summary.add(activity.id,activity.status,action_str,current_block_status,new_block_status)
-        logging.warning(f"Activity Block Status: {new_block_status}")
         return new_block_status, state_transition_summary
 
 

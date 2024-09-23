@@ -2,10 +2,10 @@
     "initial_context_snapshot": {},
     "mode": "ACTIVITY_BLOCK_RERUN",
     "flowConfigPath": "test_flow_configs/test-config.yml",
-    "action": "RUN",
-    "status": "SUCCESS",
-    "activityBlockStatus": "SUCCESS",
-    "activityBlockInterrupted": false,
+    "action": "SKIP_BY_FRAMEWORK",
+    "status": "DID_NOT_RUN",
+    "activityBlockStatus": "ABORTED",
+    "activityBlockInterrupted": true,
     "_activityBlocks": {
         "concurrency_1": {
             "initial_context_snapshot": {},
@@ -36,7 +36,7 @@
                         "cfg_default__outcome": "SUCCESS",
                         "out_provide__status": "SUCCESS"
                     },
-                    "action": "REUSE",
+                    "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_1-four": {
@@ -70,61 +70,61 @@
                     "__props": {
                         "cfg_provide__sleep_seconds": 1.0,
                         "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "REUSE",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "concurrency_1-nine": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 1.0,
                         "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SKIPPED"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
                     "action": "REUSE",
-                    "status": "SKIPPED"
+                    "status": "DID_NOT_RUN"
                 },
                 "concurrency_1-five": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 5.0,
                         "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
-                    "action": "RUN",
-                    "status": "SUCCESS"
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "DID_NOT_RUN"
                 },
                 "concurrency_1-six": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 3.0,
                         "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
-                    "action": "RUN",
-                    "status": "SUCCESS"
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "DID_NOT_RUN"
                 },
                 "concurrency_1-eleven": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 3.0,
                         "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
-                    "action": "RUN",
-                    "status": "SUCCESS"
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "DID_NOT_RUN"
                 },
                 "concurrency_1-twelve": {
                     "__props": {
                         "cfg_provide__sleep_seconds": 1.0,
                         "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                        "out_provide__status": "DID_NOT_RUN"
                     },
-                    "action": "RUN",
-                    "status": "SUCCESS"
+                    "action": "SKIP_BY_FRAMEWORK",
+                    "status": "DID_NOT_RUN"
                 }
             },
-            "action": "RUN",
-            "status": "SUCCESS",
-            "activityBlockStatus": "SUCCESS",
-            "activityBlockInterrupted": false
+            "action": "SKIP_BY_FRAMEWORK",
+            "status": "DID_NOT_RUN",
+            "activityBlockStatus": "ABORTED",
+            "activityBlockInterrupted": true
         }
     }
 }

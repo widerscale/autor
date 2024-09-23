@@ -1164,6 +1164,7 @@ activityBlocks:
 
 
   concurrency_2: # Naming in finishing order - easier to verify visually
+    concurrentInterruptMode: INTERRUPT_DESCENDANT_ACTIVITIES
     activities:
       - type: sleepy-sleeper
         name: one
@@ -1817,3 +1818,7 @@ activityBlocks:
 #          name: AB1
 #        - type: empty
 #          name: AB2
+
+
+
+

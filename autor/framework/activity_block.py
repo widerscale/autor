@@ -444,9 +444,10 @@ class ActivityBlock(StateProducer):
             if initial_context_snapshot is None:
                 initial_context_snapshot: dict = Context.get_context_dict_copy()
                 self._activity_block_context.set("initial_context_snapshot", initial_context_snapshot)
-                logging.warning("Saved initial context.")
+                #logging.warning("Saved initial context.")
             else:
-                logging.warning("Initial context found.")
+                #logging.warning("Initial context found.")
+                pass
 
 
 
@@ -1326,38 +1327,33 @@ class ActivityBlock(StateProducer):
         data:ActivityData = self._activity_data
         action = data.action
 
-        if self._activity_block_interrupted is False: # Once the activity block has been interrupted it will remain interrupted.
-            logging.error("###################### NOT YET INTERRUPTED")
-            interrupt = False
-            if framework_error_occurred:
-                interrupt = True  # All framework and framework usage errors
-            else:
-                interrupt = not self._rules.continue_on(data, self._mode, action)
 
-            if interrupt:
-                if self._concurrent_interrupt_mode == InterruptMode.INTERRUPT_ALL_ACTIVITIES:
-                    self._activity_block_interrupted = interrupt
-                    self._graph.mark_all_nodes_as_interrupted()
-                    logging.error(f"###################### Interrupting all activities")
-                else:
-                    self._activity_block_interrupted = interrupt
-                    self._graph.mark_node_and_all_descendants_as_interrupted(data.activity_node)
-                    logging.error(f"###################### Interrupting all descendants to {data.activity_id}")
-                   # Check.is_true(False, "Requested interruption mode not implemented. Implement!")
+
+        interrupt = False
+        if framework_error_occurred:
+            interrupt = True  # All framework and framework usage errors
         else:
-            logging.error("###################### ALREADY INTERRUPTED")
+            interrupt = not self._rules.continue_on(data, self._mode, action)
+
+
+        if interrupt:
+            self._activity_block_interrupted = True
+
+            if self._concurrent_interrupt_mode == InterruptMode.INTERRUPT_ALL_ACTIVITIES:
+                self._graph.mark_all_nodes_as_interrupted()
+            elif self._concurrent_interrupt_mode == InterruptMode.INTERRUPT_DESCENDANT_ACTIVITIES:
+                self._graph.mark_node_and_all_descendants_as_interrupted(data.activity_node)
+            else:
+                Check.is_true(False, f"Unhandled InterruptMode: {self._concurrent_interrupt_mode}")
+
+
 
         data.activity_block_interrupted = self._activity_block_interrupted
         self._activity_block_status, state_transition_summary = self._rules.get_activity_block_status(data)
         data.activity_block_status = self._activity_block_status
         self._activity_block_run_summary.append(state_transition_summary) # For logging purposes only
 
-    # Autor is aborted when Autor framework errors occur,
-    #   or user does not follow the rules defined by Autor.
-    # Autor should NOT be aborted due to activity.run() errors, as these are considered
-    #   as expected framework usage errors and are handled by the framework rules.
-    # Once the activity block status is set to ABORTED due to Autor being aborted,
-    #  the status should not be changed afterward.
+
     def abort_autor(self, abort_reason):
         self._autor_aborted = True
         self._autor_aborted_reason = abort_reason
