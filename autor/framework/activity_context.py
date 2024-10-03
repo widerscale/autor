@@ -11,49 +11,23 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+from typing import Dict
+
 from autor.framework.context import Context
 
 
-# A Context class wrapper for activities. It allows to read values from anywhere in the context, but
-# limits writing to the area that belongs to the given activity.
+# A class for reading and writing values to one specific activity context.
 class ActivityContext:
-    def __init__(self, activity_block: str, activity: str):
-        self._activity = activity
-        self._activity_block = activity_block
-        self._context = Context(activity_block=activity_block, activity=activity)
+    def __init__(self, activity_block_id: str, activity_id: str):
+        self._context = Context(activity_block=activity_block_id, activity=activity_id)
 
-    def get_from_activity(
-        self,
-        key: str,
-        # pylint: disable-next=protected-access
-        default=Context._UNDEFINED,
-        activity: str = None,
-        activity_block: str = None,
-        search: bool = False,
-    ):
-        return self._context.get_from_activity(
-            key=key,
-            default=default,
-            activity=activity,
-            activity_block=activity_block,
-            search=search,
-        )
+    def get(self, key:str, default=Context.UNDEFINED):
+        return self._context.get(key=key,default=default)
 
-    def get_from_activity_block(
-        self,
-        key: str,
-        # pylint: disable-next=protected-access
-        default=Context._UNDEFINED,
-        activity_block: str = None,
-        search: bool = False,
-    ):
-        return self._context.get_from_activity_block(
-            key=key,
-            default=default,
-            activity_block=activity_block,
-            search=search,
-        )
+    def set(self, key:str, value, propagate_value:bool=False):
+        self._context.set(key=key, value=value, propagate_value=propagate_value)
 
-    # pylint: disable-next=protected-access
-    def get(self, key: str, default=Context._UNDEFINED, search: bool = False):
-        return self._context.get(key=key, default=default, search=search)
+    def raw(self)->Dict:
+        return self._context.raw()
+
+

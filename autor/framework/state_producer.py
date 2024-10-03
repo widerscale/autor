@@ -13,6 +13,8 @@
 #    under the License.
 import abc
 
+from autor.framework.activity_information import ActivityInformation
+
 
 class StateProducer:
     __metaclass__ = abc.ABCMeta

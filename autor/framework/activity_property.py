@@ -12,18 +12,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import logging
+from typing import Any
 
 
-class ContextProperty:
-    """A context property container class"""
+class ActivityProperty:
+    """An activity property container class"""
 
-    def __init__(self, name, module_name, class_name, mandatory, property_type, default):
+    def __init__(self, name, module_name, class_name, mandatory, property_type:type[Any], default):
         self.__name = name
         self.__module_name = module_name
         self.__class_name = class_name
         self.__mandatory = mandatory
-        self.__property_type = property_type
+        self.__property_type:type[Any] = property_type
         self.__default = default
+
 
     def print(self):
        #default_value_def = ""
@@ -64,11 +66,11 @@ class ContextProperty:
         self.__mandatory = n
 
     @property
-    def property_type(self) -> str:
+    def property_type(self) -> type[Any]:
         return self.__property_type
 
     @property_type.setter
-    def property_type(self, n):
+    def property_type(self, n:type[Any]):
         self.__property_type = n
 
     @property

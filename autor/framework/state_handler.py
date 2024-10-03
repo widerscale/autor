@@ -18,8 +18,7 @@ import sys
 
 from typing import List
 
-
-
+from autor.framework.activity_information import ActivityInformation
 from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.constants import ExceptionType
 from autor.framework.context import Context

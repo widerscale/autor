@@ -14,6 +14,7 @@
 
 import logging
 import uuid
+from abc import ABC
 from collections import OrderedDict
 
 import yaml
@@ -42,12 +43,11 @@ from autor.framework.util import Util
 # the configuration.
 class AutorFrameworkActivityInputModifier(StateListener):
 
-
     def on_before_activity_run(self, state: State):
-        my_data:dict = state.dict[sta.CUSTOM_DATA].get("AutorFrameworkActivityInputModifier",{})
-        ab_id:str = state.dict[sta.ACTIVITY_BLOCK_ID]
-        a_id:str = state.dict[sta.ACTIVITY_ID]
-        activity:Activity = state.dict[sta.ACTIVITY_INSTANCE]
+        my_data:dict = state.data_dict[sta.CUSTOM_DATA].get("AutorFrameworkActivityInputModifier", {})
+        ab_id:str = state.data_dict[sta.ACTIVITY_BLOCK_ID]
+        a_id:str = state.data_dict[sta.ACTIVITY_ID]
+        activity:Activity = state.data_dict[sta.ACTIVITY_INSTANCE]
 
         for key,val in my_data.items():
             if key == a_id or f"{ab_id}-{key}" == a_id:

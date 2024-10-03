@@ -13,7 +13,7 @@
 #    under the License.
 import copy
 import logging
-from typing import Type
+from typing import Type, Dict
 
 from autor.framework.autor_framework_exception import (
     AutorFrameworkException,
@@ -51,7 +51,7 @@ class Context:
     # C O N S T A N T S
     # ------------------
     # A string constant used as a value for undefined values.
-    _UNDEFINED = "_UNDEFINED"
+    UNDEFINED = "_UNDEFINED"
 
     # String constants that represent internal structure of the Context.
     _ACTIVITY_BLOCKS = "_activityBlocks"
@@ -60,7 +60,7 @@ class Context:
     # I D
     # -----------------------------------
     # A unique identifier of the context
-    _id: str = _UNDEFINED
+    _id: str = UNDEFINED
 
     # L O C A L   A N D   R E M O T E   C O N T E X T
     # -------------------------------------------------
@@ -96,7 +96,7 @@ class Context:
 
     @staticmethod
     def reset_static_data():
-        Context._id: str = Context._UNDEFINED
+        Context._id: str = Context.UNDEFINED
         Context._local_context: dict = {}              # The internal representation of the local context.
         Context._remote_context: RemoteContext = None  # Remote context that can be added by an extension.
 
@@ -136,7 +136,7 @@ class Context:
 
     # The representation of the local context as a dictionary
     @property
-    def local_context(self) -> str:
+    def local_context(self) -> Dict:
         return Context._local_context
 
     # Remote context is not mandatory. If set, the local context will be syncrhonized
@@ -164,9 +164,45 @@ class Context:
     # ---------------------------------------------------------------------------------------------#
     # --------------------------------------   G E T   M E T H O D S   ----------------------------#
     # ---------------------------------------------------------------------------------------------#
+    def raw(self) -> Dict:
+        # pylint: disable=no-else-return
+        # A C T I V I T Y
+        if self._focus == Focus.ACTIVITY:
+            try:
+                value = (
+                    self.local_context.get(self._ACTIVITY_BLOCKS)
+                    .get(self._activity_block)
+                    .get(self._ACTIVITIES)
+                    .get(self._activity)
+                )  # pylint: disable=no-member
+            except Exception as e:
+                return None # ok with None in case the
+                #raise AutorFrameworkContextKeyNotFoundException(f"Could not find raw dictionary for activity: {self._activity} in activity block: {self._activity_block}")
+            return value
+
+
+        # A C T I V I T Y   B L O C K
+        elif self._focus == Focus.ACTIVITY_BLOCK:
+            try:
+                value = (
+                    self.local_context.get(self._ACTIVITY_BLOCKS)
+                    .get(self._activity_block)
+                )  # pylint: disable=no-member
+            except Exception as e:
+                raise AutorFrameworkContextKeyNotFoundException(
+                    f"Could not find raw dictionary for activity: {self._activity} in activity block: {self.activity_block}")
+            return value
+
+        # F L O W
+        elif self._focus == Focus.FLOW:
+            return self.local_context
+
+        # E R R O R
+        raise AutorFrameworkException("Focus type not set.")
+
 
     # -------------------------------   P U B L I C   G E T   M E T H O D S   ---------------------#
-    def get(self, key: str, default=_UNDEFINED, search: bool = False) -> Type:
+    def get(self, key: str, default=UNDEFINED, search: bool = False) -> Type:
         # pylint: disable=no-else-return
         # A C T I V I T Y
         if self._focus == Focus.ACTIVITY:
@@ -186,7 +222,7 @@ class Context:
     def get_from_activity(
         self,
         key: str,
-        default=_UNDEFINED,
+        default=UNDEFINED,
         activity_block: str = None,
         activity: str = None,
         search: bool = False,
@@ -209,7 +245,11 @@ class Context:
         return value
 
     def get_from_activity_block(
-        self, key: str, default=_UNDEFINED, activity_block: str = None, search: bool = False
+        self,
+        key: str,
+        default=UNDEFINED,
+        activity_block: str = None,
+        search: bool = False
     ) -> Type:
         self._validate_key(key)
 
@@ -227,14 +267,14 @@ class Context:
 
         return value
 
-    def get_from_flow(self, key: str, default=_UNDEFINED) -> Type:
+    def get_from_flow(self, key: str, default=UNDEFINED) -> Type:
         self._validate_key(key)
         return self._get_from_flow(key=key, default=default)
 
     # ------------------------------   P R I V A T E   G E T   M E T H O D S   --------------------#
 
     def _get_from_activity(
-        self, key: str = None, default=_UNDEFINED, activity_block: str = None, activity: str = None
+        self, key: str = None, default=UNDEFINED, activity_block: str = None, activity: str = None
     ):
         value = None
         try:
@@ -245,7 +285,7 @@ class Context:
                 .get(activity)
                 .get(key, default)
             )  # pylint: disable=no-member
-            if value == self._UNDEFINED:
+            if value == self.UNDEFINED:
                 raise AutorFrameworkContextKeyNotFoundException(
                     (
                         "The activity context does not have the requested"
@@ -254,7 +294,7 @@ class Context:
                 )
 
         except Exception:
-            if default == self._UNDEFINED:
+            if default == self.UNDEFINED:
                 raise AutorFrameworkContextKeyNotFoundException(
                     (
                         f"The path to the context key: {key!r}"
@@ -265,14 +305,14 @@ class Context:
         return value
 
     def _get_from_activity_block(
-        self, key: str = None, default=_UNDEFINED, activity_block: str = None
+        self, key: str = None, default=UNDEFINED, activity_block: str = None
     ):
         value = None
         try:
             value = (
                 self.local_context.get(self._ACTIVITY_BLOCKS).get(activity_block).get(key, default)
             )  # pylint: disable=no-member
-            if value == self._UNDEFINED:
+            if value == self.UNDEFINED:
                 raise AutorFrameworkContextKeyNotFoundException(
                     (
                         "The activity block context does not have the requested key:'{key}'"
@@ -281,7 +321,7 @@ class Context:
                 )
 
         except Exception:
-            if default == self._UNDEFINED:
+            if default == self.UNDEFINED:
                 raise AutorFrameworkContextKeyNotFoundException(
                     (
                         "The path to the context key does not exist and no default"
@@ -292,10 +332,10 @@ class Context:
             value = default
         return value
 
-    def _get_from_flow(self, key: str = None, default=_UNDEFINED):
+    def _get_from_flow(self, key: str = None, default=UNDEFINED):
 
         value = self.local_context.get(key, default)
-        if value == self._UNDEFINED:
+        if value == self.UNDEFINED:
             raise AutorFrameworkContextKeyNotFoundException(
                 (
                     "The flow context does not have the requested"
@@ -308,7 +348,7 @@ class Context:
     # ----------------------------   P R I V A T E   S E A R C H   M E T H O D S   ----------------#
 
     def _search_from_activity(
-        self, key: str = None, default=_UNDEFINED, activity_block: str = None, activity: str = None
+        self, key: str = None, default=UNDEFINED, activity_block: str = None, activity: str = None
     ):
 
         try:  # Search on the activity level
@@ -330,7 +370,7 @@ class Context:
         return self._get_from_flow(key=key, default=default)  # with default
 
     def _search_from_activity_block(
-        self, key: str = None, default=_UNDEFINED, activity_block: str = None
+        self, key: str = None, default=UNDEFINED, activity_block: str = None
     ):
 
         try:  # Search on the activity block level

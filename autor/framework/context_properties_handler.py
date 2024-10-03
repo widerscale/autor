@@ -24,7 +24,7 @@ from autor.framework.context import Context
 from autor.framework.context_properties_registry import (
     ContextPropertiesRegistry,
 )
-from autor.framework.context_property import ContextProperty
+from autor.framework.activity_property import ActivityProperty
 from autor.framework.debug_config import DebugConfig
 from autor.framework.key_handler import KeyHandler
 from autor.framework.keys import ClassPropertiesKeys as prp
@@ -98,27 +98,27 @@ class ContextPropertiesHandler:
         """
 
         # Get a list of input properties for the object.
-        props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
+        props: List[ActivityProperty]
         if property_category == "CONFIG":
             property_source = "configuration"
             print_str = "config"
             prefix_provide = ContextPropertyPrefix.cfg_provide
             prefix_default = ContextPropertyPrefix.cfg_default
             #property_prefix = ContextPropertyPrefix.config
-            props: List[ContextProperty] = ContextPropertiesRegistry.get_config_properties(self._object)
+            props = ContextPropertiesRegistry.get_config_properties(self._object)
         elif property_category == "INPUT":
             property_source = "context"
             print_str = "input "
             prefix_provide = ContextPropertyPrefix.inp_provide
             prefix_default = ContextPropertyPrefix.inp_default
             #property_prefix = ContextPropertyPrefix.input
-            props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
+            props = ContextPropertiesRegistry.get_input_properties(self._object)
         else:
             raise AutorFrameworkException(f"Unhandled property category: {property_category}. Cannot load properties of that category.")
 
 
         for prop in props:
-            Check.is_instance_of(prop, ContextProperty)
+            Check.is_instance_of(prop, ActivityProperty)
 
             # Get the property value
             if property_category == "CONFIG":
@@ -217,7 +217,7 @@ class ContextPropertiesHandler:
 
 
 
-    def _check_input_properties_rules(self, prop:ContextProperty, prop_value, prop_category:str, resource_name:str, check_if_mandatory_values_provided:bool):
+    def _check_input_properties_rules(self, prop:ActivityProperty, prop_value, prop_category:str, resource_name:str, check_if_mandatory_values_provided:bool):
         cls = self._object.__class__
         # Rules
         # ___________________________________________________________
@@ -308,7 +308,7 @@ class ContextPropertiesHandler:
 
 
 
-    def _default_value_in_decorator(self, prop:ContextProperty):
+    def _default_value_in_decorator(self, prop:ActivityProperty):
         return prop.default != ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED
 
     def _get_type_name(self, str_type:str)->str:
@@ -328,7 +328,7 @@ class ContextPropertiesHandler:
 
     def get_output_properties_values(self, status_only:bool = False):
         # Get a list of output properties for the object
-        props: List[ContextProperty] = ContextPropertiesRegistry.get_output_properties(self._object)
+        props: List[ActivityProperty] = ContextPropertiesRegistry.get_output_properties(self._object)
         vals: dict = {}
         for prop in props:
             if (status_only and prop.name == "status") or (not status_only):
@@ -341,7 +341,7 @@ class ContextPropertiesHandler:
 
     def get_input_properties_values(self):
         # Get a list of output properties for the object
-        props: List[ContextProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
+        props: List[ActivityProperty] = ContextPropertiesRegistry.get_input_properties(self._object)
         vals: dict = {}
         for prop in props:
             try:
@@ -353,7 +353,7 @@ class ContextPropertiesHandler:
 
     def get_config_properties_values(self):
         # Get a list of output properties for the object
-        props: List[ContextProperty] = ContextPropertiesRegistry.get_config_properties(self._object)
+        props: List[ActivityProperty] = ContextPropertiesRegistry.get_config_properties(self._object)
         vals: dict = {}
         for prop in props:
             try:
@@ -378,13 +378,13 @@ class ContextPropertiesHandler:
         """
 
         # Get a list of output properties for the object
-        props: List[ContextProperty] = ContextPropertiesRegistry.get_output_properties(self._object)
+        props: List[ActivityProperty] = ContextPropertiesRegistry.get_output_properties(self._object)
 
         for prop in props:
 
             if (save_status_only and prop.name == "status") or (not save_status_only):
 
-                Check.is_instance_of(prop, ContextProperty)
+                Check.is_instance_of(prop, ActivityProperty)
 
                 # Get the property value from the object
                 prop_value = None

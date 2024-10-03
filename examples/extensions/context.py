@@ -26,7 +26,7 @@ from autor.framework.state_listener import StateListener
 
 class AddDummyRemoteContext(StateListener):
     def on_framework_start(self, state: State):
-        state.dict[sta.FLOW_CONTEXT].remote_context = DummyRemoteContext()
+        state.data_dict[sta.FLOW_CONTEXT].remote_context = DummyRemoteContext()
 
 
 
@@ -40,4 +40,4 @@ class DummyRemoteContext(RemoteContext):
 
 class AddFileContext(StateListener):
     def on_framework_start(self, state: State):
-        state.dict[sta.FLOW_CONTEXT].remote_context = FileContext()
+        state.data_dict[sta.FLOW_CONTEXT].remote_context = FileContext()

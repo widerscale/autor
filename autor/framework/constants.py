@@ -56,6 +56,11 @@ class ContextPropertyPrefix(Constant):
     out_provide = "out_provide__"
     props = "__props"
 
+class PropertyCategory(Constant):
+    inp = "inp"
+    cfg = "cfg"
+    out = "out"
+
 
 class ActivityGroupType(Constant):
     BEFORE_BLOCK = "BEFORE_BLOCK"                   # BBA
@@ -163,7 +168,6 @@ class ExceptionType(Constant):
 
 class ExceptionSource(Constant):
     AUTOR_INTERNAL = "AUTOR_INTERNAL",
-
     EXTENSION = "EXTENSION",
     ARGUMENT = "ARGUMENT",
     ACTIVITY = "ACTIVITY",

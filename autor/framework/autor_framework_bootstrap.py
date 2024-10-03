@@ -76,24 +76,24 @@ class AutorFrameworkBootstrap(StateListener):
 
     def on_context_synchronized(self, state: BeforeActivityBlock):
 
-        if state.dict[sta.MODE] == Mode.ACTIVITY:
-            flow_context:Context = state.dict[sta.FLOW_CONTEXT]
+        if state.data_dict[sta.MODE] == Mode.ACTIVITY:
+            flow_context:Context = state.data_dict[sta.FLOW_CONTEXT]
             autogen_activity_block_id_counter: int = flow_context.get("autogenActivityBlockIdCounter", 0)
             autogen_activity_block_id_counter = autogen_activity_block_id_counter + 1
             flow_context.set("autogenActivityBlockIdCounter", autogen_activity_block_id_counter)
 
             activity_block_id = f"{Constants.AUTOGEN_ACTIVITY_BLOCK_ID}{autogen_activity_block_id_counter}"
             self._fc_helper.create_flow_configuration(activity_block_id=activity_block_id,
-                                                      activity_module=state.dict[sta.ACTIVITY_MODULE],
-                                                      activity_type=state.dict[sta.ACTIVITY_TYPE],
-                                                      activity_config=state.dict[sta.ACTIVITY_CONFIG])
+                                                      activity_module=state.data_dict[sta.ACTIVITY_MODULE],
+                                                      activity_type=state.data_dict[sta.ACTIVITY_TYPE],
+                                                      activity_config=state.data_dict[sta.ACTIVITY_CONFIG])
             #state.flow_config_path = self._fc_helper.flow_configuration_url
-            state.dict[sta.ACTIVITY_BLOCK_ID] = activity_block_id
+            state.data_dict[sta.ACTIVITY_BLOCK_ID] = activity_block_id
 
 
             # --------------- Create activity name --------------------------#
             #activity_name = self._create_activity_name(activity_block_context)
-            state.dict[sta.ACTIVITY_NAME_SPECIAL] = 'activity1'
+            state.data_dict[sta.ACTIVITY_NAME_SPECIAL] = 'activity1'
             logging.debug(f'Generated activity name: activity1')
 
 

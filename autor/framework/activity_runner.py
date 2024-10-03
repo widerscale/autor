@@ -228,8 +228,6 @@ class ActivityRunner:
                 logging.info(f'{DebugConfig.autor_info_prefix}{threading.current_thread().ident} ACTION: {self._data.action}')
                 logging.info(f"{DebugConfig.autor_info_prefix}{threading.current_thread().ident} ---------> Started activity: [Name:{self._data.activity_name_unique} Type:{self._data.activity_type}, Class:{activity_full_class_name}] -------->")
 
-
-
                 LoggingConfig.activate_activity_logging()
                 if DebugConfig.print_activity:
                     self._data.activity.print()
@@ -243,6 +241,7 @@ class ActivityRunner:
 
 
             except Exception as e:
+                self._data.activity_exception = e
                 LoggingConfig.activate_framework_logging()
                 logging.warning(f"Exception caught during activity run: {e.__class__.__name__}: {str(e)}")
                 self._activity_run_exception_occurred = True

@@ -19,7 +19,7 @@ from autor.flow_configuration.activity_configuration import (
     ActivityConfiguration,
 )
 from autor.framework.activity_block_callback import ActivityBlockCallback
-from autor.framework.activity_context import ActivityContext
+#from autor.framework.activity_context import ActivityContext
 from autor.framework.activity_data import ActivityData
 from autor.framework.autor_framework_exception import (
     AutorFrameworkValueException,
@@ -62,7 +62,7 @@ class Activity(abc.ABC):
         # Configuration dictionary read from the Flow Configuration.
         self.__configuration: Dict = None
         # A context object for reading context data from flow context.
-        self.__context: ActivityContext = None
+        #self.__context: ActivityContext = None
         # Used for reading/saving properties from/to context.
         self.__context_properties_handler: ContextPropertiesHandler = None
         # Extensions of activity functionality called after activity block.
@@ -99,9 +99,9 @@ class Activity(abc.ABC):
         Check.is_non_empty_string(data.activity_type)
         self.__type = data.activity_type
 
-        Check.is_instance_of(data.activity_context, ActivityContext)
+        #Check.is_instance_of(data.activity_context, ActivityContext)
         # A context object for reading context data from flow context.
-        self.__context = data.activity_context
+        #self.__context = data.activity_context
 
         #Check.is_instance_of(data.output_context_properties_handler, ContextPropertiesHandler)
         # Used for reading/saving properties from/to context.
@@ -206,9 +206,9 @@ class Activity(abc.ABC):
     def configuration(self) -> Dict:
         return self.__configuration
 
-    @property
-    def context(self) -> ActivityContext:
-        return self.__context
+    #@property
+    #def context(self) -> ActivityContext:
+    #    return self.__context
 
     ########################## OPTIONAL properties ##########################
     # Properties that may be set by the activity.

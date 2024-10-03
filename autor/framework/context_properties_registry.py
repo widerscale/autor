@@ -56,12 +56,12 @@ Examples:
 import inspect
 import logging
 import traceback
-from typing import Dict, List
+from typing import Dict, List, Any
 import humps
 
 from autor.framework.autor_framework_exception import AutorFrameworkValueException
 from autor.framework.check import Check
-from autor.framework.context_property import ContextProperty
+from autor.framework.activity_property import ActivityProperty
 
 _DEFAULT_PROPERTY_VALUE_NOT_DEFINED = "DEFAULT_PROPERTY_VALUE_NOT_DEFINED"
 class ContextPropertiesRegistry:
@@ -74,9 +74,9 @@ class ContextPropertiesRegistry:
     # Input and output properties dictionaries contain ContextProperty objects for all
     #  class properties that are decorated with @input or/and @output decorators.
     # The lists are updated whenever a module is imported.
-    __inputs = {}  # type: Dict[str, ContextProperty]
-    __outputs = {}  # type: Dict[str, ContextProperty]
-    __configs = {} # type: Dict[str, ContextProperty]
+    __inputs:Dict[str, ActivityProperty] = {}
+    __outputs:Dict[str, ActivityProperty] = {}
+    __configs:Dict[str, ActivityProperty] = {}
 
     DEFAULT_PROPERTY_VALUE_NOT_DEFINED = _DEFAULT_PROPERTY_VALUE_NOT_DEFINED
 
@@ -225,7 +225,7 @@ class ContextPropertiesRegistry:
 
     # --------------------------- P R I V A T E   M E T H O D S ---------------------------------#
     @staticmethod
-    def __get_properties(instance, properties: Dict[str, ContextProperty]) -> List[ContextProperty]:
+    def __get_properties(instance, properties: Dict[str, ActivityProperty]) -> List[ActivityProperty]:
         """Return a list of properties for the given instance."""
 
         # module path + class name
@@ -277,7 +277,7 @@ class ContextPropertiesRegistry:
         stacktrace = ''.join(traceback.format_stack()[-3])
         module_name = stacktrace.split('"')[1]
 
-        context_prop = ContextProperty(property_name, module_name, class_name, mandatory, type, default)
+        context_prop = ActivityProperty(property_name, module_name, class_name, mandatory, type, default)
         #logging.info(f"MODULE: {module_name} -> {category} {func.__qualname__} {mandatory} {type} {default}")
 
         properties[f"{module_name}_{class_name}_{property_name}"] = context_prop

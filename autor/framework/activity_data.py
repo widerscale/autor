@@ -14,7 +14,7 @@
 import logging
 
 from autor.flow_configuration.activity_configuration import ActivityConfiguration
-from autor.framework.activity_context import ActivityContext
+#from autor.framework.activity_context import ActivityContext
 from autor.framework.autor_framework_exception import AutorFrameworkException
 from autor.framework.constants import ActivityGroupType
 from autor.framework.context import Context
@@ -47,7 +47,7 @@ class ActivityData:
         self.activity_config:ActivityConfiguration = None
         self.activity_type:str = None
 
-        self.activity_context:ActivityContext = None
+        #self.activity_context:ActivityContext = None
         self.input_context:Context = None # To read input props from (Activity Block level)
         self.output_context:Context = None # To write output props to (Activity level)
         #self.output_context_properties_handler:ContextPropertiesHandler = None
@@ -73,6 +73,9 @@ class ActivityData:
 
         self.need_to_abort:bool = False
         self.abort_reason:str =""
+
+
+        self.activity_exception:Exception = None # Exception caught by Autor framework during activity run.
 
 
 

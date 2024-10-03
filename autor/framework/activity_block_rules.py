@@ -615,9 +615,14 @@ class ActivityBlockRules:
                 activity = data.activities_by_unique_name.get(activity_name, None)
             return activity
 
+    def _get_activity_context(self, activity_block_id:str, activity_id:str)->dict:
+        return Context(activity_block=activity_block_id, activity=activity_id)
 
     def _main_was_skipped_by_framework(self, data):
-        last_main_context = data.main_activities[-1].context
+        # last_main_activity_id = data.main_activities[-1].id
+        # ctx = Context(activity_block=data.activity_block_id,activity=last_main_activity_id)
+        #last_main_context = data.main_activities[-1].context
+        last_main_context = self._get_activity_context(data.activity_block_id, data.main_activities[-1].id)
         skip_type = last_main_context.get(ctx.ACTION, None)
         skipped = (skip_type == Action.SKIP_BY_FRAMEWORK)
         self._print("_main_was_skipped_by_framework ---> " + str(skipped))
@@ -626,7 +631,9 @@ class ActivityBlockRules:
     def _all_before_activities_were_skipped_by_framework(self, data):
         all_skipped = True
         for activity in data.before_activities:
-            skip_type = activity.context.get(ctx.ACTION, None)
+            context:Context = Context(activity.activity_block_id,activity.id)
+            skip_type = context.get(ctx.ACTION, None)
+            #skip_type = activity.context.get(ctx.ACTION, None)
             # print("skip_type: " + str(skip_type) + " " + activity.id)
             all_skipped = all_skipped and (skip_type == Action.SKIP_BY_FRAMEWORK)
         self._print("_all_before_activities_were_skipped_by_framework ---> " + str(all_skipped))
@@ -635,7 +642,9 @@ class ActivityBlockRules:
     def _all_before_block_activities_were_skipped_by_framework(self, data):
         all_skipped = True
         for activity in data.before_block_activities:
-            skip_type = activity.context.get(ctx.ACTION, None)
+            context:Context = Context(activity.activity_block_id,activity.id)
+            skip_type = context.get(ctx.ACTION, None)
+            #skip_type = activity.context.get(ctx.ACTION, None)
             all_skipped = all_skipped and (skip_type == Action.SKIP_BY_FRAMEWORK)
         self._print("_all_before_block_activities_were_skipped_by_framework ---> " + str(all_skipped))
         return all_skipped
@@ -702,34 +711,6 @@ class ActivityBlockRules:
         )
         return ok_to_continue_with_next_activity
 
-    # Only for after-activities.
-    # Indicates on which main activity statuses the after-activity should be run.
-    def _run_on_main_activity_status_old(self, main_activity, after_activity_config):
-
-        # pylint: disable=no-member
-        run_on_main_activity_status = after_activity_config.configuration.get(cfg.RUN_ON_MAIN_ACTIVITY_STATUS, None)
-
-        # Value not obligatory -> use default
-        if run_on_main_activity_status is None:
-            ####run_on_main_activity_status = ActivityBlockRules.DEFAULT_RUN_ON_MAIN_ACTIVITY_STATUS
-            self._print("(run-decision) runOnMainActivityStatus = None -> use DEFAULT_RUN_ON_MAIN_ACTIVITY_STATUS")
-
-        self._print("(run-decision) runOnMainActivityStatus = " + str(run_on_main_activity_status))
-        self._print("(run-decision) main_activity.status:   = " + str(main_activity.status))
-
-        ok_to_run_activity = False
-
-        # Continue if:
-        # - The activity states that the flow should ALWAYS continue,
-        #  regardless the activity status.
-        # - The activity status is listed as one of the required statuses for the flow to continue.
-        if (len(run_on_main_activity_status)==0) or (main_activity.status in run_on_main_activity_status):
-            ok_to_run_activity = True
-
-        return ok_to_run_activity
-
-
-
 
     def get_activity_block_status(self, data)->(str,str):
 
@@ -772,7 +753,9 @@ class ActivityBlockRules:
 
         self._print("(block-status) ---------> new_block_status = " + str(new_block_status))
         state_transition_summary = self._create_state_transition_summary(activity, current_block_status, new_block_status)
-        action_str: str = activity.context.get_from_activity(key=ctx.ACTION)
+        context:Context = self._get_activity_context(activity.activity_block_id,activity.id)
+        action_str: str = context.get(key=ctx.ACTION)
+        #action_str: str = activity.context.get_from_activity(key=ctx.ACTION)
         ActivityBlockRules._transition_summary.add(activity.id,activity.status,action_str,current_block_status,new_block_status)
         return new_block_status, state_transition_summary
 
@@ -793,9 +776,11 @@ class ActivityBlockRules:
         status_str = str(activity.status)
 
         # Was the activity skipped by the framework?
-        skip_type = activity.context.get_from_activity(key=ctx.SKIP_TYPE, default=None)
-
-        action_str:str = activity.context.get_from_activity(key=ctx.ACTION)
+        context:Context = self._get_activity_context(activity.activity_block_id, activity.id)
+        #skip_type = ctx.get(key=ctx.SKIP_TYPE, default=None)
+        action_str:str = context.get(key=ctx.ACTION)
+        #skip_type = activity.context.get_from_activity(key=ctx.SKIP_TYPE, default=None)
+        #action_str:str = activity.context.get_from_activity(key=ctx.ACTION)
 
         return (
             str(activity.id).ljust(self._max_len_activity_name)
