@@ -11,137 +11,137 @@
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "sequenceRulesDependencyOnBeforeActivity2-BB1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-BB2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA1-BA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA1-BA2": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SKIPPED",
-                        "out_provide__status": "SKIPPED"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SKIPPED",
+                        "_outVal_status": "SKIPPED"
                     },
                     "action": "RUN",
                     "status": "SKIPPED"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA1-AA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA1-AA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA2-BA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA2-BA2": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SKIPPED",
-                        "out_provide__status": "SKIPPED"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SKIPPED",
+                        "_outVal_status": "SKIPPED"
                     },
                     "action": "RUN",
                     "status": "SKIPPED"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA2": {
-                    "__props": {
-                        "out_provide__status": "SKIPPED"
+                    "_props": {
+                        "_outVal_status": "SKIPPED"
                     },
                     "action": "SKIP_BY_CONFIGURATION",
                     "status": "SKIPPED"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA2-AA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA2-AA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA3-BA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA3-BA2": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SKIPPED",
-                        "out_provide__status": "SKIPPED"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SKIPPED",
+                        "_outVal_status": "SKIPPED"
                     },
                     "action": "RUN",
                     "status": "SKIPPED"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA3": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA3-AA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-MA3-AA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-AB1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDependencyOnBeforeActivity2-AB2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"

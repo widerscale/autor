@@ -11,134 +11,134 @@
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "sequenceRulesDefaults-BB1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-BB2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA1-BA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA1-BA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA1-AA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA1-AA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA2-BA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA2-BA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA2-AA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA2-AA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA3-BA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA3-BA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA3": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA3-AA1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-MA3-AA2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-AB1": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRulesDefaults-AB2": {
-                    "__props": {
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"

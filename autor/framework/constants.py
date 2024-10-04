@@ -49,12 +49,12 @@ class Constants(Constant):
     GENERATED_FLOW_CONFIG_PATH = "autor-config.yml"
 
 class ContextPropertyPrefix(Constant):
-    inp_default = "inp_default__"
-    inp_provide = "inp_provide__"
-    cfg_default = "cfg_default__"
-    cfg_provide = "cfg_provide__"
-    out_provide = "out_provide__"
-    props = "__props"
+    inp_default = "_inpDef_"
+    inp_provide = "_inpVal_"
+    cfg_default = "_cfgDef_"
+    cfg_provide = "_cfgVal_"
+    out_provide = "_outVal_"
+    props = "_props"
 
 class PropertyCategory(Constant):
     inp = "inp"

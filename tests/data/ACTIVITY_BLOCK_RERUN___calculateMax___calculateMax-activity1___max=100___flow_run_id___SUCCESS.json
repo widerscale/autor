@@ -1,5 +1,5 @@
 {
-    "initial_context_snapshot": {},
+    "_initial_context_snapshot": {},
     "max": 100,
     "mode": "ACTIVITY_BLOCK_RERUN",
     "flowConfigPath": "test_flow_configs/test-config.yml",
@@ -9,50 +9,50 @@
     "activityBlockInterrupted": false,
     "_activityBlocks": {
         "calculateMax": {
-            "initial_context_snapshot": {},
+            "_initial_context_snapshot": {},
             "max": 100,
             "mode": "ACTIVITY_BLOCK_RERUN",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "calculateMax-activity1": {
-                    "__props": {
-                        "cfg_provide__val": 3,
-                        "inp_provide__max": 100,
-                        "out_provide__status": "SUCCESS",
-                        "out_provide__max": 100
+                    "_props": {
+                        "_cfgVal_val": 3,
+                        "_inpVal_max": 100,
+                        "_outVal_status": "SUCCESS",
+                        "_outVal_max": 100
                     },
                     "action": "RUN",
                     "status": "SUCCESS",
                     "max": 100
                 },
                 "calculateMax-activity2": {
-                    "__props": {
-                        "cfg_provide__val": 1,
-                        "inp_provide__max": 100,
-                        "out_provide__status": "SUCCESS",
-                        "out_provide__max": 100
+                    "_props": {
+                        "_cfgVal_val": 1,
+                        "_inpVal_max": 100,
+                        "_outVal_status": "SUCCESS",
+                        "_outVal_max": 100
                     },
                     "action": "RUN",
                     "status": "SUCCESS",
                     "max": 100
                 },
                 "calculateMax-activity3": {
-                    "__props": {
-                        "cfg_provide__val": 5,
-                        "inp_provide__max": 100,
-                        "out_provide__status": "SUCCESS",
-                        "out_provide__max": 100
+                    "_props": {
+                        "_cfgVal_val": 5,
+                        "_inpVal_max": 100,
+                        "_outVal_status": "SUCCESS",
+                        "_outVal_max": 100
                     },
                     "action": "RUN",
                     "status": "SUCCESS",
                     "max": 100
                 },
                 "calculateMax-activity4": {
-                    "__props": {
-                        "cfg_provide__val": 4,
-                        "inp_provide__max": 100,
-                        "out_provide__status": "SUCCESS",
-                        "out_provide__max": 100
+                    "_props": {
+                        "_cfgVal_val": 4,
+                        "_inpVal_max": 100,
+                        "_outVal_status": "SUCCESS",
+                        "_outVal_max": 100
                     },
                     "action": "RUN",
                     "status": "SUCCESS",

@@ -1,5 +1,5 @@
 {
-    "initial_context_snapshot": {},
+    "_initial_context_snapshot": {},
     "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "RUN",
@@ -8,114 +8,114 @@
     "activityBlockInterrupted": false,
     "_activityBlocks": {
         "concurrency2ParentSkipLeadsToChildSKip": {
-            "initial_context_snapshot": {},
+            "_initial_context_snapshot": {},
             "mode": "ACTIVITY_BLOCK",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "concurrency2ParentSkipLeadsToChildSKip-one": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-two": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_provide__outcome": "SKIPPED",
-                        "out_provide__status": "SKIPPED"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgVal_outcome": "SKIPPED",
+                        "_outVal_status": "SKIPPED"
                     },
                     "action": "RUN",
                     "status": "SKIPPED"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-nine": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-four": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SKIPPED"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SKIPPED"
                     },
                     "action": "SKIP_BY_CONFIGURATION",
                     "status": "SKIPPED"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-five": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-three": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-eight": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-six": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-ten": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-seven": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-twelve": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency2ParentSkipLeadsToChildSKip-eleven": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"

@@ -343,7 +343,7 @@ class ActivityRunner:
         try:
             # Reuse activity outputs, if needed.
             if self._data.action == Action.REUSE:
-                # Read what outputs were provided during the previous run (saved in output_context __props) and
+                # Read what outputs were provided during the previous run (saved in output_context _props) and
                 # move them into output_context as direct values. Then they become available to the ContextPropertiesHandler.
                 self._prepare_output_reuse(self._original_props, self._data.activity)
 

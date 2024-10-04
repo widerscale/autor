@@ -11,73 +11,73 @@
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "sequenceRules2-first": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "FAIL",
-                        "out_provide__status": "FAIL"
+                    "_props": {
+                        "_cfgVal_status_to_set": "FAIL",
+                        "_outVal_status": "FAIL"
                     },
                     "action": "RUN",
                     "status": "FAIL"
                 },
                 "sequenceRules2-second": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "ABORTED",
-                        "out_provide__status": "ABORTED"
+                    "_props": {
+                        "_cfgVal_status_to_set": "ABORTED",
+                        "_outVal_status": "ABORTED"
                     },
                     "action": "RUN",
                     "status": "ABORTED"
                 },
                 "sequenceRules2-third": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRules2-fourth": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "SKIPPED"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "SKIPPED"
                     },
                     "action": "SKIP_BY_CONFIGURATION",
                     "status": "SKIPPED"
                 },
                 "sequenceRules2-fifth": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRules2-sixth": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRules2-seventh": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "FAIL",
-                        "out_provide__status": "FAIL"
+                    "_props": {
+                        "_cfgVal_status_to_set": "FAIL",
+                        "_outVal_status": "FAIL"
                     },
                     "action": "RUN",
                     "status": "FAIL"
                 },
                 "sequenceRules2-eighth": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "DID_NOT_RUN"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
                     "status": "DID_NOT_RUN"
                 },
                 "sequenceRules2-ninth": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "DID_NOT_RUN"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
                     "status": "DID_NOT_RUN"

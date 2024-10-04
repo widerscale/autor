@@ -12,25 +12,25 @@
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "statusFlowFail-first": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "statusFlowFail-second": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "FAIL",
-                        "out_provide__status": "FAIL"
+                    "_props": {
+                        "_cfgVal_status_to_set": "FAIL",
+                        "_outVal_status": "FAIL"
                     },
                     "action": "RUN",
                     "status": "FAIL"
                 },
                 "statusFlowFail-third": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "DID_NOT_RUN"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
                     "status": "DID_NOT_RUN"

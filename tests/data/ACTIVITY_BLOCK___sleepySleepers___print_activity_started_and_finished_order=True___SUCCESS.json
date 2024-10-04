@@ -1,5 +1,5 @@
 {
-    "initial_context_snapshot": {},
+    "_initial_context_snapshot": {},
     "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "RUN",
@@ -8,69 +8,69 @@
     "activityBlockInterrupted": false,
     "_activityBlocks": {
         "sleepySleepers": {
-            "initial_context_snapshot": {},
+            "_initial_context_snapshot": {},
             "mode": "ACTIVITY_BLOCK",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "sleepySleepers-first": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sleepySleepers-second": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sleepySleepers-third": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 3.0,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 3.0,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sleepySleepers-fifth": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sleepySleepers-sixth": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sleepySleepers-fourth": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.5,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sleepySleepers-seventh": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"

@@ -405,11 +405,11 @@ class ActivityBlock(StateProducer):
             # (no snapshot of the initial state of the activity block run has been saved)
             # then create and save a snapshot of the context. This can be later used for
             # re-runs.
-            initial_context_snapshot: dict = self._activity_block_context.get("initial_context_snapshot", default=None,
-                                                                              search=False)
+            context_key = "_initial_context_snapshot"
+            initial_context_snapshot: dict = self._activity_block_context.get(key=context_key, default=None, search=False)
             if initial_context_snapshot is None:
                 initial_context_snapshot: dict = Context.get_context_dict_copy()
-                self._activity_block_context.set("initial_context_snapshot", initial_context_snapshot)
+                self._activity_block_context.set(key=context_key, value=initial_context_snapshot)
                 #logging.warning("Saved initial context.")
             else:
                 #logging.warning("Initial context found.")
@@ -422,7 +422,7 @@ class ActivityBlock(StateProducer):
                 Context.set_context(initial_context_snapshot)
                 # Make sure to save the initial snapshot again.
                 initial_context_snapshot: dict = Context.get_context_dict_copy()
-                self._activity_block_context.set("initial_context_snapshot", initial_context_snapshot)
+                self._activity_block_context.set(key=context_key, value=initial_context_snapshot)
 
                 logging.warning("Mode ACTIVITY-BLOCK-RERUN -> resetting context to initial snapshot")
 

@@ -11,33 +11,33 @@
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "sequenceRules1-activity1": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "FAIL",
-                        "out_provide__status": "FAIL"
+                    "_props": {
+                        "_cfgVal_status_to_set": "FAIL",
+                        "_outVal_status": "FAIL"
                     },
                     "action": "RUN",
                     "status": "FAIL"
                 },
                 "sequenceRules1-activity2": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "FAIL",
-                        "out_provide__status": "FAIL"
+                    "_props": {
+                        "_cfgVal_status_to_set": "FAIL",
+                        "_outVal_status": "FAIL"
                     },
                     "action": "RUN",
                     "status": "FAIL"
                 },
                 "sequenceRules1-activity3": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "sequenceRules1-activity4": {
-                    "__props": {
-                        "cfg_provide__status_to_set": "SUCCESS",
-                        "out_provide__status": "DID_NOT_RUN"
+                    "_props": {
+                        "_cfgVal_status_to_set": "SUCCESS",
+                        "_outVal_status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
                     "status": "DID_NOT_RUN"

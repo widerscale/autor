@@ -11,46 +11,46 @@
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "lastMultiparentToFinishFails-A1": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.1,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.1,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "lastMultiparentToFinishFails-A2.1": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
-                        "cfg_provide__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.5,
+                        "_cfgVal_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "lastMultiparentToFinishFails-A2.2": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 1.5,
-                        "cfg_provide__outcome": "FAIL",
-                        "out_provide__status": "FAIL"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 1.5,
+                        "_cfgVal_outcome": "FAIL",
+                        "_outVal_status": "FAIL"
                     },
                     "action": "RUN",
                     "status": "FAIL"
                 },
                 "lastMultiparentToFinishFails-A2.3": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.2,
-                        "cfg_provide__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.2,
+                        "_cfgVal_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "lastMultiparentToFinishFails-A3": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.5,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "DID_NOT_RUN"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.5,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "DID_NOT_RUN"
                     },
                     "action": "SKIP_BY_FRAMEWORK",
                     "status": "DID_NOT_RUN"

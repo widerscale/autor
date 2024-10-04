@@ -11,109 +11,109 @@
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {
                 "concurrency_quick-one": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-two": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-three": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-four": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-seven": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-ten": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-eight": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-five": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-nine": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-six": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-eleven": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
                 },
                 "concurrency_quick-twelve": {
-                    "__props": {
-                        "cfg_provide__sleep_seconds": 0.01,
-                        "cfg_default__outcome": "SUCCESS",
-                        "out_provide__status": "SUCCESS"
+                    "_props": {
+                        "_cfgVal_sleep_seconds": 0.01,
+                        "_cfgDef_outcome": "SUCCESS",
+                        "_outVal_status": "SUCCESS"
                     },
                     "action": "RUN",
                     "status": "SUCCESS"
