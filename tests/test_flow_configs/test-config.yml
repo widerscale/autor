@@ -1761,8 +1761,36 @@ activityBlocks:
 
 
 
+  mandatory_vs_optional_conf1:
+    activities:
+      - type: mandatory-conf
+        name: one
+        configuration:
+          value: 1                  # expect 1
+
+      - type: mandatory-conf
+        name: two
+        configuration:
+          value: 2                  # expect 2
+
+      - type: optional-conf
+        name: three
+        configuration:
+          value: 3                  # expect 3
 
 
+  mandatory_vs_optional_conf2:
+    activities:
+      - type: optional-conf
+        name: one             # expect value from the class default
+
+      - type: optional-conf
+        name: two
+        configuration:
+          value: 2            # expect value from the conf
+
+      - type: optional-conf
+        name: three           # expect value from the class default
 
 
 

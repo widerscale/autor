@@ -1,5 +1,5 @@
 {
-    "_initial_context_snapshot": {},
+    "_initialContextSnapshot": {},
     "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "SKIP_BY_FRAMEWORK",
@@ -8,7 +8,7 @@
     "activityBlockInterrupted": true,
     "_activityBlocks": {
         "concurrency2ParentSkipLeadsToChildSKipAndInterrupt": {
-            "_initial_context_snapshot": {},
+            "_initialContextSnapshot": {},
             "mode": "ACTIVITY_BLOCK",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {

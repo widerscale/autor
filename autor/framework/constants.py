@@ -60,6 +60,8 @@ class PropertyCategory(Constant):
     inp = "inp"
     cfg = "cfg"
     out = "out"
+    inp_out = "inp/out"
+    cfg_out = "cfg/out"
 
 
 class ActivityGroupType(Constant):

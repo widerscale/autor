@@ -540,3 +540,10 @@ def test_descendantConcurrency():
     ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_name="eight", expectation='ACTIVITY_BLOCK_RERUN___concurrency_2___eight___flow_run_id___FAIL')
     ab = test.run2(flow_run_id=ab.get_flow_run_id(), activity_names=["nine","three","seven"],expectation='ACTIVITY_BLOCK_RERUN___concurrency_2___nine_three_seven___flow_run_id___SUCCESS')
 
+
+def test_mandatory_vs_optional_conf1():
+    ab = test.run2(expectation="ACTIVITY_BLOCK___mandatory_vs_optional_conf1___SUCCESS")
+
+
+def test_mandatory_vs_optional_conf2():
+    ab = test.run2(expectation="ACTIVITY_BLOCK___mandatory_vs_optional_conf2___SUCCESS")

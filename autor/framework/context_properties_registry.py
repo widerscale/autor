@@ -72,7 +72,7 @@ class ContextPropertiesRegistry:
     """
 
     # Input and output properties dictionaries contain ContextProperty objects for all
-    #  class properties that are decorated with @input or/and @output decorators.
+    #  class properties that are decorated with @input, @output or @config decorators.
     # The lists are updated whenever a module is imported.
     __inputs:Dict[str, ActivityProperty] = {}
     __outputs:Dict[str, ActivityProperty] = {}
@@ -190,42 +190,55 @@ class ContextPropertiesRegistry:
 
     #  ------------------------------- P U B L I C   M E T H O D S -------------------------------#
     @staticmethod
-    def get_input_properties(instance: object):
+    def get_input_properties(instance: object) -> List[ActivityProperty]:
         """
-        Get registered @input properties for the instance. If the instance does not contain \
-            any @input properties,
-        an empty list is returned.
+        Get registered @input and @input/output properties for the instance. If the instance does not contain
+        any such properties, an empty list is returned.
 
         Arguments:  instance {object} - The instance whose @input parameters should be returned.
-        Returns:    {[Property]} - The list of @input parameters for the instance."""
-        return ContextPropertiesRegistry.__get_properties(instance, ContextPropertiesRegistry.__inputs)
+        Returns:    [ActivityProperty] - The list of @input and @input/output parameters for the instance."""
+        return ContextPropertiesRegistry.__get_properties_list(instance, ContextPropertiesRegistry.__inputs)
 
     @staticmethod
-    def get_output_properties(instance: object):
+    def get_output_properties(instance: object) -> List[ActivityProperty]:
         """
-        Get registered @output properties for the instance. If the instance does not contain any \
-            @output properties,
-        an empty list is returned.
+        Get registered @output and @input/output properties for the instance. If the instance does not contain
+        any such properties, an empty list is returned.
 
         Arguments:  instance {object} - The instance whose @output parameters should be returned.
-        Returns:    {[Property]} - The list of @output parameters for the instance."""
-        return ContextPropertiesRegistry.__get_properties(instance, ContextPropertiesRegistry.__outputs)
+        Returns:    [ActivityProperty] - The list of @output and @input/output parameters for the instance."""
+        return ContextPropertiesRegistry.__get_properties_list(instance, ContextPropertiesRegistry.__outputs)
 
 
     @staticmethod
-    def get_config_properties(instance: object):
+    def get_config_properties(instance: object) -> List[ActivityProperty]:
         """
         Get registered @config properties for the instance. If the instance does not contain any \
             @config properties,
         an empty list is returned.
 
         Arguments:  instance {object} - The instance whose @output parameters should be returned.
-        Returns:    {[Property]} - The list of @output parameters for the instance."""
-        return ContextPropertiesRegistry.__get_properties(instance, ContextPropertiesRegistry.__configs)
+        Returns:    [ActivityProperty] - The list of @output parameters for the instance."""
+        return ContextPropertiesRegistry.__get_properties_list(instance, ContextPropertiesRegistry.__configs)
+
+
+    @staticmethod
+    def get_input_properties_as_dict(instance: object) -> Dict[str, ActivityProperty]:
+        return ContextPropertiesRegistry.__get_properties_dict(instance, ContextPropertiesRegistry.__inputs)
+
+    @staticmethod
+    def get_output_properties_as_dict(instance: object) -> Dict[str, ActivityProperty]:
+        return ContextPropertiesRegistry.__get_properties_dict(instance, ContextPropertiesRegistry.__outputs)
+
+    @staticmethod
+    def get_config_properties_as_dict(instance: object) -> Dict[str, ActivityProperty]:
+        return ContextPropertiesRegistry.__get_properties_dict(instance, ContextPropertiesRegistry.__configs)
+
+
 
     # --------------------------- P R I V A T E   M E T H O D S ---------------------------------#
     @staticmethod
-    def __get_properties(instance, properties: Dict[str, ActivityProperty]) -> List[ActivityProperty]:
+    def __get_properties_list(instance, properties: Dict[str, ActivityProperty]) -> List[ActivityProperty]:
         """Return a list of properties for the given instance."""
 
         # module path + class name
@@ -239,6 +252,23 @@ class ContextPropertiesRegistry:
             if module_and_class_name in full_class_names:
                 instance_properties.append(properties[id])
         return instance_properties
+
+    @staticmethod
+    def __get_properties_dict(instance, properties: Dict[str, ActivityProperty]) -> Dict[str, ActivityProperty]:
+        """Return a dict of properties for the given instance."""
+
+        # module path + class name
+        full_class_names = ContextPropertiesRegistry.__get_full_class_names(instance)
+
+        # Create a list of all properties that are declared by the classes (including inheritance) of the instance.
+        instance_properties = {}
+        # pylint: disable-next=redefined-builtin
+        for id in properties:
+            module_and_class_name = f"{properties[id].module_name}_{properties[id].class_name}"
+            if module_and_class_name in full_class_names:
+                instance_properties[id] = properties[id]
+        return instance_properties
+
 
     @staticmethod
     def __get_full_class_names(instance: object) -> List[str]:

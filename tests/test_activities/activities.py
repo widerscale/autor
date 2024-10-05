@@ -9,8 +9,7 @@
 #    Unless required by applicable law or agreed to in writing, software
 #    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-#    License for the specific language governing permi
-#     *******************ssions and limitations
+#    License for the specific language governing permissions and limitations
 #    under the License.
 import inspect
 import logging
@@ -26,6 +25,48 @@ output = ContextPropertiesRegistry.output
 # pylint: disable-next=redefined-builtin
 input = ContextPropertiesRegistry.input
 config = ContextPropertiesRegistry.config
+
+
+@ActivityRegistry.activity(type="mandatory-conf")
+class MandatoryConf(Activity):
+    
+    # region property: value @config/@output(mandatory=True/True, type=int)
+    @property
+    @config(mandatory=True, type=int)
+    @output(mandatory=True, type=int)
+    def value(self) -> int:
+        return self._value
+
+    @value.setter
+    def value(self, value: int) -> None:
+        self._value = value
+    # endregion
+    # region run()
+    def run(self):
+        # <implement!>
+        logging.info(f"Running activity...")
+    # endregion
+
+@ActivityRegistry.activity(type="optional-conf")
+class OptionalConf(Activity):
+    # region property: value @config/@output(mandatory=False/True, type=int, default=-1)
+    @property
+    @config(mandatory=False, type=int, default=-1)
+    @output(mandatory=True, type=int)
+    def value(self) -> int:
+        return self._value
+
+    @value.setter
+    def value(self, value: int) -> None:
+        self._value = value
+    # endregion
+    # region run()
+    def run(self):
+        # <implement!>
+        logging.info(f"Running activity...")
+    # endregion
+
+
 
 
 # Calculate return the maximum value of the current max (received through property) and

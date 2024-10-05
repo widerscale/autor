@@ -1,0 +1,52 @@
+{
+    "_initialContextSnapshot": {},
+    "mode": "ACTIVITY_BLOCK",
+    "flowConfigPath": "test_flow_configs/test-config.yml",
+    "action": "RUN",
+    "status": "SUCCESS",
+    "value": -1,
+    "activityBlockStatus": "SUCCESS",
+    "_activityBlocks": {
+        "mandatory_vs_optional_conf2": {
+            "_initialContextSnapshot": {},
+            "mode": "ACTIVITY_BLOCK",
+            "flowConfigPath": "test_flow_configs/test-config.yml",
+            "_activities": {
+                "mandatory_vs_optional_conf2-one": {
+                    "_props": {
+                        "_cfgDef_value": -1,
+                        "_outVal_status": "SUCCESS",
+                        "_outVal_value": -1
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "value": -1
+                },
+                "mandatory_vs_optional_conf2-two": {
+                    "_props": {
+                        "_cfgVal_value": 2,
+                        "_outVal_status": "SUCCESS",
+                        "_outVal_value": 2
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "value": 2
+                },
+                "mandatory_vs_optional_conf2-three": {
+                    "_props": {
+                        "_cfgDef_value": -1,
+                        "_outVal_status": "SUCCESS",
+                        "_outVal_value": -1
+                    },
+                    "action": "RUN",
+                    "status": "SUCCESS",
+                    "value": -1
+                }
+            },
+            "action": "RUN",
+            "status": "SUCCESS",
+            "value": -1,
+            "activityBlockStatus": "SUCCESS"
+        }
+    }
+}

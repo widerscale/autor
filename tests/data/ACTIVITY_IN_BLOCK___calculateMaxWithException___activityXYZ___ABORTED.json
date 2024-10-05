@@ -1,5 +1,5 @@
 {
-    "_initial_context_snapshot": {},
+    "_initialContextSnapshot": {},
     "mode": "ACTIVITY_IN_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "abortType": "ABORTED_BY_FRAMEWORK",
@@ -7,7 +7,7 @@
     "activityBlockInterrupted": false,
     "_activityBlocks": {
         "calculateMaxWithException": {
-            "_initial_context_snapshot": {},
+            "_initialContextSnapshot": {},
             "mode": "ACTIVITY_IN_BLOCK",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "abortType": "ABORTED_BY_FRAMEWORK",

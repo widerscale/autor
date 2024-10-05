@@ -1,5 +1,5 @@
 {
-    "_initial_context_snapshot": {},
+    "_initialContextSnapshot": {},
     "mode": "ACTIVITY_BLOCK",
     "flowConfigPath": "test_flow_configs/test-config.yml",
     "action": "RUN",
@@ -8,7 +8,7 @@
     "activityBlockInterrupted": false,
     "_activityBlocks": {
         "sleepySleepers": {
-            "_initial_context_snapshot": {},
+            "_initialContextSnapshot": {},
             "mode": "ACTIVITY_BLOCK",
             "flowConfigPath": "test_flow_configs/test-config.yml",
             "_activities": {

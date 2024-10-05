@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from pygments.lexer import default
+from unicodedata import category
 
 from autor.framework.constants import PropertyCategory
 from autor.framework.context_properties_registry import ContextPropertiesRegistry
@@ -35,18 +36,33 @@ class ActivityPropertyInformation:
 
         _type = f"{self.type}".split("'")[1]
         if self.default == ContextPropertiesRegistry.DEFAULT_PROPERTY_VALUE_NOT_DEFINED:
-            default = ""
+            default_str = ""
         else:
-            default = f"(default={self.default})"
-
-
-        logging.info(f"[{self.category}] {self.name}:{_type}={self.value} {default}")
+            default_str = f"(default={self.default})"
+        category_str:str
+        if self.category == PropertyCategory.inp or self.category == PropertyCategory.out or self.category == PropertyCategory.cfg:
+            category_str = f"[{self.category}]   "
+        else:
+            category_str = (f"[{self.category}]"
+                            f"")
+        logging.info(f"{category_str} {self.name}:{_type}={self.value} {default_str}")
 
 # [cfg] val:int=7 (default=0)
 # [inp] max:int=11
 # [out] max:int=11
 # [out] status:str=SUCCESS
 
+# [cfg/out] val:int=7 (default=0)
+# [cfg]     val:int=7 (default=0)
+# [inp]     max:int=11
+# [inp/out] max:int=11
+# [out]     max:int=11
+# [out]     status:str=SUCCESS
 
 
+
+# [@config] val:int=7 (default=0)
+# [@input]  max:int=11
+# [@output] max:int=11
+# [@output] status:str=SUCCESS
 

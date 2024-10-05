@@ -13,29 +13,13 @@
 #    under the License.
 
 import logging
-import uuid
-from abc import ABC
-from collections import OrderedDict
-
-import yaml
-import json
-
-from autor import Activity
 from autor.framework.activity_information import ActivityInformation
-from autor.framework.autor_framework_exception import AutorFrameworkValueException
-from autor.framework.check import Check
-from autor.framework.constants import Mode, Constants
-from autor.framework.context import Context, RemoteContext
-from autor.framework.debug_config import DebugConfig
-from autor.framework.file_context import FileContext
-from autor.framework.key_handler import KeyConverter
-from autor.framework.keys import StateKeys as sta
 from autor.framework.state import Bootstrap, FrameworkStart, BeforeActivityBlock, AfterActivityBlock, State, \
     BeforeActivityPreprocess, BeforeActivityRun, ContextSynchronized, Error, FrameworkEnd, BeforeActivityBlockCallbacks, \
     SelectActivity, AfterActivityPostprocess, AfterActivityRun
 from autor.framework.state_listener import StateListener
-from autor.framework.keys import StateKeys as sta
-from autor.framework.util import Util
+
+
 
 
 # pylint: disable=no-member, abstract-method
@@ -46,24 +30,11 @@ from autor.framework.util import Util
 # the configuration.
 class StatePrintExtension(StateListener):
 
-
-    def _print(self, state:State):
-        #logging.info(f"___________________________ state: {state.name}")
-        pass
-        
     def on_framework_start(self, state: FrameworkStart):
         self._print(state)
 
     def on_before_activity_block(self, state: BeforeActivityBlock):
         self._print(state)
-
-    def on_after_activity_run(self, state: AfterActivityRun):
-        self._print(state)
-        #self._print_state_content(state)
-
-    def on_after_activity_postprocess(self, state: AfterActivityPostprocess):
-        self._print(state)
-        #self._print_state_content(state)
 
     def on_select_activity(self, state: SelectActivity):
         self._print(state)
@@ -83,24 +54,34 @@ class StatePrintExtension(StateListener):
     def on_context_synchronized(self, state: ContextSynchronized):
         self._print(state)
 
-    def _print_state_content(self, state):
-        activity_info:ActivityInformation = state.activity_information
-        activity_info.print()
-        for p in activity_info.inputs:
-            p.print()
-        for p in activity_info.outputs:
-            p.print()
-
     def on_bootstrap(self, state: Bootstrap):
         self._print(state)
 
     def on_before_activity_preprocess(self, state: BeforeActivityPreprocess):
         self._print(state)
-        #elf._print_state_content(state)
 
     def on_before_activity_run(self, state: BeforeActivityRun):
         self._print(state)
-        #self._print_state_content(state)
+
+    def on_after_activity_run(self, state: AfterActivityRun):
+        self._print(state)
+
+    def on_after_activity_postprocess(self, state: AfterActivityPostprocess):
+        self._print(state)
+
+    def _print(self, state: State):
+        #logging.info(f"___________________________ state: {state.name}")
+        if (\
+           #state.name == State.BEFORE_ACTIVITY_PREPROCESS or \
+           state.name == State.BEFORE_ACTIVITY_RUN or \
+           #state.name == State.AFTER_ACTIVITY_RUN or \
+           state.name == State.AFTER_ACTIVITY_POSTPROCESS):
+            #self._print_state_content(state)
+            pass
+
+    def _print_state_content(self, state):
+        activity_info:ActivityInformation = state.activity_information
+        activity_info.print()
 
 
 

@@ -1,5 +1,5 @@
 {
-    "_initial_context_snapshot": {},
+    "_initialContextSnapshot": {},
     "throw_ex": false,
     "mode": "ACTIVITY_BLOCK_RERUN",
     "flowConfigPath": "test_flow_configs/test-config.yml",
@@ -10,7 +10,7 @@
     "activityBlockInterrupted": false,
     "_activityBlocks": {
         "flexMaxWithInput": {
-            "_initial_context_snapshot": {},
+            "_initialContextSnapshot": {},
             "throw_ex": false,
             "mode": "ACTIVITY_BLOCK_RERUN",
             "flowConfigPath": "test_flow_configs/test-config.yml",

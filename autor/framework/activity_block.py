@@ -405,7 +405,7 @@ class ActivityBlock(StateProducer):
             # (no snapshot of the initial state of the activity block run has been saved)
             # then create and save a snapshot of the context. This can be later used for
             # re-runs.
-            context_key = "_initial_context_snapshot"
+            context_key = "_initialContextSnapshot"
             initial_context_snapshot: dict = self._activity_block_context.get(key=context_key, default=None, search=False)
             if initial_context_snapshot is None:
                 initial_context_snapshot: dict = Context.get_context_dict_copy()
@@ -757,7 +757,7 @@ class ActivityBlock(StateProducer):
             StateHandler.change_state(State.AFTER_ACTIVITY_BLOCK)
             # ---------------------------------------------------------------#
             self._activity_block_context.set(ctx.ACTIVITY_BLOCK_STATUS, self._activity_block_status)
-            self._activity_block_context.set(ctx.ACTIVITY_BLOCK_INTERRUPTED, self._activity_block_interrupted)
+            #self._activity_block_context.set(ctx.ACTIVITY_BLOCK_INTERRUPTED, self._activity_block_interrupted)
 
             if len(self._activity_block_callback_exceptions) > 0:
                 self._activity_block_context.set(ctx.CALLBACK_EXCEPTIONS, self._activity_block_callback_exceptions)
@@ -1700,13 +1700,14 @@ class ActivityBlock(StateProducer):
         state_data[sta.DBG_EXTENSION_TEST_STR] = self._dbg_extension_test_str
 
     def _create_activity_properties_info_list(self,
-                                              properties: List[ActivityProperty],
+                                              properties: Dict[str,ActivityProperty],
                                               category: PropertyCategory,
                                               activity: Activity = None
                                               ) -> List[ActivityPropertyInformation]:
         info_list: List[ActivityPropertyInformation] = []
         prp: ActivityProperty
-        for prp in properties:
+        for key,prp in properties.items():
+            prp = properties[key]
             if activity is None:
                 value = None
             else:
@@ -1734,27 +1735,56 @@ class ActivityBlock(StateProducer):
         )
 
         if data.activity is None:
-            info.inputs = []
-            info.outputs = []
+            info.inputs = None
+            info.outputs = None
+            info.inputs_outputs = None
 
         else:
             activity: Activity = data.activity
-            inp_props: List[ActivityProperty] = ContextPropertiesRegistry.get_input_properties(activity)
-            cfg_props: List[ActivityProperty] = ContextPropertiesRegistry.get_config_properties(activity)
-            out_props: List[ActivityProperty] = ContextPropertiesRegistry.get_output_properties(activity)
+            inp_props: Dict[str,ActivityProperty] = ContextPropertiesRegistry.get_input_properties_as_dict(activity)
+            cfg_props: Dict[str,ActivityProperty] = ContextPropertiesRegistry.get_config_properties_as_dict(activity)
+            out_props: Dict[str,ActivityProperty] = ContextPropertiesRegistry.get_output_properties_as_dict(activity)
 
-            inp_infs: List[ActivityPropertyInformation] = self._create_activity_properties_info_list(inp_props,
-                                                                                                     PropertyCategory.inp,
-                                                                                                     activity)
-            cfg_infs: List[ActivityPropertyInformation] = self._create_activity_properties_info_list(cfg_props,
-                                                                                                     PropertyCategory.cfg,
-                                                                                                     activity)
-            out_infs: List[ActivityPropertyInformation] = self._create_activity_properties_info_list(out_props,
-                                                                                                     PropertyCategory.out,
-                                                                                                     activity)
 
-            info.inputs = inp_infs + cfg_infs
-            info.outputs = out_infs
+            outputs_to_remove:dict = {} # Dict that contains outputs that are also inputs or configs (inp/out or cfg/out)
+            inp_out_props: Dict[str,ActivityProperty] = {}
+            for prop_name in inp_props:
+                if prop_name in out_props:
+                    inp_out_props[prop_name] = inp_props[prop_name]
+                    outputs_to_remove[prop_name] = inp_props[prop_name]
+
+            cfg_out_props: Dict[str,ActivityProperty] = {}
+            for prop_name in cfg_props:
+                if prop_name in out_props:
+                    cfg_out_props[prop_name] = cfg_props[prop_name]
+                    outputs_to_remove[prop_name] = cfg_props[prop_name]
+
+            for prop_name in outputs_to_remove:
+                del out_props[prop_name]
+                if prop_name in inp_props:
+                    del inp_props[prop_name]
+                if prop_name in cfg_props:
+                    del cfg_props[prop_name]
+
+
+
+
+
+            inp_info: List[ActivityPropertyInformation] = (
+                self._create_activity_properties_info_list(inp_props,PropertyCategory.inp,activity))
+            cfg_info: List[ActivityPropertyInformation] = (
+                self._create_activity_properties_info_list(cfg_props,PropertyCategory.cfg,activity))
+            out_info: List[ActivityPropertyInformation] = (
+                self._create_activity_properties_info_list(out_props,PropertyCategory.out,activity))
+            inp_out_info: List[ActivityPropertyInformation] = (
+                self._create_activity_properties_info_list(inp_out_props,PropertyCategory.inp_out,activity))
+            cfg_out_info: List[ActivityPropertyInformation] = (
+                self._create_activity_properties_info_list(cfg_out_props,PropertyCategory.cfg_out,activity))
+
+
+            info.inputs = inp_info + cfg_info
+            info.outputs = out_info
+            info.inputs_outputs = inp_info + cfg_info + inp_out_info + cfg_out_info + out_info
 
             info.run_id = activity.run_id
             info.status = activity.status
