@@ -18,12 +18,12 @@ from autor.framework.context import Context
 
 
 """
-A class for reading and writing values to one specific activity context. Intended for use by Autor users in callbacks
+A class for reading and writing values to activity block context. Intended for use by Autor users in callbacks
 and extensions.
 """
-class ActivityContext:
-    def __init__(self, activity_block_id: str, activity_id: str):
-        self._context = Context(activity_block=activity_block_id, activity=activity_id)
+class ActivityBlockContext:
+    def __init__(self, activity_block_id: str):
+        self._context = Context(activity_block=activity_block_id)
 
     def get(self, key:str, default:Any=Context.UNDEFINED):
         """
@@ -36,14 +36,14 @@ class ActivityContext:
     def set(self, key:str, value, propagate_value:bool=False):
         """
         key:str - key in the context
-        propagate_value:boor - True - the value is made visible also to activity block context and flow context.
-                               False - the value is visible only for the activity context.
+        propagate_value:boor - True - the value is made visible also to the flow context.
+                               False - the value is visible only for the activity block context.
         """
         self._context.set(key=key, value=value, propagate_value=propagate_value)
 
     def raw(self)->Dict:
         """
-        return:Dict[str,Any] - return the raw dictionary that represents the activity context.
+        return:Dict[str,Any] - return the raw dictionary that represents the activity block context.
         """
         return self._context.raw()
 

@@ -69,6 +69,10 @@ class ExceptionHandler:
     _raw_exceptions = []
 
     @staticmethod
+    def get_all_exceptions():
+        return ExceptionHandler._raw_exceptions
+
+    @staticmethod
     def debug_reset():
         ExceptionHandler._framework_exceptions = [] # Original
         ExceptionHandler._other_exceptions = [] # Original

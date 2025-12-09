@@ -13,8 +13,11 @@
 #    under the License.
 import abc
 import logging
+from typing import Dict
 
+from autor.framework.activity_block_information import ActivityBlockInformation
 from autor.framework.activity_information import ActivityInformation
+from autor.framework.flow_information import FlowInformation
 from autor.framework.util import Util
 from autor.framework.keys import StateKeys as sta
 
@@ -55,13 +58,42 @@ class State:
         logging.info("STATE: " + self.name)
         Util.print_dict(self._data_dict, message, level='info')
 
+
+    # region property: name:str
     @property
     def name(self) -> str:
         return self._name
 
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value
+    # endregion
+
+    # region property: data_dict:Dict
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self) -> Dict:
         return self._data_dict
+    # endregion
+
+    # region property: flow_information:FlowInformation
+    @property
+    def flow_information(self) -> FlowInformation:
+        return self._data_dict["FLOW_INFORMATION"]
+
+    @flow_information.setter
+    def flow_information(self, value: FlowInformation) -> None:
+        self._data_dict["FLOW_INFORMATION"] = value
+    # endregion
+
+    # region property: activity_block_information:ActivityBlockInformation
+    @property
+    def activity_block_information(self) -> ActivityBlockInformation:
+        return self._data_dict["ACTIVITY_BLOCK_INFORMATION"]
+
+    @activity_block_information.setter
+    def activity_block_information(self, value: ActivityBlockInformation) -> None:
+        self._data_dict["ACTIVITY_BLOCK_INFORMATION"] = value
+    # endregion
 
     # region property: activity_information:ActivityInformation
     @property

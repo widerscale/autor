@@ -16,12 +16,14 @@ from typing import List
 
 #from autor import Activity
 from autor.flow_configuration.activity_configuration import ActivityConfiguration
+from autor.framework.check import Check
 from autor.framework.constants import ActivityGroupType, NodeStatus
 
 
 class Node:
     def __init__(self, activity_id:str, activity_group_type:ActivityGroupType, activity_config:ActivityConfiguration, rerun:bool):
         self._activity_id = activity_id
+        Check.is_true(isinstance(activity_config, ActivityConfiguration),f"Expected activity_config to be of type ActivityConfig. Was: {type(activity_config)}")
         self._activity_config = activity_config
         self._activity_group_type = activity_group_type
         self._rerun:bool = rerun # Indicates if the node should be re-run

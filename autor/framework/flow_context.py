@@ -11,40 +11,39 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import copy
 from typing import Dict, Any
 
 from autor.framework.context import Context
-
-
+from autor.framework.user_context import UserContext
+from autor.framework.util import Util
 
 """
-A class for reading and writing values to one specific activity context. Intended for use by Autor users in callbacks
+A class for reading and writing values to flow context. Intended for use by Autor users in callbacks
 and extensions.
 """
-class ActivityContext:
-    def __init__(self, activity_block_id: str, activity_id: str):
-        self._context = Context(activity_block=activity_block_id, activity=activity_id)
 
-    def get(self, key:str, default:Any=Context.UNDEFINED):
+
+class FlowContext(UserContext):
+    def __init__(self):
+        super().__init__(context=Context())
+
+    def get(self, key: str, default: Any = Context.UNDEFINED):
         """
         key:str - key in the context.
         default:Any - default value to return if the key is not found in the context.
         return the value of 'key' or the value of 'default' if no value is found in context under 'key'.
         """
-        return self._context.get(key=key,default=default)
+        return self._context.get(key=key, default=default)
 
-    def set(self, key:str, value, propagate_value:bool=False):
+    def set(self, key: str, value: Any):
         """
         key:str - key in the context
-        propagate_value:boor - True - the value is made visible also to activity block context and flow context.
-                               False - the value is visible only for the activity context.
         """
-        self._context.set(key=key, value=value, propagate_value=propagate_value)
+        self._context.set(key=key, value=value)
 
-    def raw(self)->Dict:
-        """
-        return:Dict[str,Any] - return the raw dictionary that represents the activity context.
-        """
-        return self._context.raw()
-
-
+    # def raw(self) -> Dict:
+    #     """
+    #     return:Dict[str,Any] - return the raw dictionary that represents the activity block context.
+    #     """
+    #     return self._context.raw()

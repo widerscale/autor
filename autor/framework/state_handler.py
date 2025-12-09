@@ -67,6 +67,13 @@ class StateHandler(StateProducer):
 
     _framework_ended = False
 
+    @staticmethod
+    def reset_static_data():
+        StateHandler._current_state_name: State = State.UNKNOWN
+        StateHandler._listeners = []  # A list of objects that are interested in state change events.
+        StateHandler._producers = []  # A list of objects that are contributing to state data.
+        StateHandler._framework_ended = False
+
     # _______________ ADMINISTRATION of STATE PRODUCER AND LISTENER LISTS _______________#
     @staticmethod
     def framework_ended():
@@ -116,7 +123,6 @@ class StateHandler(StateProducer):
 
     @staticmethod
     def change_state(state_name: str) -> dict:
-
         StateHandler._current_state_name = state_name
         if state_name == State.FRAMEWORK_END:
             StateHandler._framework_ended = True

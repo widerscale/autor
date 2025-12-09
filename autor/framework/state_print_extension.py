@@ -13,7 +13,10 @@
 #    under the License.
 
 import logging
+
+from autor.framework.activity_block_information import ActivityBlockInformation
 from autor.framework.activity_information import ActivityInformation
+from autor.framework.flow_information import FlowInformation
 from autor.framework.state import Bootstrap, FrameworkStart, BeforeActivityBlock, AfterActivityBlock, State, \
     BeforeActivityPreprocess, BeforeActivityRun, ContextSynchronized, Error, FrameworkEnd, BeforeActivityBlockCallbacks, \
     SelectActivity, AfterActivityPostprocess, AfterActivityRun
@@ -70,18 +73,25 @@ class StatePrintExtension(StateListener):
         self._print(state)
 
     def _print(self, state: State):
-        #logging.info(f"___________________________ state: {state.name}")
+        logging.info(f"___________________________ state: {state.name}")
         if (\
            #state.name == State.BEFORE_ACTIVITY_PREPROCESS or \
-           state.name == State.BEFORE_ACTIVITY_RUN or \
+           #state.name == State.BEFORE_ACTIVITY_RUN or \
            #state.name == State.AFTER_ACTIVITY_RUN or \
            state.name == State.AFTER_ACTIVITY_POSTPROCESS):
-            #self._print_state_content(state)
+            self._print_state_content(state)
             pass
 
     def _print_state_content(self, state):
-        activity_info:ActivityInformation = state.activity_information
-        activity_info.print()
+        activity:ActivityInformation = state.activity_information
+        activity_block:ActivityBlockInformation = state.activity_block_information
+        flow:FlowInformation = state.flow_information
+        if flow:
+            flow.print()
+        if activity_block:
+            activity_block.print()
+        if activity:
+            activity.print()
 
 
 

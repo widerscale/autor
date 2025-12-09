@@ -15,11 +15,7 @@ def test_version():
 
 def test_ACTIVITY_BLOCK():
     ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
-    ab = test.run(activity_block_id='calculateMax2', expectation='ACTIVITY_BLOCK_calculateMax2_SUCCESS_secondAB', flow_run_id=ab.get_flow_run_id())
-
-# def test_ACTIVITY_BLOCK_two_activity_blocks_and_rerun():
-#     ab = test.run(activity_block_id='calculateMax', expectation='ACTIVITY_BLOCK_calculateMax_SUCCESS')
-#     ab = test.run(activity_block_id='calculateMax2', expectation='ACTIVITY_BLOCK_calculateMax2_SUCCESS_secondAB', flow_run_id=ab.get_flow_run_id())
+   # ab = test.run(activity_block_id='calculateMax2', expectation='ACTIVITY_BLOCK_calculateMax2_SUCCESS_secondAB', flow_run_id=ab.get_flow_run_id())
 
 
 def test_ACTIVITY_BLOCK_RERUN():

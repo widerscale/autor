@@ -14,7 +14,7 @@
 import logging
 from dataclasses import dataclass
 from lib2to3.fixes.fix_input import context
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from autor.flow_configuration.activity_configuration import ActivityConfiguration
 from autor.framework.activity_context import ActivityContext
@@ -40,7 +40,7 @@ class ActivityInformation:
     """ Activity type. The type is provided in the activity class implementation decorator and in the Flow Configuration
     file. The activity type is used bind together the activity implementation and configuration.
     """
-    configuration: ActivityConfiguration
+    configuration: Dict[str,str]
     """ Activity configuration as provided in the Flow Configuration file.
     """
     context: Optional[ActivityContext] = None
@@ -77,7 +77,7 @@ class ActivityInformation:
 
         # ----------------- Configuration ---------------
         logging.info(f"configuration:")
-        Util.print_dict(self.configuration.configuration, level='info')
+        Util.print_dict(self.configuration, level='info')
 
 
         logging.info(f"run_id:        {self.run_id}")

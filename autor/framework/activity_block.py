@@ -34,6 +34,8 @@ from autor.flow_configuration.flow_configuration import FlowConfiguration
 from autor.flow_configuration.flow_configuration_factory import (
     load_flow_configuration,
 )
+from autor.framework.activity_block_context import ActivityBlockContext
+from autor.framework.activity_block_information import ActivityBlockInformation
 from autor.framework.activity_block_rules import ActivityBlockRules
 from autor.framework.activity_context import ActivityContext
 #from autor.framework.activity_context import ActivityContext
@@ -63,6 +65,8 @@ from autor.framework.debug_config import DebugConfig
 from autor.framework.exception_handler import ExceptionHandler
 from autor.framework.file_context import FileContext
 from autor.framework.flags import Flags
+from autor.framework.flow_context import FlowContext
+from autor.framework.flow_information import FlowInformation
 from autor.framework.graph import ActivityBlockGraph
 from autor.framework.keys import FlowConfigurationKeys as cfg
 from autor.framework.keys import FlowContextKeys as ctx
@@ -361,6 +365,8 @@ class ActivityBlock(StateProducer):
             Context.reset_static_data()
             Flags.reset_static_data()
             ExceptionHandler.debug_reset()
+            StateHandler.reset_static_data()
+            #self._activity_data = None
 
             Flags.set_flags(self._flags)
 
@@ -1140,10 +1146,10 @@ class ActivityBlock(StateProducer):
         activity_id = activity_node.activity_id
         activity_group_type = activity_node.activity_group_type
         activity_config = activity_node.activity_config
+        Check.is_true(isinstance(activity_config, ActivityConfiguration),
+                      f"Expected activity_config to be of type ActivityConfig. Was: {type(activity_config)}")
 
-        self._print_activity_preparation_msg(
-            activity_config.name, activity_id, activity_group_type, activity_config.activity_type
-        )
+        self._print_activity_preparation_msg(activity_config.name, activity_id, activity_group_type, activity_config.activity_type)
 
         # fmt: off
         data = ActivityData()
@@ -1650,6 +1656,7 @@ class ActivityBlock(StateProducer):
         state_data[sta.FLOW_RUN_ID] = self._flow_run_id
         state_data[sta.FLOW_CONFIG] = self._flow_config
         state_data[sta.FLOW_CONTEXT] = self._flow_context
+        state_data[sta.FLOW_INFORMATION] = self._create_flow_info()
 
         # Activity Block
         state_data[sta.ACTIVITY_BLOCK_ID] = self._activity_block_id
@@ -1667,6 +1674,7 @@ class ActivityBlock(StateProducer):
         state_data[sta.ACTIVITY_BLOCK_CONFIGS_AFTER_BLOCK] = self._activity_block_configs_after_block
         state_data[sta.ACTIVITY_BLOCK_CONFIGS_BEFORE_ACTIVITY] = self._activity_block_configs_before_activity
         state_data[sta.ACTIVITY_BLOCK_CONFIGS_AFTER_ACTIVITY] = self._activity_block_configs_after_activity
+        state_data[sta.ACTIVITY_BLOCK_INFORMATION] = self._create_activity_block_info()
 
         # Mode: ACTIVITY
         # NB! This section must be executed before the Activity section, as
@@ -1687,6 +1695,8 @@ class ActivityBlock(StateProducer):
             state_data[sta.ACTIVITY_RUN_ID] = self._activity_data.activity_run_id
             state_data[sta.ACTIVITY_NAME] = self._activity_data.activity_name
             state_data[sta.ACTIVITY_GROUP_TYPE] = self._activity_data.activity_group_type
+            Check.is_true(isinstance(self._activity_data.activity_config, ActivityConfiguration),
+                          f"Expected activity_config to be of type ActivityConfig. Was: {type(self._activity_data.activity_config)}")
             state_data[sta.ACTIVITY_CONFIG] = self._activity_data.activity_config
             state_data[sta.ACTIVITY_TYPE] = self._activity_data.activity_type
             state_data[sta.ACTION] = self._activity_data.action
@@ -1727,12 +1737,20 @@ class ActivityBlock(StateProducer):
 
     def _create_activity_info(self, data: ActivityData) -> ActivityInformation:
 
+        Check.is_true(isinstance(data.activity_config, ActivityConfiguration),
+                      f"Expected activity_config to be of type ActivityConfig. Was: {type(data.activity_config)}")
+
         info: ActivityInformation = ActivityInformation(
             name=data.activity_name,
             id=data.activity_id,
-            configuration=data.activity_config,
+            configuration=data.activity_config.configuration,
             type=data.activity_type
         )
+
+        # if data.activity_config is not None:
+        #     info.configuration = data.activity_config.raw()
+        # else:
+        #     info.configuration = None
 
         if data.activity is None:
             info.inputs = None
@@ -1766,10 +1784,6 @@ class ActivityBlock(StateProducer):
                 if prop_name in cfg_props:
                     del cfg_props[prop_name]
 
-
-
-
-
             inp_info: List[ActivityPropertyInformation] = (
                 self._create_activity_properties_info_list(inp_props,PropertyCategory.inp,activity))
             cfg_info: List[ActivityPropertyInformation] = (
@@ -1794,6 +1808,31 @@ class ActivityBlock(StateProducer):
 
             info.context=ActivityContext(data.activity_block_id, data.activity_id)
         return info
+
+    def _create_activity_block_info(self)->ActivityBlockInformation:
+        info:ActivityBlockInformation = ActivityBlockInformation()
+        info.id = self._activity_block_id
+        info.mode = self._mode
+
+        if self._activity_block_config is not None:
+            info.configuration = self._flow_config.activity_block().configuration
+        if self._activity_block_context is not None:
+            info.context = ActivityBlockContext(self._activity_block_id)
+        info.run_id = self._activity_block_run_id
+        info.status = self._activity_block_status
+        info.exception = ExceptionHandler.get_all_exceptions()
+        return info
+
+    def _create_flow_info(self)->FlowInformation:
+        info:FlowInformation = FlowInformation()
+        info.id = self._flow_id
+        info.run_id = self._flow_run_id
+        if self._flow_config is not None:
+            info.configuration = self._flow_config.configuration
+        if self._flow_context is not None:
+            info.context = FlowContext()
+        return info
+
 
     def on_after_state(self, state_name, state_data: dict) -> None:
 
@@ -1845,6 +1884,10 @@ class ActivityBlock(StateProducer):
             self._activity_data.activity_name = state_data[sta.ACTIVITY_NAME]
             self._activity_data.activity_group_type = state_data[sta.ACTIVITY_GROUP_TYPE]
             self._activity_data.activity_config = state_data[sta.ACTIVITY_CONFIG]
+
+            Check.is_true(isinstance(self._activity_data.activity_config, ActivityConfiguration),
+                          f"Expected activity_config to be of type ActivityConfig. Was: {type(self._activity_data.activity_config)}")
+
             self._activity_data.activity_type = state_data[sta.ACTIVITY_TYPE]
             self._activity_data.action = state_data[sta.ACTION]
 
